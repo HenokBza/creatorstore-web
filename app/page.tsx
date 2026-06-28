@@ -23,19 +23,25 @@ export default function Home() {
             fontWeight: "bold",
           }}
         >
-          Create. Sell. Grow.
+          Create. Sell. Grow. <br />
+           Turn Your Knowledge, Into Income
         </h1>
-
         <p
-          style={{
-            marginTop: "20px",
-            fontSize: "1.2rem",
-          }}
-        >
-          Build your store, upload products, and earn online.
-        </p>
+  style={{
+    marginTop: "20px",
+    fontSize: "1.2rem",
+    maxWidth: "600px",
+    marginLeft: "auto",
+    marginRight: "auto",
+  }}
+>
+  CreatorStore is the easiest way to make money online. <br />
+All of your courses, digital products, <br />
+ and bookings are now hosted right within your link-in-bio.
+  
 
-        <div
+</p>
+  <div
           style={{
             marginTop: "30px",
             display: "flex",
@@ -51,6 +57,19 @@ export default function Home() {
             <button>Login</button>
           </a>
         </div>
+        <div
+  style={{
+    marginTop: "80px",
+    textAlign: "center",
+  }}
+>
+  <h3>Why CreatorStore?</h3>
+
+  <p>
+    No coding. No complicated setup.
+    Start selling in minutes.
+  </p>
+</div>
       </section>
     </main>
   );

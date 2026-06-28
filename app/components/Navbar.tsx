@@ -75,6 +75,7 @@ export default function Navbar() {
               fontSize: "28px",
             }}
           >
+            
             <Link href="/">Home</Link>
             <Link href="/features">Features</Link>
             <Link href="/pricing">Pricing</Link>
