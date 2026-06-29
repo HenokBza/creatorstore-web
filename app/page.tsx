@@ -45,13 +45,26 @@ All of your courses, digital products, <br />
           style={{
             marginTop: "30px",
             display: "flex",
+            fontWeight:
+              "bold",
             gap: "10px",
+            color: "#4c4ecf",
             justifyContent: "center",
           }}
         >
           <a href="/signup">
             <button>Get Started</button>
           </a>
+   <div   
+       style={{
+            marginTop: "30px",
+            display: "flex",
+            fontWeight:"bold",
+            gap: "10px",
+            color: "#204ee6",
+            justifyContent: "center",
+          }}
+        ></div>
 
           <a href="/login">
             <button>Login</button>
@@ -59,7 +72,8 @@ All of your courses, digital products, <br />
         </div>
         <div
   style={{
-    marginTop: "80px",
+    marginTop: "30px",
+     
     textAlign: "center",
   }}
 >

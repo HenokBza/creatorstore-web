@@ -91,7 +91,29 @@ export default function LoginPage() {
         >
           Login
         </button>
-      </div>
-    </div>
-  );
+
+<div
+  style={{
+    marginTop: "15px",
+    textAlign: "center",
+    fontSize: "14px",
+  }}
+>
+  Don't have an account?{" "}
+  <a
+    href="/signup"
+    style={{
+      color: "#7b2cbf",
+      fontWeight: "bold",
+      textDecoration: "none",
+    }}
+  >
+    Create here
+  </a>
+</div>
+
+</div>
+</div>
+);
 }
+     
