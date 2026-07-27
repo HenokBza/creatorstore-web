@@ -4,10 +4,12 @@ import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
-
+import Link from "next/link";
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword,setShowPassword]=
+useState(false);
 
   const router = useRouter();
 
@@ -27,93 +29,170 @@ export default function LoginPage() {
     }
   };
 
-  return (
-    <div
-      style={{
-        padding: "40px",
-        textAlign: "center",
-        background: "#D4AF37",
-        minHeight: "100vh",
-        color: "#111",
-      }}
-    >
-      <h1
-        style={{
-          fontSize: "2.5rem",
-          marginBottom: "20px",
-        }}
-      >
-        Login
-      </h1>
+ return (
+<div
+style={{
+padding:"40px",
+textAlign:"center",
+background:"#D4AF37",
+minHeight:"100vh",
+color:"#111",
+}}
+>
 
-      <div
-        style={{
-          maxWidth: "400px",
-          margin: "0 auto",
-          display: "flex",
-          flexDirection: "column",
-          gap: "15px",
-        }}
-      >
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) =>
-            setEmail(e.target.value)
-          }
-          style={{
-            padding: "12px",
-          }}
-        />
-
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) =>
-            setPassword(e.target.value)
-          }
-          style={{
-            padding: "12px",
-          }}
-        />
-
-        <button
-          onClick={handleLogin}
-          style={{
-            padding: "12px",
-            background: "#c32acb",
-            color: "white",
-            border: "none",
-            cursor: "pointer",
-          }}
-        >
-          Login
-        </button>
+<h1
+style={{
+fontSize:"2.5rem",
+marginBottom:"20px",
+}}
+>
+Login
+</h1>
 
 <div
-  style={{
-    marginTop: "15px",
-    textAlign: "center",
-    fontSize: "14px",
-  }}
+style={{
+maxWidth:"400px",
+margin:"0 auto",
+display:"flex",
+flexDirection:"column",
+gap:"15px",
+}}
 >
-  Don't have an account?{" "}
-  <a
-    href="/signup"
-    style={{
-      color: "#7b2cbf",
-      fontWeight: "bold",
-      textDecoration: "none",
-    }}
-  >
-    Create here
-  </a>
+
+<input
+type="email"
+placeholder="Email"
+value={email}
+onChange={(e)=>
+setEmail(e.target.value)
+}
+style={{
+padding:"12px",
+}}
+/>
+
+<div
+style={{
+position:"relative"
+}}
+>
+
+<input
+type={
+showPassword
+? "text"
+: "password"
+}
+placeholder="Password"
+value={password}
+onChange={(e)=>
+setPassword(
+e.target.value
+)
+}
+style={{
+padding:"12px",
+width:"100%",
+boxSizing:"border-box",
+paddingRight:"50px"
+}}
+/>
+
+<span
+onClick={()=>
+setShowPassword(
+!showPassword
+)
+}
+style={{
+position:"absolute",
+right:"15px",
+top:"50%",
+transform:"translateY(-50%)",
+cursor:"pointer",
+fontSize:"18px",
+userSelect:"none"
+}}
+>
+{
+showPassword
+?"👁️"
+: "🙈"
+ 
+}
+</span>
+
+</div>
+
+<div
+style={{
+textAlign:"right"
+}}
+>
+
+<Link
+href="/forgot-password"
+style={{
+fontSize:"14px",
+color:"#111",
+fontWeight:"600",
+textDecoration:"underline",
+cursor:"pointer",
+transition:"0.3s"
+}}
+onMouseEnter={(e)=>{
+e.currentTarget.style.fontWeight="bold";
+e.currentTarget.style.color="#2c19d6";
+e.currentTarget.style.transform="scale(1.05)";
+}}
+onMouseLeave={(e)=>{
+e.currentTarget.style.fontWeight="600";
+e.currentTarget.style.color="#111";
+e.currentTarget.style.transform="scale(1)";
+}}
+>
+🔒 Forgot Password?
+</Link>
+
+</div>
+
+<button
+onClick={handleLogin}
+style={{
+padding:"12px",
+background:"#c32acb",
+color:"white",
+border:"none",
+cursor:"pointer",
+}}
+>
+Login
+</button>
+
+<div
+style={{
+marginTop:"15px",
+textAlign:"center",
+fontSize:"14px",
+}}
+>
+
+Don't have an account?{" "}
+
+<Link
+href="/signup"
+style={{
+color:"#7b2cbf",
+fontWeight:"bold",
+textDecoration:"none"
+}}
+>
+Create here
+</Link>
+
 </div>
 
 </div>
+
 </div>
-);
-}
-     
+)}

@@ -36,6 +36,14 @@ export default function ProfilePage() {
 
   const [email, setEmail] =
     useState("");
+  const [subscriptionStatus, setSubscriptionStatus] =
+  useState("inactive");
+
+const [subscriptionPlan, setSubscriptionPlan] =
+  useState("");
+
+const [subscriptionEnd, setSubscriptionEnd] =
+  useState("");  
 
   useEffect(() => {
     loadUser();
@@ -77,6 +85,26 @@ export default function ProfilePage() {
       setImagePreview(
         data.profileImage || ""
       );
+      setSubscriptionStatus(
+  data.subscriptionStatus || "inactive"
+);
+
+setSubscriptionPlan(
+  data.subscriptionPlan || "Creator Pro"
+);
+
+if (data.subscriptionEnd) {
+
+  const date =
+    data.subscriptionEnd.toDate
+      ? data.subscriptionEnd.toDate()
+      : new Date(data.subscriptionEnd);
+
+  setSubscriptionEnd(
+    date.toLocaleDateString()
+  );
+
+}
     }
   };
 
@@ -163,7 +191,46 @@ export default function ProfilePage() {
         );
       }
     };
+const manageSubscription = async () => {
 
+  try {
+
+    const user = auth.currentUser;
+
+    if (!user) return;
+
+    const response = await fetch(
+      "/api/subscription/manage",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type":"application/json",
+        },
+        body: JSON.stringify({
+          uid: user.uid,
+        }),
+      }
+    );
+
+    const data = await response.json();
+
+    if (data.url) {
+
+      window.location.href = data.url;
+
+    } else {
+
+      alert(data.error);
+
+    }
+
+  } catch (error) {
+
+    console.log(error);
+
+  }
+
+};
   return (
     <div
       style={{
@@ -255,25 +322,17 @@ export default function ProfilePage() {
           value={
             storeName
           }
-          disabled={true}
+           disabled={!editing}
+          onChange={(e)=>
+          setName(
+            e.target.value
+          )}
           style={{
             padding:"14px",
-            borderRadius:"10px",
-            background:"#f3f3f3",
-            color:"#777",
-            cursor:
-            "not-allowed"
+            borderRadius:"10px"
           }}
         />
 
-        <p
-          style={{
-            fontSize:"12px",
-            color:"#666"
-          }}
-        >
-          Store name cannot be changed
-        </p>
 
         <label>
           Email
@@ -283,25 +342,16 @@ export default function ProfilePage() {
           value={
             email
           }
-          disabled={true}
+           disabled={!editing}
+          onChange={(e)=>
+          setName(
+            e.target.value
+          )}
           style={{
             padding:"14px",
-            borderRadius:"10px",
-            background:"#f3f3f3",
-            color:"#777",
-            cursor:
-            "not-allowed"
+            borderRadius:"10px"
           }}
-        />
-
-        <p
-          style={{
-            fontSize:"12px",
-            color:"#666"
-          }}
-        >
-          Email cannot be changed
-        </p>
+          />
 
         {!editing ? (
 
@@ -360,6 +410,96 @@ export default function ProfilePage() {
         )}
 
       </div>
+      <div
+  style={{
+    marginTop: "40px",
+    padding: "25px",
+    background: "#fafafa",
+    borderRadius: "18px",
+    border: "1px solid #e5e7eb",
+  }}
+>
+
+  <h2
+    style={{
+      marginBottom: "20px",
+    }}
+  >
+    💳 Creator Pro Subscription
+  </h2>
+
+  <p>
+    <b>Status:</b>{" "}
+    <span
+      style={{
+        color:
+          subscriptionStatus === "active"
+            ? "#16a34a"
+            : "#ef4444",
+        fontWeight: "bold",
+      }}
+    >
+      {subscriptionStatus === "active"
+        ? "Active"
+        : "Inactive"}
+    </span>
+  </p>
+
+  <p
+    style={{
+      marginTop: "12px",
+    }}
+  >
+    <b>Plan:</b>{" "}
+    {subscriptionPlan || "Creator Pro"}
+  </p>
+
+  <p
+    style={{
+      marginTop: "12px",
+    }}
+  >
+    <b>Next Renewal:</b>{" "}
+    {subscriptionEnd || "--"}
+  </p>
+
+  <button
+    onClick={manageSubscription}
+    style={{
+      width: "100%",
+      marginTop: "25px",
+      padding: "15px",
+      background: "#635BFF",
+      color: "white",
+      border: "none",
+      borderRadius: "12px",
+      cursor: "pointer",
+      fontWeight: "bold",
+      fontSize: "16px",
+    }}
+  >
+    Manage Subscription
+  </button>
+
+  <button
+    onClick={manageSubscription}
+    style={{
+      width: "100%",
+      marginTop: "15px",
+      padding: "15px",
+      background: "#ef4444",
+      color: "white",
+      border: "none",
+      borderRadius: "12px",
+      cursor: "pointer",
+      fontWeight: "bold",
+      fontSize: "16px",
+    }}
+  >
+    Cancel Subscription
+  </button>
+
+</div>
     </div>
   );
 }

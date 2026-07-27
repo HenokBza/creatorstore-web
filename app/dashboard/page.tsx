@@ -18,7 +18,8 @@ import {
   collection,
   query,
   where,
-  getDocs
+  getDocs,
+   increment,
 } from "firebase/firestore";
 
 export default function Dashboard() {
@@ -105,9 +106,7 @@ export default function Dashboard() {
 
         setStats({
 
-          visits:
-          data.visits || 0,
-
+          visits: data.visits || 0,
           revenue:
           totalRevenue,
 
@@ -150,51 +149,17 @@ export default function Dashboard() {
     },
 
     {
-      month:"Feb",
-      visits:stats.visits
-    },
-
-    {
-      month:"Mar",
-      visits:stats.visits
-    },
-
-    {
       month:"Apr",
       visits:stats.visits
     },
 
     {
-      month:"May",
-      visits:stats.visits
-    },
-
-    {
-      month:"Jun",
-      visits:stats.visits
-    },
-    {
       month:"July",
       visits:stats.visits
     },
-     {
-      month:"aug",
-      visits:stats.visits
-    },
-     {
-      month:"sep",
-      visits:stats.visits
-    },
+     
      {
       month:"oct",
-      visits:stats.visits
-    },
-     {
-      month:"nov",
-      visits:stats.visits
-    },
-     {
-      month:"dec",
       visits:stats.visits
     }
   ];
@@ -255,6 +220,16 @@ padding:"12px 20px",
 borderRadius:"10px",
 cursor:"pointer",
 fontWeight:"bold"
+}}
+onMouseEnter={(e)=>{
+e.currentTarget.style.fontWeight="bold";
+e.currentTarget.style.color="hsl(246, 89%, 51%)";
+e.currentTarget.style.transform="scale(1.05)";
+}}
+onMouseLeave={(e)=>{
+e.currentTarget.style.fontWeight="600";
+e.currentTarget.style.color="#111";
+e.currentTarget.style.transform="scale(1)";
 }}
 >
 🔗 Share Store Link
@@ -396,7 +371,7 @@ marginBottom:"20px"
 
 <div
 style={{
-width:"100%",
+width:"70%",
 height:"300px"
 }}
 >

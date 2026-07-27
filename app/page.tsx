@@ -1,31 +1,52 @@
 import Navbar from "./components/Navbar";
 export default function Home() {
-  return (
-    <main
+ return (
+  <main
+    style={{
+      minHeight: "100vh",
+      background: "#D4AF37",
+      color: "#111",
+      padding: "20px",
+    }}
+  >
+    <Navbar />
+
+    <section
       style={{
-        minHeight: "100vh",
-        background: "#D4AF37",
-        color: "#111",
-        padding: "20px",
+        textAlign: "center",
+        marginTop: "80px",
       }}
     >
-      <Navbar />
+      <div
+  style={{
+    display: "flex",
+    justifyContent: "center",
+    marginBottom: "25px",
+  }}
+>
+  <img
+    src="/logo.png"
+    alt="creatorstorelogo"
+    style={{
+      width: "180px",
+      height: "180px",
+      borderRadius:"50%",
+      objectFit:"cover",
+    }}
+  />
+</div>
 
-      <section
+      <h1
         style={{
-          textAlign: "center",
-          marginTop: "100px",
+          fontSize: "3rem",
+          fontWeight: "bold",
+          lineHeight: "1.2",
         }}
       >
-        <h1
-          style={{
-            fontSize: "3rem",
-            fontWeight: "bold",
-          }}
-        >
-          Create. Sell. Grow. <br />
-           Turn Your Knowledge, Into Income
-        </h1>
+        Create. Sell. Grow.
+        <br />
+        Turn Your Knowledge, Into Income
+      </h1>
         <p
   style={{
     marginTop: "20px",
@@ -35,10 +56,9 @@ export default function Home() {
     marginRight: "auto",
   }}
 >
-  CreatorStore is the easiest way to make money online. <br />
-All of your courses, digital products, <br />
- and bookings are now hosted right within your link-in-bio.
-  
+  CreatorStore is the simplest way to Make Money online <br/>
+ by selling courses, digital products, and <br/>
+  bookings—directly from your link-in-bio.
 
 </p>
   <div
@@ -52,7 +72,7 @@ All of your courses, digital products, <br />
             justifyContent: "center",
           }}
         >
-          <a href="/signup">
+          <a href="/phone">
             <button>Get Started</button>
           </a>
    <div   

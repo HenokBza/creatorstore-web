@@ -35,13 +35,9 @@ auth.currentUser;
 
 if(!user) return;
 
-const q=query(
-collection(db,"products"),
-where(
-"userId",
-"==",
-user.uid
-)
+const q = query(
+  collection(db, "products"),
+  where("userId", "==", user.uid)
 );
 
 const snapshot=
@@ -108,7 +104,7 @@ product.benefits?.[2] || ""
 );
 
 router.push(
-"/dashboard/products/checkout"
+"/dashboard/products/publish"
 );
 
 };

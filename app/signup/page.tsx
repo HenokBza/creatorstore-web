@@ -12,7 +12,11 @@ import {
   uploadBytes,
   getDownloadURL
 } from "firebase/storage";
+const country =
+  localStorage.getItem("signupCountry") || "";
 
+const phone =
+  localStorage.getItem("signupPhone") || "";
 export default function SignupPage() {
   const router = useRouter();
 
@@ -31,7 +35,8 @@ export default function SignupPage() {
 
   const [password, setPassword] =
     useState("");
-
+   const [showPassword, setShowPassword] =
+useState(false);
   const [error, setError] =
     useState("");
 
@@ -50,7 +55,38 @@ export default function SignupPage() {
 
     setImagePreview(imageURL);
   };
+const validatePassword=(password:string)=>{
 
+const hasUpperCase =
+/[A-Z]/.test(password);
+
+const hasLowerCase =
+/[a-z]/.test(password);
+
+const hasNumber =
+/[0-9]/.test(password);
+
+const hasSpecial =
+/[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+const hasLength =
+password.length >= 8;
+
+if(
+!hasLength ||
+!hasUpperCase ||
+!hasLowerCase ||
+!hasNumber ||
+!hasSpecial
+){
+
+return false;
+
+}
+
+return true;
+
+};
   const handleSignup = async () => {
 
     setError("");
@@ -64,9 +100,23 @@ export default function SignupPage() {
       setError(
         "Please fill all required fields"
       );
-
-      return;
+return;
     }
+   /* PASSWORD VALIDATION */
+
+if(
+!validatePassword(
+password
+)
+){
+
+setError(
+"Password must contain:\n• 8+ characters\n• Uppercase letter\n• Lowercase letter\n• Number\n• Special symbol"
+);
+
+return;
+
+} 
 
     try {
 
@@ -118,13 +168,16 @@ export default function SignupPage() {
             `creatorstore.ca/${storeName}`,
           profileImage:
             profileImageURL,
+            country,
+            visits: 0,
+    phone,
           createdAt:
             new Date(),
         }
       );
 
       alert(
-        "Account created successfully!"
+        "Account created successfully 🚀"
       );
 
       router.push("/login");
@@ -144,7 +197,7 @@ export default function SignupPage() {
         display:"flex",
         justifyContent:"center",
         alignItems:"center",
-        background:"#f5f5f5"
+        background:"#D4AF37"
       }}
     >
       <div
@@ -161,10 +214,10 @@ export default function SignupPage() {
         <h1
           style={{
             textAlign:"center",
-            color:"#D4AF37"
+            color:"#4e37d4"
           }}
         >
-          Create CreatorStore Account
+          ...Creating CreatorStore Account
         </h1>
 
         <div
@@ -224,7 +277,7 @@ export default function SignupPage() {
         >
 
           <input
-            placeholder="Full Name"
+            placeholder="First Name and Last Name"
             value={name}
             onChange={(e)=>
             setName(
@@ -261,20 +314,78 @@ export default function SignupPage() {
               borderRadius:"10px"
             }}
           />
+<div
+style={{
+position:"relative"
+}}
+>
 
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e)=>
-            setPassword(
-              e.target.value
-            )}
-            style={{
-              padding:"14px",
-              borderRadius:"10px"
-            }}
-          />
+<input
+type={
+showPassword
+? "text"
+: "password"
+}
+placeholder="Password"
+value={password}
+onChange={(e)=>
+setPassword(
+e.target.value
+)
+}
+style={{
+padding:"12px",
+width:"100%",
+boxSizing:"border-box",
+paddingRight:"50px"
+}}
+/>
+
+<span
+onClick={()=>
+setShowPassword(
+!showPassword
+)
+}
+style={{
+position:"absolute",
+right:"15px",
+top:"50%",
+transform:"translateY(-50%)",
+cursor:"pointer",
+fontSize:"20px",
+userSelect:"none"
+}}
+>
+{
+showPassword
+? "👁️"
+: "🙈"
+}
+</span>
+
+</div>
+ 
+          <p
+style={{
+fontSize:"13px",
+color:"#666",
+marginTop:"-5px",
+lineHeight:"20px"
+}}
+>
+🔒 Password must contain:
+<br/>
+• Minimum 8 characters
+<br/>
+• One uppercase letter (A-Z)
+<br/>
+• One lowercase letter (a-z)
+<br/>
+• One number (0-9)
+<br/>
+• One special symbol (!@#$...)
+</p>
 
           <button
             onClick={handleSignup}
@@ -291,7 +402,77 @@ export default function SignupPage() {
           >
             Create Account
           </button>
+<div
+  style={{
+    marginTop: "25px",
+    textAlign: "center",
+    fontSize: "13px",
+    color: "#666",
+    lineHeight: "24px",
+  }}
+>
+  By Create Account, you agree to our{" "}
+  <a
+    href="/terms"
+    style={{
+      color: "#D4AF37",
+      fontWeight: "bold",
+      textDecoration: "none",
+    }}
+    onMouseEnter={(e) => {
+      e.currentTarget.style.textDecoration = "underline";
+    }}
+    onMouseLeave={(e) => {
+      e.currentTarget.style.textDecoration = "none";
+    }}
+  >
+    Terms of Service
+  </a>{" "}
+  and{" "}
+  <a
+    href="/privacy"
+    style={{
+      color: "#D4AF37",
+      fontWeight: "bold",
+      textDecoration: "none",
+    }}
+    onMouseEnter={(e) => {
+      e.currentTarget.style.textDecoration = "underline";
+    }}
+    onMouseLeave={(e) => {
+      e.currentTarget.style.textDecoration = "none";
+    }}
+  >
+    Privacy Policy
+  </a>
+  .
+</div>
 
+<div
+  style={{
+    marginTop: "20px",
+    textAlign: "center",
+    fontSize: "15px",
+  }}
+>
+  Already have an account?{" "}
+  <a
+    href="/login"
+    style={{
+      color: "#3222e4",
+      fontWeight: "bold",
+      textDecoration: "none",
+    }}
+    onMouseEnter={(e) => {
+      e.currentTarget.style.textDecoration = "underline";
+    }}
+    onMouseLeave={(e) => {
+      e.currentTarget.style.textDecoration = "none";
+    }}
+  >
+    Login
+  </a>
+</div>
         </div>
 
       </div>

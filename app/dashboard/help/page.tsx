@@ -29,7 +29,7 @@ export default function HelpPage() {
     {
       question: "How do I receive payments?",
       answer:
-        "Payment setup will be available inside Earnings.",
+        "Payment setup will be available inside setting then payments.",
     },
 
     {

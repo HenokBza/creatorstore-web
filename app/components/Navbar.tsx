@@ -81,7 +81,7 @@ export default function Navbar() {
             <Link href="/pricing">Pricing</Link>
             <Link href="/blog">Blog</Link>
             <Link href="/login">Login</Link>
-            <Link href="/signup">Sign Up</Link>
+            <Link href="/phone">Sign Up</Link>
           </div>
         </div>
       )}

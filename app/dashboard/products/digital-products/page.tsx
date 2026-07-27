@@ -77,7 +77,7 @@ title
 );
 
 router.push(
-"/dashboard/products/checkout"
+"/dashboard/products/publish"
 );
 
 };
@@ -192,8 +192,18 @@ fontWeight:"bold",
 fontSize:"17px",
 cursor:"pointer"
 }}
+onMouseEnter={(e)=>{
+e.currentTarget.style.fontWeight="bold";
+e.currentTarget.style.color="hsl(246, 89%, 51%)";
+e.currentTarget.style.transform="scale(1.05)";
+}}
+onMouseLeave={(e)=>{
+e.currentTarget.style.fontWeight="600";
+e.currentTarget.style.color="#111";
+e.currentTarget.style.transform="scale(1)";
+}}
 >
-Next → Customize Checkout
+Next → Customize publish
 </button>
 
 </div>
@@ -265,6 +275,16 @@ color:"white",
 padding:"15px",
 border:"none",
 borderRadius:"10px"
+}}
+onMouseEnter={(e)=>{
+e.currentTarget.style.fontWeight="bold";
+e.currentTarget.style.color="hsl(246, 89%, 51%)";
+e.currentTarget.style.transform="scale(1.05)";
+}}
+onMouseLeave={(e)=>{
+e.currentTarget.style.fontWeight="600";
+e.currentTarget.style.color="#111";
+e.currentTarget.style.transform="scale(1)";
 }}
 >
 Purchase
