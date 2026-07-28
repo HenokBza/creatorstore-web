@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth, db, storage } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
@@ -12,13 +12,17 @@ import {
   uploadBytes,
   getDownloadURL
 } from "firebase/storage";
-const country =
-  localStorage.getItem("signupCountry") || "";
 
-const phone =
-  localStorage.getItem("signupPhone") || "";
 export default function SignupPage() {
   const router = useRouter();
+const [country, setCountry] = useState("");
+  const [phone, setPhone] = useState("");
+
+  useEffect(() => {
+    // Safely grab from localStorage only after the component mounts on the client
+    setCountry(localStorage.getItem("signupCountry") || "");
+    setPhone(localStorage.getItem("signupPhone") || "");
+  }, []);
 
   const [selectedFile, setSelectedFile] =
     useState<File | null>(null);

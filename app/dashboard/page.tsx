@@ -351,61 +351,43 @@ borderRadius:"12px"
 
 
 {/* GRAPH */}
-
 <div
-style={{
-marginTop:"40px",
-background:"#D4AF37",
-padding:"25px",
-borderRadius:"15px"
-}}
+  style={{
+    marginTop: "40px",
+    background: "#D4AF37",
+    padding: "25px",
+    borderRadius: "15px",
+  }}
 >
+  <h2
+    style={{
+      marginBottom: "20px",
+    }}
+  >
+    📈 Store Analytics
+  </h2>
 
-<h2
-style={{
-marginBottom:"20px"
-}}
->
-📈 Store Analytics
-</h2>
-
-<div
-style={{
-width:"70%",
-height:"300px"
-}}
->
-
-<ResponsiveContainer
-width="100%"
-height="100%"
->
-
-<LineChart
-data={graphData}
->
-
-<XAxis
-dataKey="month"
-/>
-
-<YAxis/>
-
-<Tooltip/>
-
-<Line
-type="monotone"
-dataKey="visits"
-stroke="#3417d9"
-strokeWidth={3}
-/>
-
-</LineChart>
-
-</ResponsiveContainer>
-
-</div>
-
+  {/* Changed width from "70%" to "100%" to prevent invalid chart dimensions */}
+  <div
+    style={{
+      width: "100%",
+      height: "300px",
+    }}
+  >
+    <ResponsiveContainer width="100%" height="100%">
+      <LineChart data={graphData}>
+        <XAxis dataKey="month" />
+        <YAxis />
+        <Tooltip />
+        <Line
+          type="monotone"
+          dataKey="visits"
+          stroke="#3417d9"
+          strokeWidth={3}
+        />
+      </LineChart>
+    </ResponsiveContainer>
+  </div>
 </div>
 
 </div>
