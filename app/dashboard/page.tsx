@@ -213,74 +213,67 @@ color:"#f11329"
 
 <button
 onClick={copyLink}
+className="interactive-btn"
 style={{
-background:"#be8734fb",
+color:"blue",
 border:"none",
 padding:"12px 20px",
 borderRadius:"10px",
 cursor:"pointer",
 fontWeight:"bold"
 }}
-onMouseEnter={(e)=>{
-e.currentTarget.style.fontWeight="bold";
-e.currentTarget.style.color="hsl(246, 89%, 51%)";
-e.currentTarget.style.transform="scale(1.05)";
-}}
-onMouseLeave={(e)=>{
-e.currentTarget.style.fontWeight="600";
-e.currentTarget.style.color="#111";
-e.currentTarget.style.transform="scale(1)";
-}}
 >
-🔗 Share Store Link
+🔗 copy Store Link
 </button>
 
 {/* Social Media Icons */}
 <div
-style={{
-display:"flex",
-justifyContent:"center",
-gap:"20px",
-marginTop:"20px"
-}}
+  style={{
+    display: "flex",
+    justifyContent: "center",
+    gap: "20px",
+    marginTop: "20px",
+  }}
 >
+  <a
+    href="https://tiktok.com"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="interactive-btn"
+    style={{ color: "black", fontSize: "28px", display: "inline-block" }}
+  >
+    <FaTiktok />
+  </a>
 
-<a
-href="https://tiktok.com"
-target="_blank"
-rel="noopener noreferrer"
-style={{color:"black", fontSize:"28px"}}
->
-<FaTiktok />
-</a>
+  <a
+    href="https://facebook.com"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="interactive-btn"
+    style={{ color: "#1877F2", fontSize: "28px", display: "inline-block" }}
+  >
+    <FaFacebook />
+  </a>
 
-<a
-href="https://facebook.com"
-target="_blank"
-rel="noopener noreferrer"
-style={{color:"#1877F2", fontSize:"28px"}}
->
-<FaFacebook />
-</a>
+  <a
+    href="https://youtube.com"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="interactive-btn"
+    style={{ color: "#FF0000", fontSize: "28px", display: "inline-block" }}
+  >
+    <FaYoutube />
+  </a>
 
-<a
-href="https://youtube.com"
-target="_blank"
-rel="noopener noreferrer"
-style={{color:"#FF0000", fontSize:"28px"}}
->
-<FaYoutube />
-</a>
-
-<a
-href="https://instagram.com"
-target="_blank"
-rel="noopener noreferrer"
-style={{color:"#E4405F", fontSize:"28px"}}
->
-<FaInstagram />
-</a>
-
+  <a
+    href="https://instagram.com"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="interactive-btn"
+    style={{ color: "#E4405F", fontSize: "28px", display: "inline-block" }}
+  >
+    <FaInstagram />
+  </a>
 </div>
 
 </div>

@@ -48,6 +48,7 @@ function PaymentSuccessContent() {
         rel="noopener noreferrer"
       >
         <button
+        className="interactive-btn"
           style={{
             marginTop: 30,
             padding: "18px 40px",

@@ -142,6 +142,7 @@ boxSizing:"border-box"
 
 <button
 onClick={resetPassword}
+className="interactive-btn"
 style={{
 width:"100%",
 background:"#D4AF37",
@@ -161,6 +162,7 @@ router.push(
 "/login"
 )
 }
+className="interactive-btn"
 style={{
 width:"100%",
 marginTop:"10px",

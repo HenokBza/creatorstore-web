@@ -222,6 +222,14 @@ return;
           }}
         >
           ...Creating CreatorStore Account
+          </h1>
+          <h1 style={{
+            textAlign:"center",
+            color:"#d4080e"
+          }}
+        >  
+
+           Upload profile pic
         </h1>
 
         <div
@@ -293,18 +301,18 @@ return;
             }}
           />
 
-          <input
-            placeholder="Store Name"
-            value={storeName}
-            onChange={(e)=>
-            setStoreName(
-              e.target.value
-            )}
-            style={{
-              padding:"14px",
-              borderRadius:"10px"
-            }}
-          />
+         <input
+  placeholder="StoreName /nospace"
+  value={storeName}
+  onChange={(e) => {
+    const valueWithoutSpaces = e.target.value.replace(/\s+/g, '');
+    setStoreName(valueWithoutSpaces);
+  }}
+  style={{
+    padding: "14px",
+    borderRadius: "10px"
+  }}
+/>
 
           <input
             placeholder="Email"
@@ -393,6 +401,7 @@ lineHeight:"20px"
 
           <button
             onClick={handleSignup}
+            className="interactive-btn"
             style={{
               background:"#D4AF37",
               color:"white",

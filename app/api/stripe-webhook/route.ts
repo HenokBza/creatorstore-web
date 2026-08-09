@@ -2,16 +2,33 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 
 import { adminDb } from "@/lib/firebaseAdmin";
-import { FieldValue } from "firebase-admin/firestore";
+
 const stripe = new Stripe(
   process.env.STRIPE_SECRET_KEY!
 );
-async function activateCreatorProducts(creatorId: string) {
+
+
+// =====================================================
+// ACTIVATE CREATOR PRODUCTS
+// =====================================================
+
+async function activateCreatorProducts(
+  creatorId: string
+) {
 
   const products = await adminDb
     .collection("products")
     .where("userId", "==", creatorId)
     .get();
+
+  if (products.empty) {
+    console.log(
+      "No products found for creator:",
+      creatorId
+    );
+
+    return;
+  }
 
   const batch = adminDb.batch();
 
@@ -25,8 +42,61 @@ async function activateCreatorProducts(creatorId: string) {
 
   await batch.commit();
 
+  console.log(
+    "✅ Creator products activated:",
+    creatorId
+  );
 }
-export async function POST(req: NextRequest) {
+
+
+// =====================================================
+// DISABLE CREATOR PRODUCTS
+// =====================================================
+
+async function deactivateCreatorProducts(
+  creatorId: string
+) {
+
+  const products = await adminDb
+    .collection("products")
+    .where("userId", "==", creatorId)
+    .get();
+
+  if (products.empty) {
+    console.log(
+      "No products found for creator:",
+      creatorId
+    );
+
+    return;
+  }
+
+  const batch = adminDb.batch();
+
+  products.forEach((product) => {
+
+    batch.update(product.ref, {
+      isActive: false,
+    });
+
+  });
+
+  await batch.commit();
+
+  console.log(
+    "✅ Creator products disabled:",
+    creatorId
+  );
+}
+
+
+// =====================================================
+// WEBHOOK
+// =====================================================
+
+export async function POST(
+  req: NextRequest
+) {
 
   const body = await req.text();
 
@@ -35,12 +105,25 @@ export async function POST(req: NextRequest) {
 
   if (!signature) {
 
+    console.error(
+      "❌ Missing Stripe signature"
+    );
+
     return NextResponse.json(
-      { error: "Missing signature" },
-      { status: 400 }
+      {
+        error: "Missing Stripe signature",
+      },
+      {
+        status: 400,
+      }
     );
 
   }
+
+
+  // ===================================================
+  // VERIFY STRIPE SIGNATURE
+  // ===================================================
 
   let event: Stripe.Event;
 
@@ -48,282 +131,641 @@ export async function POST(req: NextRequest) {
 
     event =
       stripe.webhooks.constructEvent(
-
         body,
-
         signature,
-
         process.env.STRIPE_WEBHOOK_SECRET!
-
       );
 
-  } catch (err: any) {
+  } catch (error: any) {
 
-    console.log(err);
+    console.error(
+      "❌ Stripe webhook signature error:",
+      error.message
+    );
 
     return NextResponse.json(
       {
-        error: "Invalid webhook"
+        error: "Invalid webhook signature",
       },
       {
-        status: 400
+        status: 400,
       }
     );
 
   }
 
-  switch (event.type) {
 
-   case "checkout.session.completed": {
-
-  const session =
-    event.data.object as Stripe.Checkout.Session;
-
-  const productId =
-    session.metadata?.productId;
-
-  const creatorId =
-    session.metadata?.creatorId;
-
-  const customerEmail =
-    session.customer_email || "";
-
-  // ===============================
-  // SUBSCRIPTION PAYMENT
-  // ===============================
-
-  if (session.mode === "subscription") {
-
-    if (!creatorId) break;
-
-    await adminDb
-      .collection("users")
-      .doc(creatorId)
-      .update({
-
-        subscriptionStatus: "active",
-
-        subscriptionPlan: "Creator Pro",
-
-        stripeCustomerId: session.customer,
-
-        stripeSubscriptionId: session.subscription,
-
-        subscriptionStart: new Date(),
-
-      });
-
-    console.log("✅ Creator subscription activated");
-
-    break;
-  }
-
-  // ===============================
-  // PRODUCT PURCHASE
-  // ===============================
-
-  if (!productId) break;
-
-  // Get product...
-
-  const productDoc =
-    await adminDb
-      .collection("products")
-      .doc(productId)
-      .get();
-
-  // ...everything below stays exactly the same
-
-  if (!productDoc.exists) break;
-
-  const product =
-    productDoc.data()!;
-
-  const amount =
-    Number(product.price);
-
-  // Save order
-
-  await adminDb
-    .collection("orders")
-    .add({
-
-      productId,
-
-      creatorId,
-
-      customerEmail,
-
-      amount,
-
-      stripeSessionId:
-        session.id,
-
-      createdAt:
-        new Date(),
-
-    });
-
-  // Update product statistics
-
-  await adminDb
-    .collection("products")
-    .doc(productId)
-    .update({
-
-      customers:
-        (product.customers || 0) + 1,
-
-      revenue:
-        (product.revenue || 0) + amount,
-
-    });
-    // Update creator earnings
-
-if (creatorId) {
-
-  const userRef = adminDb
-    .collection("users")
-    .doc(creatorId);
-
-  const userDoc = await userRef.get();
-
-  if (userDoc.exists) {
-
-    const userData = userDoc.data()!;
-
-    await userRef.update({
-
-      totalRevenue:
-        Number(userData.totalRevenue || 0) + amount,
-
-      availableBalance:
-        Number(userData.availableBalance || 0) + amount,
-
-      totalSales:
-        Number(userData.totalSales || 0) + 1,
-    });
-  }
-}
   console.log(
-    "✅ Order saved from webhook"
+    "========================================"
+  );
+
+  console.log(
+    "✅ STRIPE WEBHOOK RECEIVED"
+  );
+
+  console.log(
+    "Event:",
+    event.type
+  );
+
+  console.log(
+    "Event ID:",
+    event.id
+  );
+
+  console.log(
+    "========================================"
+  );
+
+
+  try {
+
+    // =================================================
+    // CHECKOUT COMPLETED
+    // =================================================
+
+    switch (event.type) {
+
+      case "checkout.session.completed": {
+
+        const session =
+          event.data.object as Stripe.Checkout.Session;
+
+
+        console.log(
+          "✅ checkout.session.completed"
+        );
+
+
+        console.log(
+          "Mode:",
+          session.mode
+        );
+
+
+        console.log(
+          "Metadata:",
+          session.metadata
+        );
+
+
+        // =============================================
+        // CREATOR SUBSCRIPTION
+        // =============================================
+
+        if (
+          session.mode ===
+          "subscription"
+        ) {
+
+          const creatorId =
+            session.metadata?.creatorId;
+
+
+          if (!creatorId) {
+
+            console.error(
+              "❌ Subscription missing creatorId"
+            );
+
+            break;
+
+          }
+
+
+          console.log(
+            "Creator ID:",
+            creatorId
+          );
+
+
+          const customerId =
+            typeof session.customer ===
+            "string"
+              ? session.customer
+              : null;
+
+
+          const subscriptionId =
+            typeof session.subscription ===
+            "string"
+              ? session.subscription
+              : null;
+
+
+          // =========================================
+          // UPDATE CREATOR
+          // =========================================
+
+          await adminDb
+            .collection("users")
+            .doc(creatorId)
+            .update({
+
+              subscriptionStatus:
+                "active",
+
+              subscriptionPlan:
+                "Creator Pro",
+
+              stripeCustomerId:
+                customerId,
+
+              stripeSubscriptionId:
+                subscriptionId,
+
+              subscriptionStart:
+                new Date(),
+
+              cancelAtPeriodEnd:
+                false,
+
+            });
+
+
+          console.log(
+            "✅ Creator subscription activated:",
+            creatorId
+          );
+
+
+          // =========================================
+          // ACTIVATE PRODUCTS
+          // =========================================
+
+          await activateCreatorProducts(
+            creatorId
+          );
+
+
+          break;
+        }
+
+
+        // =============================================
+        // PRODUCT PURCHASE
+        // =============================================
+
+        const productId =
+          session.metadata?.productId;
+
+
+        const creatorId =
+          session.metadata?.creatorId;
+
+
+        const customerEmail =
+          session.customer_email ||
+          session.metadata?.buyerEmail ||
+          "";
+console.log("========== STRIPE WEBHOOK ==========");
+  console.log("EVENT:", event.type);
+  console.log("MODE:", session.mode);
+  console.log("METADATA:", session.metadata);
+  console.log("CREATOR ID:", creatorId);
+  console.log("PRODUCT ID:", productId);
+  console.log("CUSTOMER EMAIL:", customerEmail);
+  console.log("SESSION ID:", session.id);
+  console.log("====================================");
+
+        if (!productId) {
+
+          console.log(
+            "No productId. Not a product purchase."
+          );
+
+          break;
+
+        }
+
+
+        // =============================================
+        // GET PRODUCT
+        // =============================================
+
+        const productRef =
+          adminDb
+            .collection("products")
+            .doc(productId);
+
+
+        const productDoc =
+          await productRef.get();
+
+
+        if (!productDoc.exists) {
+
+          console.error(
+            "❌ Product not found:",
+            productId
+          );
+
+          break;
+
+        }
+
+
+       const product = productDoc.data()!;
+
+// =====================================================
+// USE STRIPE AS THE SOURCE OF TRUTH
+// =====================================================
+
+const stripePaidAmount =
+  Number(session.amount_total || 0) / 100;
+
+if (stripePaidAmount <= 0) {
+  console.error(
+    "❌ Stripe paid amount is zero or invalid:",
+    session.amount_total
   );
 
   break;
 }
-case "customer.subscription.updated": {
 
-  const subscription =
-    event.data.object as Stripe.Subscription;
+const amount = stripePaidAmount;
 
-  const customerId =
-    subscription.customer as string;
+console.log("========== PAYMENT AMOUNT ==========");
+console.log("Product ID:", productId);
+console.log("Original price:", product.price);
+console.log("Discount price:", product.discountPrice);
+console.log(
+  "Stripe amount_total:",
+  session.amount_total
+);
+console.log(
+  "Stripe actual paid amount:",
+  stripePaidAmount
+);
+console.log(
+  "FINAL AMOUNT SAVED:",
+  amount
+);
+console.log("====================================");
 
-  const users = await adminDb
-    .collection("users")
-    .where("stripeCustomerId", "==", customerId)
-    .get();
+        console.log(
+          "Product amount:",
+          amount
+        );
 
-  if (!users.empty) {
 
-    const userRef = users.docs[0].ref;
+        // =============================================
+        // CREATE ORDER
+        // =============================================
 
-   await userRef.update({
+        await adminDb
+          .collection("orders")
+          .add({
 
-  subscriptionStatus:
-    subscription.status === "active"
-      ? "active"
-      : "inactive",
+            productId,
 
-  cancelAtPeriodEnd:
-    subscription.cancel_at_period_end,
+            creatorId:
 
-  subscriptionPlan: "Creator Pro",
+              creatorId ||
+              product.userId ||
+              "",
 
-  subscriptionEnd: new Date(
-    (subscription as any).current_period_end * 1000
-  ),
+            customerEmail,
 
-});
-const creatorId = userRef.id;
+            amount,
 
-if (subscription.status === "active") {
+            stripeSessionId:
+              session.id,
 
-  await activateCreatorProducts(
-    creatorId
-  );
-}
-  }
-  break;
-}
-case "customer.subscription.deleted": {
+            createdAt:
+              new Date(),
 
-  const subscription =
-    event.data.object as Stripe.Subscription;
+          });
 
-  const customerId =
-    subscription.customer as string;
 
-  const users = await adminDb
-    .collection("users")
-    .where("stripeCustomerId", "==", customerId)
-    .get();
+        console.log(
+          "✅ Order created"
+        );
 
-  if (!users.empty) {
 
-    const userDoc = users.docs[0];
+        // =============================================
+        // UPDATE PRODUCT
+        // =============================================
 
-    const creatorId = userDoc.id;
+        await productRef.update({
 
-    // Update subscription
-    await userDoc.ref.update({
+          customers:
+            Number(
+              product.customers || 0
+            ) + 1,
 
-      subscriptionStatus: "inactive",
+          revenue:
+            Number(
+              product.revenue || 0
+            ) + amount,
 
-      subscriptionPlan: "",
+        });
 
-      cancelAtPeriodEnd: false,
 
-      subscriptionEnd: null,
+        console.log(
+          "✅ Product revenue updated"
+        );
+
+
+        // =============================================
+        // UPDATE CREATOR EARNINGS
+        // =============================================
+
+        const actualCreatorId =
+          creatorId ||
+          product.userId;
+
+
+        if (!actualCreatorId) {
+
+          console.error(
+            "❌ Creator ID missing"
+          );
+
+          break;
+
+        }
+
+
+        const userRef =
+          adminDb
+            .collection("users")
+            .doc(
+              actualCreatorId
+            );
+
+
+        const userDoc =
+          await userRef.get();
+
+
+        if (!userDoc.exists) {
+
+          console.error(
+            "❌ Creator user document not found:",
+            actualCreatorId
+          );
+
+          break;
+
+        }
+
+
+        const userData =
+          userDoc.data()!;
+
+
+        await userRef.update({
+
+          totalRevenue:
+            Number(
+              userData.totalRevenue || 0
+            ) + amount,
+
+          availableBalance:
+            Number(
+              userData.availableBalance || 0
+            ) + amount,
+
+          totalSales:
+            Number(
+              userData.totalSales || 0
+            ) + 1,
+
+        });
+
+
+        console.log(
+          "✅ Creator earnings updated"
+        );
+
+
+        break;
+      }
+
+
+      // =================================================
+      // SUBSCRIPTION UPDATED
+      // =================================================
+
+      case "customer.subscription.updated": {
+
+        const subscription =
+          event.data.object as Stripe.Subscription;
+
+
+        const customerId =
+          subscription.customer as string;
+
+
+        console.log(
+          "Subscription updated:",
+          customerId
+        );
+
+
+        const users =
+          await adminDb
+            .collection("users")
+            .where(
+              "stripeCustomerId",
+              "==",
+              customerId
+            )
+            .get();
+
+
+        if (users.empty) {
+
+          console.error(
+            "❌ No creator found for Stripe customer:",
+            customerId
+          );
+
+          break;
+
+        }
+
+
+        const userRef =
+          users.docs[0].ref;
+
+
+        const creatorId =
+          userRef.id;
+
+
+        const isActive =
+          subscription.status ===
+            "active" ||
+          subscription.status ===
+            "trialing";
+
+
+        await userRef.update({
+
+          subscriptionStatus:
+            isActive
+              ? "active"
+              : "inactive",
+
+          subscriptionPlan:
+            isActive
+              ? "Creator Pro"
+              : "",
+
+          cancelAtPeriodEnd:
+            subscription.cancel_at_period_end,
+
+          subscriptionEnd:
+            (subscription as any)
+              .current_period_end
+              ? new Date(
+                  (
+                    subscription as any
+                  ).current_period_end *
+                  1000
+                )
+              : null,
+
+        });
+
+
+        if (isActive) {
+
+          await activateCreatorProducts(
+            creatorId
+          );
+
+        }
+
+
+        console.log(
+          "✅ Subscription status updated"
+        );
+
+
+        break;
+      }
+
+
+      // =================================================
+      // SUBSCRIPTION DELETED
+      // =================================================
+
+      case "customer.subscription.deleted": {
+
+        const subscription =
+          event.data.object as Stripe.Subscription;
+
+
+        const customerId =
+          subscription.customer as string;
+
+
+        console.log(
+          "Subscription deleted:",
+          customerId
+        );
+
+
+        const users =
+          await adminDb
+            .collection("users")
+            .where(
+              "stripeCustomerId",
+              "==",
+              customerId
+            )
+            .get();
+
+
+        if (users.empty) {
+
+          console.error(
+            "❌ Creator not found:",
+            customerId
+          );
+
+          break;
+
+        }
+
+
+        const userRef =
+          users.docs[0].ref;
+
+
+        const creatorId =
+          userRef.id;
+
+
+        await userRef.update({
+
+          subscriptionStatus:
+            "inactive",
+
+          subscriptionPlan:
+            "",
+
+          cancelAtPeriodEnd:
+            false,
+
+          subscriptionEnd:
+            null,
+
+        });
+
+
+        await deactivateCreatorProducts(
+          creatorId
+        );
+
+
+        console.log(
+          "✅ Subscription expired"
+        );
+
+
+        break;
+      }
+
+
+      default:
+
+        console.log(
+          "Unhandled Stripe event:",
+          event.type
+        );
+
+    }
+
+
+    return NextResponse.json({
+
+      received: true,
 
     });
 
-    // Disable all creator products
-    const products = await adminDb
-      .collection("products")
-      .where("userId", "==", creatorId)
-      .get();
 
-    const batch = adminDb.batch();
+  } catch (error: any) {
 
-    products.forEach((product) => {
-
-      batch.update(product.ref, {
-
-        isActive: false,
-
-      });
-
-    });
-
-    await batch.commit();
-
-    console.log(
-      "✅ Subscription expired. Products disabled."
+    console.error(
+      "❌ WEBHOOK HANDLER ERROR:",
+      error
     );
+
+
+    return NextResponse.json(
+      {
+        error:
+          "Webhook handler failed",
+      },
+      {
+        status: 500,
+      }
+    );
+
   }
-  break;
-}
-    default:
-
-      console.log(
-        event.type
-      );
-
-  }
-
-  return NextResponse.json({
-    received: true,
-  });
 
 }

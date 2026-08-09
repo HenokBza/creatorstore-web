@@ -29,6 +29,7 @@ export default function NewProductPage() {
       >
         <div
           onClick={() => router.push("/dashboard/products/digital-products")}
+          className="interactive-btn"
           style={{
             border: "1px solid #ddd",
             borderRadius: "15px",
@@ -43,6 +44,7 @@ export default function NewProductPage() {
 
         <div
           onClick={() => router.push("/dashboard/products/create/coaching")}
+          className="interactive-btn"
           style={{
             border: "1px solid #ddd",
             borderRadius: "15px",
@@ -57,6 +59,7 @@ export default function NewProductPage() {
 
         <div
           onClick={() => router.push("/dashboard/products/create/lead")}
+          className="interactive-btn"
           style={{
             border: "1px solid #ddd",
             borderRadius: "15px",

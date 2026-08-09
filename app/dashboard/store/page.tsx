@@ -228,6 +228,7 @@ handleEdit(
 product
 )
 }
+className="interactive-btn"
 style={{
 border:"none",
 background:"transparent",
@@ -291,6 +292,7 @@ gap:"10px"
 onClick={()=>
 handlePreview(product)
 }
+className="interactive-btn"
 style={{
 padding:"10px 15px",
 borderRadius:"10px",
@@ -308,6 +310,7 @@ handleDuplicate(
 product
 )
 }
+className="interactive-btn"
 style={{
 padding:"10px 15px",
 borderRadius:"10px",
@@ -325,6 +328,7 @@ handleDelete(
 product.id
 )
 }
+className="interactive-btn"
 style={{
 padding:"10px 15px",
 borderRadius:"10px",

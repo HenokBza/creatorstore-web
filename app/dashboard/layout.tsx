@@ -2,11 +2,15 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { auth, db } from "@/lib/firebase";
+import { auth, db, storage, } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
 import { useState, useEffect } from "react";
-import { doc, onSnapshot } from "firebase/firestore";
-
+import { doc, onSnapshot, updateDoc, } from "firebase/firestore";
+import {
+  ref,
+  uploadBytes,
+  getDownloadURL,
+} from "firebase/storage";
 export default function DashboardLayout({
   children,
 }: {
@@ -21,7 +25,8 @@ export default function DashboardLayout({
 
   const [userData,setUserData] =
     useState<any>(null);
-
+const [uploading, setUploading] =
+  useState(false);
   useEffect(()=>{
 
     const user =
@@ -58,7 +63,57 @@ export default function DashboardLayout({
       unsubscribe();
 
   },[]);
+const changeProfilePicture = async (
+  file: File
+) => {
 
+  const user = auth.currentUser;
+
+  if (!user) return;
+
+  try {
+
+    setUploading(true);
+
+    const storageRef = ref(
+      storage,
+      `profiles/${user.uid}`
+    );
+
+    await uploadBytes(
+      storageRef,
+      file
+    );
+
+    const imageUrl =
+      await getDownloadURL(
+        storageRef
+      );
+
+    await updateDoc(
+      doc(db, "users", user.uid),
+      {
+        profileImage: imageUrl,
+      }
+    );
+
+    alert(
+      "Profile picture updated!"
+    );
+
+  } catch (error) {
+
+    console.log(error);
+
+    alert(
+      "Failed to update profile picture."
+    );
+
+  }
+
+  setUploading(false);
+
+};
   const handleLogout = async()=>{
 
     try{
@@ -136,7 +191,7 @@ minHeight:"100vh"
 <div
 style={{
 width:"250px",
-background:"#111",
+background:"#33a285",
 color:"white",
 padding:"20px",
 display:"flex",
@@ -149,6 +204,8 @@ flexDirection:"column"
 <h2
 style={{
 color:"#D4AF37",
+fontWeight: "bold",
+fontSize: "24px",
 marginBottom:"25px"
 }}
 >
@@ -169,17 +226,22 @@ borderBottom:
 >
 
 <div
-onClick={()=>
-setOpenProfile(
-!openProfile
-)
+onClick={() =>
+setOpenProfile(!openProfile)
 }
-
 style={{
 display:"flex",
 alignItems:"center",
 gap:"12px",
 cursor:"pointer"
+}}
+>
+
+<div
+style={{
+position:"relative",
+width:"50px",
+height:"50px",
 }}
 >
 
@@ -194,13 +256,33 @@ width:"50px",
 height:"50px",
 borderRadius:"50%",
 objectFit:"cover",
-border:
-"2px solid #D4AF37"
+border:"2px solid #D4AF37",
 }}
 />
 
-<div>
+<div
+style={{
+position:"absolute",
+bottom:"-2px",
+right:"-2px",
+width:"18px",
+height:"18px",
+background:"#D4AF37",
+borderRadius:"50%",
+display:"flex",
+alignItems:"center",
+justifyContent:"center",
+fontSize:"20px",
+border:"2px solid #111",
+color:"#111",
+}}
+>
+ ✏️
+</div>
 
+</div>
+
+<div>
 <strong>
 
 {
@@ -241,17 +323,36 @@ padding:"12px"
 }}
 >
 
-<Link
-href="/dashboard/profile"
+<label
 style={{
 display:"block",
 color:"white",
-textDecoration:"none",
+cursor:"pointer",
 marginBottom:"12px"
 }}
 >
-👤 Profile
-</Link>
+
+👤 Change Profile Pic
+
+<input
+type="file"
+accept="image/*"
+hidden
+
+onChange={async (e)=>{
+
+if(!e.target.files?.length)
+return;
+
+await changeProfilePicture(
+e.target.files[0]
+);
+
+}}
+
+ />
+
+</label>
 
 <Link
 href="/dashboard/settings"

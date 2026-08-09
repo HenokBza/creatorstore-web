@@ -330,6 +330,7 @@ marginTop:"20px"
 
 <button
 onClick={savePayments}
+className="interactive-btn"
 style={{
 flex:1,
 padding:"14px",
@@ -353,6 +354,7 @@ window.open(
 "_blank"
 )
 }
+className="interactive-btn"
 style={{
 flex:1,
 padding:"14px",
@@ -490,6 +492,7 @@ marginTop:"20px"
 
 <button
 onClick={savePayments}
+className="interactive-btn"
 style={{
 flex:1,
 padding:"14px",
@@ -513,6 +516,7 @@ window.open(
 "_blank"
 )
 }
+className="interactive-btn"
 style={{
 flex:1,
 padding:"14px",
@@ -662,6 +666,7 @@ marginTop:"20px"
 
 <button
 onClick={savePayments}
+className="interactive-btn"
 style={{
 flex:1,
 padding:"14px",
@@ -747,6 +752,7 @@ borderRadius:"10px"
 
 <button
 onClick={savePayments}
+className="interactive-btn"
 style={{
 width:"100%",
 padding:"18px",

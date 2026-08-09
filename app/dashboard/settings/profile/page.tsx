@@ -361,6 +361,7 @@ const manageSubscription = async () => {
               true
             )
             }
+            className="interactive-btn"
             style={{
               background:
               "#2563eb",
@@ -385,8 +386,8 @@ const manageSubscription = async () => {
 
           <button
             onClick={
-              saveChanges
-            }
+              saveChanges}
+            className="interactive-btn"  
             style={{
               background:
               "#D4AF37",
@@ -465,6 +466,7 @@ const manageSubscription = async () => {
 
   <button
     onClick={manageSubscription}
+    className="interactive-btn"
     style={{
       width: "100%",
       marginTop: "25px",
@@ -483,6 +485,7 @@ const manageSubscription = async () => {
 
   <button
     onClick={manageSubscription}
+    className="interactive-btn"
     style={{
       width: "100%",
       marginTop: "15px",

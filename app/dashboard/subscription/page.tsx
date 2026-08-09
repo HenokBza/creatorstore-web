@@ -336,6 +336,7 @@ marginTop:"20px"
 
 <button
 onClick={manageSubscription}
+className="interactive-btn"
 style={{
 marginTop:"35px",
 width:"100%",
@@ -354,6 +355,7 @@ Manage Subscription
 </button>
 
 <button
+className="interactive-btn"
 style={{
 marginTop:"15px",
 width:"100%",
@@ -414,7 +416,7 @@ fontSize:"55px"
 }}
 >
 
-CA$25
+CA$19.99
 
 </h1>
 
@@ -426,6 +428,7 @@ per month
 
 <button
 onClick={subscribeNow}
+className="interactive-btn"
 style={{
 marginTop:"35px",
 width:"100%",

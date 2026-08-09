@@ -19,6 +19,7 @@ interface Product {
   description: string;
   thumbnail: string;
   price: number;
+  discountPrice: number;
   buttonText: string;
   benefits: string[];
   isActive?: boolean;
@@ -132,22 +133,22 @@ useEffect(() => {
   }
 );  
 
-      const creatorRef =
+     const creatorRef =
         doc(db, "users", productData.userId);
 
       const creatorSnap =
         await getDoc(creatorRef);
 
       if (creatorSnap.exists()) {
+        const data = creatorSnap.data();
 
         setCreator({
-
           id: creatorSnap.id,
-
-          ...creatorSnap.data()
-
+          name: data.name || data.fullName || data.displayName || "Creator",
+          storeName: data.storeName || data.store || data.shopName || "Store",
+          profileImage: data.profileImage || data.photoURL || "/profile-placeholder.png",
+          email: data.email || "",
         } as Creator);
-
       }
 
     } catch (error) {
@@ -227,7 +228,7 @@ useEffect(() => {
 console.log(data);
 
 if (!response.ok) {
-  throw new Error(data.error || "Checkout failed");
+  throw new Error(data.error || "please enter correct email");
 }
 
     window.location.href = data.url;
@@ -235,7 +236,7 @@ if (!response.ok) {
   } catch (error) {
 
     console.error(error);
-    alert("Checkout failed");
+    alert("please enter correct email");
 
   }
 
@@ -246,7 +247,7 @@ if (!response.ok) {
 <div
 style={{
   minHeight:"100vh",
-  background: "#D4AF37",
+  background: "#33a285",
   display:"flex",
   justifyContent:"center",
   padding: isMobile
@@ -305,7 +306,7 @@ style={{
   <p
     style={{
       marginTop: "20px",
-      color: "#666",
+      color: "black",
       fontSize: isMobile
   ? "16px"
   : "18px",
@@ -459,34 +460,65 @@ fontSize:"16px"
 </div>
 
 <hr
-style={{
-margin:"30px 0",
-border:"none",
-borderTop:"1px solid #eee"
-}}
+  style={{
+    margin: "30px 0",
+    border: "none",
+    borderTop: "1px solid #eee",
+  }}
 />
 
 <div
-style={{
-fontSize:"15px",
-color:"#777",
-marginBottom:"6px"
-}}
+  style={{
+    fontSize: "15px",
+    color: "#777",
+    marginBottom: "6px",
+  }}
 >
-Price
+  Price
 </div>
 
+{/* Price Display with Discount Logic */}
 <div
-style={{
-fontSize: isMobile
-  ? "12px"
-  : "22px",
-fontWeight:"bold",
-color:"#D4AF37",
-marginBottom:"25px"
-}}
+  style={{
+    display: "flex",
+    alignItems: "center",
+    gap: "12px",
+    marginBottom: "25px",
+  }}
 >
-CA${product.price}
+  {product.discountPrice ? (
+    <>
+      <div
+        style={{
+          fontSize: isMobile ? "12px" : "22px",
+          fontWeight: "bold",
+          color: "#D4AF37",
+        }}
+      >
+        CA${product.discountPrice}
+      </div>
+      <div
+        style={{
+          fontSize: isMobile ? "10px" : "16px",
+          fontWeight: "bold",
+          color: "#888",
+          textDecoration: "line-through",
+        }}
+      >
+        CA${product.price}
+      </div>
+    </>
+  ) : (
+    <div
+      style={{
+        fontSize: isMobile ? "12px" : "22px",
+        fontWeight: "bold",
+        color: "#D4AF37",
+      }}
+    >
+      CA${product.price}
+    </div>
+  )}
 </div>
 
 <input
@@ -509,6 +541,7 @@ boxSizing:"border-box"
 onClick={buyProduct}
 
 disabled={product.isActive === false}
+className="interactive-btn"
 
 style={{
 
@@ -553,7 +586,7 @@ transition:"0.25s"
 
 ? "Unavailable"
 
-: product.buttonText || "Purchase Now"}
+: product.buttonText || "Get Access Now"}
 </button>
 
 <div
@@ -569,7 +602,8 @@ lineHeight:1.7
 >
 🔒 Secure checkout powered by <strong>CreatorStore</strong>
 
-<br/><br/>
+<br/> You will get product immediately after purchase.
+<br/>
 
 ⚡ Instant digital delivery
 

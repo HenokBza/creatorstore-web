@@ -243,6 +243,7 @@ gap:"30px"
             !showCurrentPassword
           )
         }
+        className="interactive-btn"
         style={{
           padding: "14px",
           border: "none",
@@ -310,6 +311,7 @@ gap:"30px"
 
     <button
       onClick={changePassword}
+     className="interactive-btn" 
       style={{
         background: "#2563eb",
         color: "white",
@@ -390,6 +392,7 @@ setShowDeleteForm(
 !showDeleteForm
 )
 }
+className="interactive-btn"
 style={{
 marginTop:"20px",
 padding:"14px 25px",
@@ -400,16 +403,7 @@ borderRadius:"10px",
 cursor:"pointer",
 fontWeight:"bold"
 }}
-onMouseEnter={(e)=>{
-e.currentTarget.style.fontWeight="bold";
-e.currentTarget.style.color="hsl(246, 89%, 51%)";
-e.currentTarget.style.transform="scale(1.05)";
-}}
-onMouseLeave={(e)=>{
-e.currentTarget.style.fontWeight="600";
-e.currentTarget.style.color="#111";
-e.currentTarget.style.transform="scale(1)";
-}}
+
 >
 
 📝 Fill Deletion Form 
@@ -504,6 +498,7 @@ confirmText !==
 onClick={
 submitDeletionRequest
 }
+className="interactive-btn"
 style={{
 padding:"15px",
 border:"none",

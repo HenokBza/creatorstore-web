@@ -1,233 +1,156 @@
 "use client";
 
-import { useEffect,useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import {
-doc,
-getDoc
-} from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
-import {
-db
-} from "@/lib/firebase";
+export default function PreviewPage() {
+  const params = useParams();
+  const [product, setProduct] = useState<any>(null);
 
-export default function PreviewPage(){
+  useEffect(() => {
+    loadProduct();
+  }, []);
 
-const params=
-useParams();
+  const loadProduct = async () => {
+    const productRef = doc(db, "products", params.id as string);
+    const snapshot = await getDoc(productRef);
 
-const [product,setProduct]=
-useState<any>(null);
+    if (snapshot.exists()) {
+      setProduct({
+        id: snapshot.id,
+        ...snapshot.data(),
+      });
+    }
+  };
 
-useEffect(()=>{
+  if (!product) {
+    return (
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh", fontSize: "20px", fontWeight: "bold" }}>
+        Loading...
+      </div>
+    );
+  }
 
-loadProduct();
+  return (
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "#D4AF37",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        padding: "20px",
+      }}
+    >
+      <div
+        style={{
+          width: "100%",
+          maxWidth: "480px",
+          background: "white",
+          borderRadius: "25px",
+          overflow: "hidden",
+          boxShadow: "0px 10px 30px rgba(0,0,0,0.12)",
+        }}
+      >
+       {/* Full width product thumbnail with complete image visible */}
+        <div style={{ width: "100%", height: "240px", background: "#f1f5f9", display: "flex", justifyContent: "center", alignItems: "center" }}>
+          <img
+            src={product.thumbnail || "/placeholder.png"}
+            alt={product.title}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "contain", // Prevents cutting off parts of the image
+            }}
+          />
+        </div>
 
-},[]);
+        {/* Main padding wrapper containing all text, benefits, inputs, and button */}
+        <div style={{ padding: "30px" }}>
+          <h1 style={{ fontSize: "24px", fontWeight: "bold", marginBottom: "8px" }}>
+            {product.title}
+          </h1>
 
-const loadProduct=
-async()=>{
+          <h2 style={{ color: "#9b937b", fontSize: "20px", marginBottom: "15px" }}>
+            ${Number(product.price || 0).toFixed(2)}
+          </h2>
 
-const productRef=
-doc(
-db,
-"products",
-params.id as string
-);
+          <p style={{ lineHeight: "1.6", color: "black", marginBottom: "20px" }}>
+            {product.description}
+          </p>
 
-const snapshot=
-await getDoc(
-productRef
-);
+          {/* Benefits List */}
+          {product?.benefits && product.benefits.length > 0 && (
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "25px" }}>
+              {product.benefits.map((item: string, index: number) => (
+                <div
+                  key={index}
+                  style={{
+                    display: "flex",
+                    gap: "10px",
+                    padding: "12px",
+                    background: "#f8f9fa",
+                    borderRadius: "10px",
+                    wordBreak: "break-word",
+                    overflowWrap: "break-word",
+                    alignItems: "center"
+                  }}
+                >
+                  <span>✅</span>
+                  <span style={{ flex: 1, fontSize: "14px" }}>{item}</span>
+                </div>
+              ))}
+            </div>
+          )}
 
-if(snapshot.exists()){
+          {/* Checkout Form Inputs */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+            <input
+              placeholder="Enter your name"
+              style={{
+                width: "100%",
+                padding: "14px",
+                borderRadius: "10px",
+                border: "1px solid #ddd",
+                fontSize: "15px",
+                boxSizing: "border-box",
+              }}
+            />
 
-setProduct({
+            <input
+              placeholder="Enter your email"
+              style={{
+                width: "100%",
+                padding: "14px",
+                borderRadius: "10px",
+                border: "1px solid #ddd",
+                fontSize: "15px",
+                boxSizing: "border-box",
+              }}
+            />
 
-id:snapshot.id,
-...snapshot.data()
-
-});
-
-}
-
-};
-
-if(!product){
-
-return(
-<div>
-Loading...
-</div>
-);
-
-}
-
-return(
-
-<div
-style={{
-minHeight:"100vh",
-background:"#D4AF37",
-display:"flex",
-justifyContent:"center",
-padding:"50px"
-}}
->
-
-<div
-style={{
-width:"450px",
-background:"white",
-borderRadius:"25px",
-overflow:"hidden",
-boxShadow:
-"0px 5px 25px rgba(0,0,0,.1)"
-}}
->
-
-<img
-src={
-product.thumbnail
-}
-style={{
-width:"40%",
-height:"190px",
-objectFit:"cover"
-}}
-/>
-
-<div
-style={{
-padding:"25px"
-}}
->
-
-<h1>
-{product.title}
-</h1>
-
-<h2
-style={{
-color:"#9b937b"
-}}
->
-$
-{product.price}
-</h2>
-
-<p
-style={{
-marginTop:"20px",
-lineHeight:"1.6",
-color:"#374ca9"
-}}
->
-{product.description}
-</p>
-
-<div
-style={{
-marginTop:"25px",
-display:"flex",
-flexDirection:"column",
-gap:"12px"
-}}
->
-
-<div
-style={{
-marginTop:"20px",
-display:"flex",
-flexDirection:"column",
-gap:"10px"
-}}
->
-
-{product?.benefits?.map(
-
-(item:string,index:number)=>(
-
-<div
-key={index}
-style={{
-display:"flex",
-gap:"10px",
-padding:"12px",
-background:"#fff",
-borderRadius:"10px",
-wordBreak:"break-word",
-overflowWrap:"break-word"
-}}
->
-
-<span>
-✅
-</span>
-
-<span
-style={{
-flex:1
-}}
->
-{item}
-</span>
-
-</div>
-
-)
-
-)}
-
-</div>
-
-</div>
-
-</div>
-
-<input
-placeholder="Enter your name"
-style={{
-width:"100%",
-padding:"14px",
-marginTop:"25px",
-borderRadius:"10px",
-border:"1px solid #ddd"
-}}
-/>
-
-<input
-placeholder="Enter your email"
-style={{
-width:"100%",
-padding:"14px",
-marginTop:"15px",
-borderRadius:"10px",
-border:"1px solid #ddd"
-}}
-/>
-
-<button
-style={{
-marginTop:"30px",
-width:"100%",
-background:"#e4c40fbd",
-color:"blue",
-justifyContent:"center",
-padding:"15px",
-border:"none",
-borderRadius:"12px",
-fontWeight:"bold",
-cursor:"pointer"
-}}
->
-{product.buttonText}
-</button>
-
-</div>
-
-</div>
-
-);
-
+            <button
+              className="interactive-btn"
+              style={{
+                marginTop: "10px",
+                width: "100%",
+                background: "#e4af0f",
+                color: "#000",
+                padding: "16px",
+                border: "none",
+                borderRadius: "12px",
+                fontWeight: "bold",
+                cursor: "pointer",
+                fontSize: "16px",
+              }}
+            >
+              {product.buttonText || "Get Access Now"}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }

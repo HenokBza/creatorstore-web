@@ -21,42 +21,44 @@ marginBottom:"30px"
 </h1>
 
 <div
-style={{
-display:"grid",
-gridTemplateColumns:
-"repeat(auto-fit,minmax(230px,1fr))",
-gap:"20px"
-}}
+  style={{
+    display: "grid",
+    gridTemplateColumns:
+      "repeat(auto-fit,minmax(230px,1fr))",
+    gap: "20px",
+  }}
 >
+  <Link
+    href="/dashboard/settings/profile"
+    className="interactive-btn"
+    style={{ ...cardStyle, display: "block" }}
+  >
+    👤 Profile
+  </Link>
 
-<Link
-href="/dashboard/settings/profile"
-style={cardStyle}
->
-👤 Profile
-</Link>
+  <Link
+    href="/dashboard/settings/payments"
+    className="interactive-btn"
+    style={{ ...cardStyle, display: "block" }}
+  >
+    💳 Payments
+  </Link>
 
-<Link
-href="/dashboard/settings/payments"
-style={cardStyle}
->
-💳 Payments
-</Link>
+  <Link
+    href="/dashboard/settings/notifications"
+    className="interactive-btn"
+    style={{ ...cardStyle, display: "block" }}
+  >
+    🔔 Notifications
+  </Link>
 
-<Link
-href="/dashboard/settings/notifications"
-style={cardStyle}
->
-🔔 Notifications
-</Link>
-
-<Link
-href="/dashboard/settings/security"
-style={cardStyle}
->
-🔒 Security
-</Link>
-
+  <Link
+    href="/dashboard/settings/security"
+    className="interactive-btn"
+    style={{ ...cardStyle, display: "block" }}
+  >
+    🔒 Security
+  </Link>
 </div>
 
 </div>

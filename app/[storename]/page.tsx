@@ -291,6 +291,7 @@ await updateDoc(
         {/* Button */}
 
         <button
+        className="interactive-btn"
           style={{
             marginTop: "18px",
             background: "#D4AF37",
@@ -302,7 +303,7 @@ await updateDoc(
             cursor: "pointer",
           }}
         >
-          Get Now
+          Get Access Now
         </button>
 
       </div>

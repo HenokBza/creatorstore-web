@@ -132,6 +132,7 @@ textAlign:"right"
 
 <Link
 href="/forgot-password"
+className="interactive-btn"
 style={{
 fontSize:"14px",
 color:"#111",
@@ -139,16 +140,6 @@ fontWeight:"600",
 textDecoration:"underline",
 cursor:"pointer",
 transition:"0.3s"
-}}
-onMouseEnter={(e)=>{
-e.currentTarget.style.fontWeight="bold";
-e.currentTarget.style.color="#2c19d6";
-e.currentTarget.style.transform="scale(1.05)";
-}}
-onMouseLeave={(e)=>{
-e.currentTarget.style.fontWeight="600";
-e.currentTarget.style.color="#111";
-e.currentTarget.style.transform="scale(1)";
 }}
 >
 🔒 Forgot Password?
@@ -158,6 +149,7 @@ e.currentTarget.style.transform="scale(1)";
 
 <button
 onClick={handleLogin}
+className="interactive-btn"
 style={{
 padding:"12px",
 background:"#c32acb",
@@ -180,7 +172,7 @@ fontSize:"14px",
 Don't have an account?{" "}
 
 <Link
-href="/signup"
+href="/phone"
 style={{
 color:"#7b2cbf",
 fontWeight:"bold",

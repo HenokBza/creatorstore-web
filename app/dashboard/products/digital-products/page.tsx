@@ -183,6 +183,7 @@ handleImage
 
 <button
 onClick={handleNext}
+className="interactive-btn"
 style={{
 background:"#D4AF37",
 border:"none",
@@ -192,16 +193,7 @@ fontWeight:"bold",
 fontSize:"17px",
 cursor:"pointer"
 }}
-onMouseEnter={(e)=>{
-e.currentTarget.style.fontWeight="bold";
-e.currentTarget.style.color="hsl(246, 89%, 51%)";
-e.currentTarget.style.transform="scale(1.05)";
-}}
-onMouseLeave={(e)=>{
-e.currentTarget.style.fontWeight="600";
-e.currentTarget.style.color="#111";
-e.currentTarget.style.transform="scale(1)";
-}}
+
 >
 Next → Customize publish
 </button>
@@ -267,6 +259,7 @@ Your product preview will appear here
 </p>
 
 <button
+className="interactive-btn"
 style={{
 width:"100%",
 marginTop:"20px",
@@ -276,16 +269,7 @@ padding:"15px",
 border:"none",
 borderRadius:"10px"
 }}
-onMouseEnter={(e)=>{
-e.currentTarget.style.fontWeight="bold";
-e.currentTarget.style.color="hsl(246, 89%, 51%)";
-e.currentTarget.style.transform="scale(1.05)";
-}}
-onMouseLeave={(e)=>{
-e.currentTarget.style.fontWeight="600";
-e.currentTarget.style.color="#111";
-e.currentTarget.style.transform="scale(1)";
-}}
+
 >
 Purchase
 </button>

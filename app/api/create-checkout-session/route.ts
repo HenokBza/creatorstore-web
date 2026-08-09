@@ -125,7 +125,7 @@ product.thumbnail?.length);
               unit_amount:
 
                 Math.round(
-                  Number(product.price) * 100
+                  Number(product.discountPrice ? product.discountPrice : product.price) * 100
                 ),
 
      product_data: {

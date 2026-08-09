@@ -12,6 +12,7 @@ export default function EarningsPage() {
   revenue: 0,
   available: 0,
   pending: 0,
+  totalPaid: 0,
   sold: 0,
   visits: 0,
   productCount: 0,
@@ -73,12 +74,16 @@ const userSnap = await getDoc(userRef);
 
 let previousRevenue = 0;
 let availableBalance = totalRevenue;
+let pendingBalance = 0;
+let totalWithdrawn = 0;
 
 if (userSnap.exists()) {
   const data = userSnap.data();
 
   previousRevenue = Number(data.totalRevenue || 0);
   availableBalance = Number(data.availableBalance || 0);
+pendingBalance = Number(data.pendingBalance || 0);
+totalWithdrawn = Number(data.totalWithdrawn || 0);
 
   const newRevenue = totalRevenue - previousRevenue;
 
@@ -101,7 +106,8 @@ setProducts(bestProducts);
 setStats({
   revenue: totalRevenue,
   available: availableBalance,
-  pending: 0,
+  pending: pendingBalance,
+  totalPaid: totalWithdrawn,
   sold: totalCustomers,
   visits: totalVisits,
   productCount: bestProducts.length,
@@ -242,13 +248,12 @@ CA${stats.available.toFixed(2)}
 
 <p
 style={{
-color:"#ebca25fd",
+color:"#1b61b2fd",
 fontWeight:"bold"
 }}
 >
-Ready to withdraw
+Ready to withdraw.
 </p>
-
 </div>
 
 
@@ -284,8 +289,37 @@ Processing
 </p>
 
 </div>
+<div
+style={{
+background:"white",
+padding:"25px",
+borderRadius:"20px",
+boxShadow:"0 5px 20px rgba(0,0,0,.06)"
+}}
+>
 
+<p
+style={{
+color:"#777",
+marginBottom:"10px"
+}}
+>
+💵 Total Paid
+</p>
 
+<h1>
+CA${stats.totalPaid.toFixed(2)}
+</h1>
+<p
+style={{
+color:"#f59e0b",
+fontWeight:"bold"
+}}
+>
+Approved
+</p>
+
+</div>
 <div
 style={{
 background:"white",
@@ -462,16 +496,7 @@ padding:"25px",
 borderRadius:"20px",
 boxShadow:"0 5px 20px rgba(0,0,0,.06)"
 }}
-onMouseEnter={(e)=>{
-e.currentTarget.style.fontWeight="bold";
-e.currentTarget.style.color="hsl(246, 89%, 51%)";
-e.currentTarget.style.transform="scale(1.05)";
-}}
-onMouseLeave={(e)=>{
-e.currentTarget.style.fontWeight="600";
-e.currentTarget.style.color="#111";
-e.currentTarget.style.transform="scale(1)";
-}}
+
 >
 <h2>
 🏦 Withdraw Earnings
@@ -496,11 +521,12 @@ Check Availablity for payout. click withdraw
 <Link href="/dashboard/earnings/withdraw">
 
 <button
+className="interactive-btn"
 style={{
 marginTop:"25px",
 width:"100%",
 padding:"16px",
-background:"#D4AF37",
+background:"#5955a2",
 border:"none",
 borderRadius:"14px",
 fontWeight:"bold",

@@ -222,6 +222,7 @@ export default function PhonePage() {
 
           <button
             onClick={handleContinue}
+            className="interactive-btn"
             style={{
               background:"#D4AF37",
               color:"white",
