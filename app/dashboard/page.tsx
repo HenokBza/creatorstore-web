@@ -5,8 +5,8 @@ import { auth, db } from "@/lib/firebase";
 import { FaTiktok, FaFacebook, FaYoutube, FaInstagram } from "react-icons/fa";
 import {
   ResponsiveContainer,
-  LineChart,
-  Line,
+  BarChart,
+  Bar,
   XAxis,
   YAxis,
   Tooltip
@@ -19,372 +19,304 @@ import {
   query,
   where,
   getDocs,
-   increment,
 } from "firebase/firestore";
 
 export default function Dashboard() {
+  const [userData, setUserData] = useState<any>(null);
 
-  const [userData,setUserData]=
-  useState<any>(null);
-
-  const [stats,setStats]=
-  useState({
-    visits:0,
-    revenue:0,
-    products:0,
-    customers:0,
+  const [stats, setStats] = useState({
+    visits: 0,
+    revenue: 0,
+    products: 0,
+    coachingCalls: 0,
+    customers: 0,
   });
 
-  useEffect(()=>{
+  // Dynamic graph data state initialized to 0 for all months
+  const [graphData, setGraphData] = useState([
+    { month: "Jan", visits: 0, revenue: 0 },
+    { month: "Feb", visits: 0, revenue: 0 },
+    { month: "Mar", visits: 0, revenue: 0 },
+    { month: "Apr", visits: 0, revenue: 0 },
+    { month: "May", visits: 0, revenue: 0 },
+    { month: "Jun", visits: 0, revenue: 0 },
+    { month: "July", visits: 0, revenue: 0 },
+    { month: "Aug", visits: 0, revenue: 0 },
+    { month: "Sep", visits: 0, revenue: 0 },
+    { month: "Oct", visits: 0, revenue: 0 },
+    { month: "Nov", visits: 0, revenue: 0 },
+    { month: "Dec", visits: 0, revenue: 0 },
+  ]);
 
-    const user=
-    auth.currentUser;
+  useEffect(() => {
+    const user = auth.currentUser;
+    if (!user) return;
 
-    if(!user) return;
+    // 1. Listen to user document in real-time (Pulls exact Revenue and Customers/Sales)
+    const userRef = doc(db, "users", user.uid);
+    const unsubscribeUser = onSnapshot(userRef, (snapshot) => {
+      if (!snapshot.exists()) return;
+      const data = snapshot.data();
+      setUserData(data);
 
-    const userRef=
-    doc(
-      db,
-      "users",
-      user.uid
-    );
+      setStats((prev) => ({
+        ...prev,
+        visits: data.visits || 0,
+        revenue: data.totalRevenue || 0, // 👈 Grabs the 1080 directly from your user document
+        customers: data.totalSales || 0, // 👈 Grabs the 4 customers directly from your user document
+      }));
+    });
 
-    const unsubscribe=
-    onSnapshot(
-      userRef,
-
-      async(snapshot)=>{
-
-        if(
-          !snapshot.exists()
-        ) return;
-
-        const data=
-        snapshot.data();
-
-        setUserData(
-          data
+    // 2. Fetch and calculate Products, Coaching Stats & Real Monthly Orders
+    const fetchStoreStats = async () => {
+      try {
+        // --- PRODUCTS STATS ---
+        const productsQuery = query(
+          collection(db, "products"),
+          where("userId", "==", user.uid)
         );
+        const productsSnapshot = await getDocs(productsQuery);
+        
+        let productRevenue = 0;
+        let productCustomers = 0;
 
-        const productsQuery=
-        query(
-          collection(
-            db,
-            "products"
-          ),
-          where(
-            "userId",
-            "==",
-            user.uid
-          )
-        );
-
-        const productsSnapshot=
-        await getDocs(
-          productsQuery
-        );
-
-        const productCount=
-        productsSnapshot.size;
-
-        let totalRevenue=0;
-        let totalCustomers=0;
-
-        productsSnapshot.forEach(
-          (doc)=>{
-
-          const product=
-          doc.data();
-
-          totalRevenue+=
-          product.revenue || 0;
-
-          totalCustomers+=
-          product.customers || 0;
-
+        productsSnapshot.forEach((doc) => {
+          const product = doc.data();
+          productRevenue += Number(product.revenue || 0);
+          productCustomers += Number(product.customers || 0);
         });
 
-        setStats({
+        // --- COACHING CALLS STATS ---
+        const coachingSnapshot = await getDocs(
+          collection(db, "coachingCalls")
+        );
 
-          visits: data.visits || 0,
-          revenue:
-          totalRevenue,
+        let coachingRevenue = 0;
+        let coachingCustomers = 0;
+        let coachingCount = 0;
 
-          products:
-          productCount,
+        coachingSnapshot.forEach((doc) => {
+          const coaching = doc.data();
+          const ownerId = coaching.creatorId || coaching.userId;
 
-          customers:
-          totalCustomers
-
+          if (ownerId === user.uid) {
+            coachingCount += 1;
+            coachingRevenue += Number(coaching.revenue || 0);
+            coachingCustomers += Number(coaching.customers || 0);
+          }
         });
 
+        // --- REAL ORDERS FETCHING (For dynamic month tracking) ---
+        const ordersQuery = query(
+          collection(db, "orders"),
+          where("creatorId", "==", user.uid)
+        );
+        const ordersSnapshot = await getDocs(ordersQuery);
+
+        // Initialize 12 months accumulator
+        const monthlyDataMap: { [key: string]: { visits: number; revenue: number } } = {
+          "Jan": { visits: 0, revenue: 0 },
+          "Feb": { visits: 0, revenue: 0 },
+          "Mar": { visits: 0, revenue: 0 },
+          "Apr": { visits: 0, revenue: 0 },
+          "May": { visits: 0, revenue: 0 },
+          "Jun": { visits: 0, revenue: 0 },
+          "July": { visits: 0, revenue: 0 },
+          "Aug": { visits: 0, revenue: 0 },
+          "Sep": { visits: 0, revenue: 0 },
+          "Oct": { visits: 0, revenue: 0 },
+          "Nov": { visits: 0, revenue: 0 },
+          "Dec": { visits: 0, revenue: 0 },
+        };
+
+        ordersSnapshot.forEach((docSnap) => {
+          const order = docSnap.data();
+          const amount = Number(order.amount || 0);
+
+          if (order.createdAt) {
+            const date = order.createdAt.toDate ? order.createdAt.toDate() : new Date(order.createdAt);
+            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "July", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const monthStr = monthNames[date.getMonth()];
+
+            if (monthlyDataMap[monthStr]) {
+              monthlyDataMap[monthStr].revenue += amount;
+              monthlyDataMap[monthStr].visits += Number(order.visits || 1); // Tracks visits associated with the order or increments by 1
+            }
+          }
+        });
+
+        // Format map into array for Recharts
+        const formattedGraphData = Object.keys(monthlyDataMap).map((month) => ({
+          month,
+          visits: monthlyDataMap[month].visits,
+          revenue: monthlyDataMap[month].revenue,
+        }));
+
+        setGraphData(formattedGraphData);
+
+        // --- TOTALS ---
+        const totalRevenue = productRevenue + coachingRevenue;
+        const totalCustomers = productCustomers + coachingCustomers;
+
+        setStats((prev) => ({
+          ...prev,
+          revenue: totalRevenue,
+          products: productsSnapshot.size,
+          coachingCalls: coachingCount,
+          customers: totalCustomers,
+        }));
+      } catch (error) {
+        console.error("Error fetching store stats:", error);
       }
+    };
 
-    );
+    fetchStoreStats();
 
-    return ()=>unsubscribe();
-
-  },[]);
-
-
-  const copyLink=()=>{
-
-    navigator.clipboard.writeText(
-      `https://${userData?.storeURL}`
-    );
-
-    alert(
-      "Store link copied!"
-    );
-
+    return () => {
+      unsubscribeUser();
+    };
+  }, []);
+  const copyLink = () => {
+    navigator.clipboard.writeText(`https://${userData?.storeURL}`);
+    alert("Store link copied!");
   };
 
+  return (
+    <div>
+      <div
+        style={{
+          background: "#D4AF37",
+          padding: "15px",
+          borderRadius: "10px",
+          marginBottom: "30px",
+          fontWeight: "bold"
+        }}
+      >
+        Welcome to CreatorStore 🚀
+      </div>
 
-  // GRAPH DATA
-  const graphData=[
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "25px"
+        }}
+      >
+        <div>
+          <h1>Welcome back, {userData?.name || "Creator"}!</h1>
+          <p style={{ color: "#f11329" }}>{userData?.storeURL}</p>
+        </div>
 
-    {
-      month:"Jan",
-      visits:stats.visits
-    },
+        <button
+          onClick={copyLink}
+          className="interactive-btn"
+          style={{
+            color: "blue",
+            border: "none",
+            padding: "12px 20px",
+            borderRadius: "10px",
+            cursor: "pointer",
+            fontWeight: "bold"
+          }}
+        >
+          🔗 copy Store Link
+        </button>
 
-    {
-      month:"Apr",
-      visits:stats.visits
-    },
+        {/* Social Media Icons */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            gap: "20px",
+            marginTop: "20px",
+          }}
+        >
+          <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" className="interactive-btn" style={{ color: "black", fontSize: "28px" }}><FaTiktok /></a>
+          <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="interactive-btn" style={{ color: "#1877F2", fontSize: "28px" }}><FaFacebook /></a>
+          <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="interactive-btn" style={{ color: "#FF0000", fontSize: "28px" }}><FaYoutube /></a>
+          <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="interactive-btn" style={{ color: "#E4405F", fontSize: "28px" }}><FaInstagram /></a>
+        </div>
+      </div>
 
-    {
-      month:"July",
-      visits:stats.visits
-    },
-     
-     {
-      month:"oct",
-      visits:stats.visits
-    }
-  ];
+      {/* LIVE STATS */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+          gap: "20px"
+        }}
+      >
+         <div style={{ background: "white", padding: "20px", borderRadius: "12px" }}>
+          <h3>💰 Revenue</h3>
+          <h2>${stats.revenue}</h2>
+        </div>
+        <div style={{ background: "white", padding: "20px", borderRadius: "12px" }}>
+          <h3>👀 Store Visits</h3>
+          <h2>{stats.visits}</h2>
+        </div>
 
+        <div style={{ background: "white", padding: "20px", borderRadius: "12px" }}>
+          <h3>📦 Products</h3>
+          <h2>{stats.products}</h2>
+        </div>
 
-  return(
+        <div style={{ background: "white", padding: "20px", borderRadius: "12px" }}>
+          <h3>🎯 Coaching Calls</h3>
+          <h2>{stats.coachingCalls}</h2>
+        </div>
 
-<div>
+        <div style={{ background: "white", padding: "20px", borderRadius: "12px" }}>
+          <h3>👥 Customers</h3>
+          <h2>{stats.customers}</h2>
+        </div>
+      </div>
 
-<div
-style={{
-background:"#D4AF37",
-padding:"15px",
-borderRadius:"10px",
-marginBottom:"30px",
-fontWeight:"bold"
-}}
->
-Welcome to CreatorStore 🚀
-</div>
+     {/* GRAPH */}
+      <div
+        style={{
+          marginTop: "40px",
+          background: "#D4AF37",
+          padding: "25px",
+          borderRadius: "15px",
+        }}
+      >
+        <h2
+          style={{
+            marginBottom: "20px",
+            color: "#000",
+          }}
+        >
+          📈 Store Analytics (All Months)
+        </h2>
 
-
-<div
-style={{
-display:"flex",
-justifyContent:"space-between",
-alignItems:"center",
-marginBottom:"25px"
-}}
->
-
-<div>
-
-<h1>
-Welcome back,
-{" "}
-{userData?.name ||
-"Creator"}!
-</h1>
-
-<p
-style={{
-color:"#f11329"
-}}
->
-{" "}
-{userData?.storeURL}
-</p>
-
-</div>
-
-<button
-onClick={copyLink}
-className="interactive-btn"
-style={{
-color:"blue",
-border:"none",
-padding:"12px 20px",
-borderRadius:"10px",
-cursor:"pointer",
-fontWeight:"bold"
-}}
->
-🔗 copy Store Link
-</button>
-
-{/* Social Media Icons */}
-<div
-  style={{
-    display: "flex",
-    justifyContent: "center",
-    gap: "20px",
-    marginTop: "20px",
-  }}
->
-  <a
-    href="https://tiktok.com"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="interactive-btn"
-    style={{ color: "black", fontSize: "28px", display: "inline-block" }}
-  >
-    <FaTiktok />
-  </a>
-
-  <a
-    href="https://facebook.com"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="interactive-btn"
-    style={{ color: "#1877F2", fontSize: "28px", display: "inline-block" }}
-  >
-    <FaFacebook />
-  </a>
-
-  <a
-    href="https://youtube.com"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="interactive-btn"
-    style={{ color: "#FF0000", fontSize: "28px", display: "inline-block" }}
-  >
-    <FaYoutube />
-  </a>
-
-  <a
-    href="https://instagram.com"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="interactive-btn"
-    style={{ color: "#E4405F", fontSize: "28px", display: "inline-block" }}
-  >
-    <FaInstagram />
-  </a>
-</div>
-
-</div>
-
-
-{/* LIVE STATS */}
-
-<div
-style={{
-display:"grid",
-gridTemplateColumns:
-"repeat(auto-fit,minmax(220px,1fr))",
-gap:"20px"
-}}
->
-
-<div
-style={{
-background:"white",
-padding:"20px",
-borderRadius:"12px"
-}}
->
-<h3>👀 Store Visits</h3>
-<h2>{stats.visits}</h2>
-</div>
-
-<div
-style={{
-background:"white",
-padding:"20px",
-borderRadius:"12px"
-}}
->
-<h3>💰 Revenue</h3>
-<h2>
-${stats.revenue}
-</h2>
-</div>
-
-<div
-style={{
-background:"white",
-padding:"20px",
-borderRadius:"12px"
-}}
->
-<h3>📦 Products</h3>
-<h2>
-{stats.products}
-</h2>
-</div>
-
-<div
-style={{
-background:"white",
-padding:"20px",
-borderRadius:"12px"
-}}
->
-<h3>👥 Customers</h3>
-<h2>
-{stats.customers}
-</h2>
-</div>
-
-</div>
-
-
-{/* GRAPH */}
-<div
-  style={{
-    marginTop: "40px",
-    background: "#D4AF37",
-    padding: "25px",
-    borderRadius: "15px",
-  }}
->
-  <h2
-    style={{
-      marginBottom: "20px",
-    }}
-  >
-    📈 Store Analytics
-  </h2>
-
-  {/* Changed width from "70%" to "100%" to prevent invalid chart dimensions */}
-  <div
-    style={{
-      width: "100%",
-      height: "300px",
-    }}
-  >
-    <ResponsiveContainer width="100%" height="100%">
-      <LineChart data={graphData}>
-        <XAxis dataKey="month" />
-        <YAxis />
-        <Tooltip />
-        <Line
-          type="monotone"
-          dataKey="visits"
-          stroke="#3417d9"
-          strokeWidth={3}
-        />
-      </LineChart>
-    </ResponsiveContainer>
-  </div>
-</div>
-
-</div>
-
-);
-
+        {/* Responsive scroll wrapper for mobile and laptop */}
+        <div
+          style={{
+            width: "100%",
+            overflowX: "auto",
+          }}
+        >
+          <div
+            style={{
+              minWidth: "650px",
+              height: "320px",
+            }}
+          >
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={graphData}>
+                <XAxis dataKey="month" stroke="#000" />
+                <YAxis stroke="#000" />
+                <Tooltip />
+                {/* Blue bar for visits */}
+                <Bar dataKey="visits" fill="#3417d9" radius={[4, 4, 0, 0]} />
+                {/* Orange bar for revenue */}
+                <Bar dataKey="revenue" fill="#f97316" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }

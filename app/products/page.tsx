@@ -11,6 +11,7 @@ import { db } from "@/lib/firebase";
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
@@ -61,6 +62,15 @@ export default function ProductsPage() {
     }
   };
 
+  // Filter products based on search query (title, category, or creator name)
+  const filteredProducts = products.filter((product) => {
+    const query = searchQuery.toLowerCase();
+    const title = (product.title || "").toLowerCase();
+    const category = (product.category || "").toLowerCase();
+    const creatorName = (product.creatorName || "").toLowerCase();
+    return title.includes(query) || category.includes(query) || creatorName.includes(query);
+  });
+
   if (loading) {
     return <h2 style={{ padding: "40px" }}>Loading...</h2>;
   }
@@ -73,12 +83,31 @@ export default function ProductsPage() {
         padding: "20px",
       }}
     >
-      <h1>📦 Products</h1>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px", flexWrap: "wrap", gap: "15px" }}>
+        <h1 style={{ margin: 0 }}>📦 Products</h1>
+
+        {/* Search Bar Input */}
+        <input
+          type="text"
+          placeholder="🔍 Search by product, category, or creator..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          style={{
+            padding: "10px 16px",
+            borderRadius: "10px",
+            border: "1px solid #cbd5e1",
+            width: "320px",
+            fontSize: "14px",
+            outline: "none",
+            background: "#fff",
+          }}
+        />
+      </div>
 
       <table
         style={{
           width: "100%",
-          marginTop: "30px",
+          marginTop: "20px",
           borderCollapse: "collapse",
           background: "white",
           borderRadius: "16px",
@@ -97,133 +126,141 @@ export default function ProductsPage() {
           </tr>
         </thead>
         <tbody>
-          {products.map((product) => (
-            <tr key={product.id} style={{ borderBottom: "1px solid #eee" }}>
-              <td style={{ padding: "16px" }}>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "12px",
-                  }}
-                >
-                  <img
-                    src={product.thumbnail || "/placeholder-product.png"}
-                    alt={product.title}
-                    style={{
-                      width: "55px",
-                      height: "55px",
-                      borderRadius: "10px",
-                      objectFit: "cover",
-                      border: "1px solid #ddd",
-                    }}
-                  />
-                  <div>
-                    <div
-                      style={{
-                        fontWeight: "700",
-                        fontSize: "15px",
-                      }}
-                    >
-                      {product.title}
-                    </div>
-                    <div
-                      style={{
-                        fontSize: "12px",
-                        color: "#888",
-                        marginTop: "4px",
-                      }}
-                    >
-                      {product.category || "Digital Product"}
-                    </div>
-                  </div>
-                </div>
-              </td>
-
-              <td style={{ padding: "16px" }}>{product.creatorName}</td>
-              <td style={{ padding: "16px" }}>CA${product.price}</td>
-              <td style={{ padding: "16px" }}>{product.customers || 0}</td>
-              <td style={{ padding: "16px" }}>{product.visits || 0}</td>
-
-              <td style={{ padding: "16px", position: "relative" }}>
-                <button
-                  onClick={() => setOpenMenuId(openMenuId === product.id ? null : product.id)}
-                  style={{
-                    background: "#f1f5f9",
-                    color: "#334155",
-                    border: "1px solid #cbd5e1",
-                    padding: "8px 16px",
-                    borderRadius: "8px",
-                    cursor: "pointer",
-                    fontWeight: "600",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "6px",
-                  }}
-                >
-                  ⚙ Actions ▼
-                </button>
-
-                {openMenuId === product.id && (
-                  <div
-                    style={{
-                      position: "absolute",
-                      right: "20px",
-                      top: "60px",
-                      background: "white",
-                      boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
-                      borderRadius: "12px",
-                      overflow: "hidden",
-                      zIndex: 50,
-                      minWidth: "155px",
-                      border: "1px solid #e2e8f0",
-                    }}
-                  >
-                    <button
-                      onClick={() => {
-                        setSelectedProduct(product);
-                        setOpenMenuId(null);
-                      }}
-                      style={{
-                        width: "100%",
-                        padding: "12px 16px",
-                        textAlign: "left",
-                        background: "transparent",
-                        border: "none",
-                        cursor: "pointer",
-                        fontSize: "14px",
-                        fontWeight: "500",
-                        color: "#1e293b",
-                        borderBottom: "1px solid #f1f5f9",
-                      }}
-                    >
-                      👁 View Details
-                    </button>
-
-                    <button
-                      onClick={() => {
-                        handleToggleDisable(product.id, product.status);
-                        setOpenMenuId(null);
-                      }}
-                      style={{
-                        width: "100%",
-                        padding: "12px 16px",
-                        textAlign: "left",
-                        background: "transparent",
-                        border: "none",
-                        cursor: "pointer",
-                        fontSize: "14px",
-                        fontWeight: "500",
-                        color: product.status === "disabled" ? "#16a34a" : "#dc2626",
-                      }}
-                    >
-                      {product.status === "disabled" ? "🟢 Activate" : "🚫 Disable"}
-                    </button>
-                  </div>
-                )}
+          {filteredProducts.length === 0 ? (
+            <tr>
+              <td colSpan={6} style={{ padding: "40px", textAlign: "center", color: "#666" }}>
+                No products found matching "{searchQuery}".
               </td>
             </tr>
-          ))}
+          ) : (
+            filteredProducts.map((product) => (
+              <tr key={product.id} style={{ borderBottom: "1px solid #eee" }}>
+                <td style={{ padding: "16px" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "12px",
+                    }}
+                  >
+                    <img
+                      src={product.thumbnail || "/placeholder-product.png"}
+                      alt={product.title}
+                      style={{
+                        width: "55px",
+                        height: "55px",
+                        borderRadius: "10px",
+                        objectFit: "cover",
+                        border: "1px solid #ddd",
+                      }}
+                    />
+                    <div>
+                      <div
+                        style={{
+                          fontWeight: "700",
+                          fontSize: "15px",
+                        }}
+                      >
+                        {product.title}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "12px",
+                          color: "#888",
+                          marginTop: "4px",
+                        }}
+                      >
+                        {product.category || "Digital Product"}
+                      </div>
+                    </div>
+                  </div>
+                </td>
+
+                <td style={{ padding: "16px" }}>{product.creatorName}</td>
+                <td style={{ padding: "16px" }}>CA${product.price}</td>
+                <td style={{ padding: "16px" }}>{product.customers || 0}</td>
+                <td style={{ padding: "16px" }}>{product.visits || 0}</td>
+
+                <td style={{ padding: "16px", position: "relative" }}>
+                  <button
+                    onClick={() => setOpenMenuId(openMenuId === product.id ? null : product.id)}
+                    style={{
+                      background: "#f1f5f9",
+                      color: "#334155",
+                      border: "1px solid #cbd5e1",
+                      padding: "8px 16px",
+                      borderRadius: "8px",
+                      cursor: "pointer",
+                      fontWeight: "600",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                    }}
+                  >
+                    ⚙ Actions ▼
+                  </button>
+
+                  {openMenuId === product.id && (
+                    <div
+                      style={{
+                        position: "absolute",
+                        right: "20px",
+                        top: "60px",
+                        background: "white",
+                        boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
+                        borderRadius: "12px",
+                        overflow: "hidden",
+                        zIndex: 50,
+                        minWidth: "155px",
+                        border: "1px solid #e2e8f0",
+                      }}
+                    >
+                      <button
+                        onClick={() => {
+                          setSelectedProduct(product);
+                          setOpenMenuId(null);
+                        }}
+                        style={{
+                          width: "100%",
+                          padding: "12px 16px",
+                          textAlign: "left",
+                          background: "transparent",
+                          border: "none",
+                          cursor: "pointer",
+                          fontSize: "14px",
+                          fontWeight: "500",
+                          color: "#1e293b",
+                          borderBottom: "1px solid #f1f5f9",
+                        }}
+                      >
+                        👁 View Details
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          handleToggleDisable(product.id, product.status);
+                          setOpenMenuId(null);
+                        }}
+                        style={{
+                          width: "100%",
+                          padding: "12px 16px",
+                          textAlign: "left",
+                          background: "transparent",
+                          border: "none",
+                          cursor: "pointer",
+                          fontSize: "14px",
+                          fontWeight: "500",
+                          color: product.status === "disabled" ? "#16a34a" : "#dc2626",
+                        }}
+                      >
+                        {product.status === "disabled" ? "🟢 Activate" : "🚫 Disable"}
+                      </button>
+                    </div>
+                  )}
+                </td>
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
 

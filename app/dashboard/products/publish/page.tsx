@@ -964,7 +964,43 @@ if (editingProductId) {
               {title.length}/30
             </p>
           </div>
+{/* THUMBNAIL */}
 
+          <div>
+            <h3>
+              🖼️ Product Thumbnail
+            </h3>
+
+            <div
+              style={{
+                padding: "25px",
+                border:
+                  "2px dashed #D4AF37",
+                borderRadius: "15px",
+                textAlign: "center",
+              }}
+            >
+              <input
+                type="file"
+                accept="image/*"
+                onChange={
+                  handleThumbnailChange
+                }
+              />
+
+              {thumbnailFile && (
+                <p
+                  style={{
+                    marginTop: "10px",
+                    color: "#666",
+                  }}
+                >
+                  🖼️{" "}
+                  {thumbnailFile.name}
+                </p>
+              )}
+            </div>
+          </div>
           {/* DESCRIPTION */}
 
           <div>
@@ -1162,44 +1198,6 @@ if (editingProductId) {
                   "border-box",
               }}
             />
-          </div>
-
-          {/* THUMBNAIL */}
-
-          <div>
-            <h3>
-              🖼️ Product Thumbnail
-            </h3>
-
-            <div
-              style={{
-                padding: "25px",
-                border:
-                  "2px dashed #D4AF37",
-                borderRadius: "15px",
-                textAlign: "center",
-              }}
-            >
-              <input
-                type="file"
-                accept="image/*"
-                onChange={
-                  handleThumbnailChange
-                }
-              />
-
-              {thumbnailFile && (
-                <p
-                  style={{
-                    marginTop: "10px",
-                    color: "#666",
-                  }}
-                >
-                  🖼️{" "}
-                  {thumbnailFile.name}
-                </p>
-              )}
-            </div>
           </div>
 
           {/* PRODUCT FILE */}

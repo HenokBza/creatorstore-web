@@ -17,7 +17,7 @@ export default function HelpPage() {
     {
       question: "Can I change my profile picture?",
       answer:
-        "Yes. Open your profile menu and go to Settings.",
+        "Yes. go to dashboard Click your profile and Change profile pic.",
     },
 
     {

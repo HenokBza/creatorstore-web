@@ -150,37 +150,6 @@ marginTop:"10px"
 />
 
 </div>
-
-
-<div>
-
-<h3>
-🖼 Upload Thumbnail
-</h3>
-
-<div
-style={{
-border:
-"2px dashed #D4AF37",
-padding:"30px",
-borderRadius:"15px",
-textAlign:"center"
-}}
->
-
-<input
-type="file"
-accept="image/*"
-onChange={
-handleImage
-}
-/>
-
-</div>
-
-</div>
-
-
 <button
 onClick={handleNext}
 className="interactive-btn"

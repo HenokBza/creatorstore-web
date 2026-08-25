@@ -32,19 +32,23 @@ export default function TermsPage() {
         of their accounts and passwords.
       </p>
 
-      <h2>3. Digital Products</h2>
+      <h2>3. Digital Products & Coaching</h2>
 
       <p>
-        Creators are responsible for all products they publish.
-        CreatorStore does not own or review every product.
+        Creators are responsible for all products and coaching services they publish.
+        CreatorStore does not own or review every item listed, but reserves the right 
+        to remove content that violates our guidelines.
       </p>
 
-      <h2>4. Payments</h2>
+      <h2>4. Payments, Payouts & Currency</h2>
 
       <p>
-        Payments are processed by third-party payment providers
-        such as Stripe, PayPal, and other supported payment
-        services.
+        Customer payments are processed via supported global and local gateways. 
+        For Ethiopian creators and international users alike, earnings are tracked 
+        within the dashboard. Payouts and withdrawals are processed subject to platform 
+        withdrawal requests, verification, applicable service fees, and local banking 
+        or mobile money processing times. CreatorStore is not responsible for bank 
+        transfer delays or currency exchange rate fluctuations.
       </p>
 
       <h2>5. Prohibited Content</h2>
@@ -66,7 +70,7 @@ export default function TermsPage() {
       <p>
         CreatorStore is provided "as is" without warranties.
         We are not responsible for indirect losses resulting
-        from the use of our platform.
+        from the use of our platform or scheduling/payout disputes.
       </p>
 
       <h2>8. Contact</h2>

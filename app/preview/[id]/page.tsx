@@ -73,9 +73,29 @@ export default function PreviewPage() {
             {product.title}
           </h1>
 
-          <h2 style={{ color: "#9b937b", fontSize: "20px", marginBottom: "15px" }}>
-            ${Number(product.price || 0).toFixed(2)}
-          </h2>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "15px", flexWrap: "wrap" }}>
+            {product.discountPrice ? (
+              <>
+                <h2 style={{ color: "#37b2d4", fontSize: "22px", fontWeight: "bold", margin: 0 }}>
+                  CA${Number(product.discountPrice).toFixed(2)}
+                </h2>
+                <span
+                  style={{
+                    textDecoration: "line-through",
+                    color: "#9b937b",
+                    fontSize: "16px",
+                    fontWeight: "bold",
+                  }}
+                >
+                  CA${Number(product.price || 0).toFixed(2)}
+                </span>
+              </>
+            ) : (
+              <h2 style={{ color: "#9b937b", fontSize: "20px", margin: 0 }}>
+                CA${Number(product.price || 0).toFixed(2)}
+              </h2>
+            )}
+          </div>
 
           <p style={{ lineHeight: "1.6", color: "black", marginBottom: "20px" }}>
             {product.description}

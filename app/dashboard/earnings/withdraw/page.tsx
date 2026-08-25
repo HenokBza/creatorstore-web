@@ -7,7 +7,7 @@ import { auth, db } from "@/lib/firebase";
 
 import {
   doc, getDoc, addDoc, collection, serverTimestamp,
-  query, where, orderBy, getDocs, updateDoc, increment,
+  query, where, orderBy, getDocs, updateDoc, increment, limit,
 } from "firebase/firestore";
 
 const ethiopianBanks = [
@@ -46,6 +46,7 @@ export default function WithdrawPage() {
   const [isMobile, setIsMobile] = useState(false);
 
   const [amount, setAmount] = useState("");
+  const [confirmedAmount, setConfirmedAmount] = useState(0); 
   const [balance, setBalance] = useState(0);
   const [pending, setPending] = useState(0);
   const [paid, setPaid] = useState(0);
@@ -54,16 +55,16 @@ export default function WithdrawPage() {
   const [currency, setCurrency] = useState("CAD");
   const [selectedMethod, setSelectedMethod] = useState("");
 
+  // Payout Data fetched from user profile
   const [telebirrNumber, setTelebirrNumber] = useState("");
-  const [withdrawMethod, setWithdrawMethod] = useState("telebirr");
   const [selectedBank, setSelectedBank] = useState("");
   const [accountHolder, setAccountHolder] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
 
+  const [withdrawMethod, setWithdrawMethod] = useState("telebirr");
   const [history, setHistory] = useState<any[]>([]);
 
   useEffect(() => {
-    // Basic mobile check listener
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
     };
@@ -88,7 +89,13 @@ export default function WithdrawPage() {
         const data = snap.data();
         setCountry(data.country || "");
         setCurrency(data.currency || "CAD");
-        setTelebirrNumber(data.telebirrNumber || "");
+        
+        // Load stored details
+        setTelebirrNumber(data.telebirrPhone || data.telebirrNumber || "");
+        setSelectedBank(data.selectedBank || "");
+        setAccountHolder(data.bankAccountName || data.accountHolder || "");
+        setAccountNumber(data.bankAccountNumber || data.accountNumber || "");
+
         setBalance(Number(data.availableBalance || 0));
         setPaid(Number(data.totalWithdrawn || 0));
       }
@@ -96,7 +103,8 @@ export default function WithdrawPage() {
       const historyQuery = query(
         collection(db, "withdrawals"),
         where("creatorId", "==", user.uid),
-        orderBy("requestedAt", "desc")
+        orderBy("requestedAt", "desc"),
+        limit(10)
       );
       const historySnapshot = await getDocs(historyQuery);
       const withdrawalList: any[] = [];
@@ -150,6 +158,7 @@ export default function WithdrawPage() {
       return;
     }
 
+    setConfirmedAmount(value);
     setStep(2);
   };
 
@@ -174,8 +183,8 @@ export default function WithdrawPage() {
         email: creator.email || "",
         country: creator.country || "",
         method: selectedMethod,
-        requestedAmount: Number(amount),
-        finalPayout: Number(amount) * 0.50,
+        requestedAmount: confirmedAmount,
+        finalPayout: confirmedAmount * 0.50,
         currency: creator.currency || "CAD",
         status: "Pending",
         requestedAt: serverTimestamp(),
@@ -187,29 +196,33 @@ export default function WithdrawPage() {
       });
 
       await updateDoc(doc(db, "users", user.uid), {
-        availableBalance: increment(-Number(amount)),
-        pendingBalance: increment(Number(amount) * 0.50),
+        availableBalance: increment(-confirmedAmount),
+        pendingBalance: increment(confirmedAmount * 0.50),
       });
 
-      const value = Number(amount);
-      setBalance((prev) => prev - value);
-      setPending((prev) => prev + value * 0.5);
+      setBalance((prev) => prev - confirmedAmount);
+      setPending((prev) => prev + confirmedAmount * 0.5);
 
       setHistory((prev) => [
-        {accountHolder: accountHolder, // Add this line
+        {
+          creatorName: creator.name || "",
+          accountHolder: accountHolder,
           accountNumber: accountNumber,
-          requestedAmount: value,
-          finalPayout: value * 0.5,
+          bankName: selectedBank,
+          withdrawMethod: withdrawMethod,
+          telebirrNumber: telebirrNumber,
+          requestedAmount: confirmedAmount,
+          finalPayout: confirmedAmount * 0.5,
           method: selectedMethod,
           status: "Pending",
           requestedAt: {
-          seconds: Math.floor(Date.now() / 1000),
+            seconds: Math.floor(Date.now() / 1000),
           },
         },
-        ...prev,
+        ...prev.slice(0, 9),
       ]);
 
-      setSubmittedAmount(value);
+      setSubmittedAmount(confirmedAmount);
       setStep(4);
       setAmount("");
     } catch (error: any) {
@@ -234,6 +247,10 @@ export default function WithdrawPage() {
       </div>
     );
   }
+
+  // Check connectivity states
+  const hasTelebirr = telebirrNumber.trim() !== "";
+  const hasBank = selectedBank !== "" && accountNumber.trim() !== "";
 
   return (
     <div
@@ -336,6 +353,7 @@ export default function WithdrawPage() {
           type="number"
           placeholder="250"
           value={amount}
+          disabled={step > 1}
           onChange={(e) => setAmount(e.target.value)}
           style={{
             width: "50%",
@@ -343,7 +361,8 @@ export default function WithdrawPage() {
             marginTop: "15px",
             borderRadius: "12px",
             border: "1px solid #ddd",
-            fontSize: "18px"
+            fontSize: "18px",
+            background: step > 1 ? "#f1f5f9" : "#fff"
           }}
         />
 
@@ -353,23 +372,26 @@ export default function WithdrawPage() {
           </p>
         )}
 
-        <button
-          onClick={continueWithdrawal}
-          className="interactive-btn"
-          style={{
-            marginTop: "25px",
-            width: "100%",
-            padding: "16px",
-            background: "#275fd8",
-            border: "none",
-            borderRadius: "12px",
-            fontWeight: "bold",
-            cursor: "pointer",
-            fontSize: "17px"
-          }}
-        >
-          Continue
-        </button>
+        {step === 1 && (
+          <button
+            onClick={continueWithdrawal}
+            className="interactive-btn"
+            style={{
+              marginTop: "25px",
+              width: "100%",
+              padding: "16px",
+              background: "#275fd8",
+              color: "white",
+              border: "none",
+              borderRadius: "12px",
+              fontWeight: "bold",
+              cursor: "pointer",
+              fontSize: "17px"
+            }}
+          >
+            Continue
+          </button>
+        )}
 
         {step === 2 && (
           <div
@@ -380,118 +402,171 @@ export default function WithdrawPage() {
               borderRadius: "20px"
             }}
           >
-            <h2>Withdrawal Method</h2>
+            <h2>Choose Payout Method</h2>
 
             {country === "Ethiopia" ? (
-              <div style={{ marginTop: "20px" }}>
-                <div style={{ marginBottom: "20px", display: "flex", flexDirection: "column", gap: "12px" }}>
-                  <label style={{ display: "flex", alignItems: "center", gap: "10px", fontWeight: "600", cursor: "pointer" }}>
-                    <input
-                      type="radio"
-                      name="withdrawMethod"
-                      value="telebirr"
-                      checked={withdrawMethod === "telebirr"}
-                      onChange={(e) => setWithdrawMethod(e.target.value)}
-                    />
-                    Transfer to Telebirr
-                  </label>
-
-                  <label style={{ display: "flex", alignItems: "center", gap: "10px", fontWeight: "600", cursor: "pointer" }}>
-                    <input
-                      type="radio"
-                      name="withdrawMethod"
-                      value="bank"
-                      checked={withdrawMethod === "bank"}
-                      onChange={(e) => setWithdrawMethod(e.target.value)}
-                    />
-                    Transfer to Bank Account
-                  </label>
-                </div>
-
-                {withdrawMethod === "telebirr" && (
-                  <div style={{ marginBottom: "20px" }}>
-                    <label style={{ display: "block", marginBottom: "8px", fontWeight: "600" }}>Telebirr Number</label>
-                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                      <span style={{ padding: "15px", background: "#f0f0f0", borderRadius: "12px", border: "1px solid #ddd" }}>+251</span>
-                      <input
-                        type="text"
-                        placeholder="9XXXXXXXX"
-                        value={telebirrNumber}
-                        onChange={(e) => setTelebirrNumber(e.target.value)}
-                        style={{ width: "100%", padding: "15px", border: "1px solid #ddd", borderRadius: "12px" }}
-                      />
-                    </div>
-                  </div>
-                )}
-
-                {withdrawMethod === "bank" && (
-                  <div style={{ display: "flex", flexDirection: "column", gap: "15px", marginBottom: "20px" }}>
-                    <div>
-                      <label style={{ display: "block", marginBottom: "8px", fontWeight: "600" }}>Select Bank</label>
-                      <select
-                        value={selectedBank}
-                        onChange={(e) => setSelectedBank(e.target.value)}
-                        style={{ width: "100%", padding: "15px", border: "1px solid #ddd", borderRadius: "12px", background: "white" }}
+              <div>
+                {/* CASE 1: NO METHODS CONNECTED */}
+                {!hasTelebirr && !hasBank && (
+                  <div
+                    style={{
+                      background: "#fef2f2",
+                      border: "1px solid #fecaca",
+                      padding: "20px",
+                      borderRadius: "12px",
+                      marginTop: "15px",
+                      textAlign: "center"
+                    }}
+                  >
+                    <p style={{ color: "#991b1b", fontWeight: "bold", marginBottom: "15px" }}>
+                      ⚠️ No payout method connected! Please go to settings and connect your Telebirr or Bank account to proceed with withdrawals.
+                    </p>
+                    <Link href="/dashboard/settings/payments">
+                      <button
+                        style={{
+                          padding: "12px 20px",
+                          background: "#dc2626",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "10px",
+                          fontWeight: "bold",
+                          cursor: "pointer"
+                        }}
                       >
-                        <option value="">-- Choose Bank --</option>
-                        {ethiopianBanks.map((bank, index) => (
-                          <option key={index} value={bank}>{bank}</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div>
-                      <label style={{ display: "block", marginBottom: "8px", fontWeight: "600" }}>Account Holder Name</label>
-                      <input
-                        type="text"
-                        placeholder="Full Name"
-                        value={accountHolder}
-                        onChange={(e) => setAccountHolder(e.target.value)}
-                        style={{ width: "100%", padding: "15px", border: "1px solid #ddd", borderRadius: "12px" }}
-                      />
-                    </div>
-
-                    <div>
-                      <label style={{ display: "block", marginBottom: "8px", fontWeight: "600" }}>Account Number</label>
-                      <input
-                        type="text"
-                        placeholder="Account Number"
-                        value={accountNumber}
-                        onChange={(e) => setAccountNumber(e.target.value)}
-                        style={{ width: "100%", padding: "15px", border: "1px solid #ddd", borderRadius: "12px" }}
-                      />
-                    </div>
+                        Go to Payment Settings
+                      </button>
+                    </Link>
                   </div>
                 )}
 
-                <button
-                  onClick={() => {
-                    if (withdrawMethod === "telebirr" && !telebirrNumber) {
-                      alert("Please enter your Telebirr number.");
-                      return;
-                    }
-                    if (withdrawMethod === "bank" && (!selectedBank || !accountHolder || !accountNumber)) {
-                      alert("Please fill in all bank account details.");
-                      return;
-                    }
-                    setSelectedMethod(withdrawMethod === "telebirr" ? "Telebirr" : `Bank (${selectedBank})`);
-                    setStep(3);
-                  }}
-                  className="interactive-btn"
-                  style={{
-                    marginTop: "10px",
-                    width: "100%",
-                    padding: "16px",
-                    background: "#00A651",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "12px",
-                    fontWeight: "bold",
-                    cursor: "pointer"
-                  }}
-                >
-                  Continue with {withdrawMethod === "telebirr" ? "Telebirr" : "Bank Account"}
-                </button>
+                {/* CASE 2: BOTH METHODS CONNECTED */}
+                {hasTelebirr && hasBank && (
+                  <div style={{ marginTop: "20px" }}>
+                    <p style={{ color: "#555", marginBottom: "15px" }}>You have both Telebirr and Bank Account connected. Select where you want to receive your payout:</p>
+                    <div style={{ marginBottom: "20px", display: "flex", flexDirection: "column", gap: "12px" }}>
+                      <label style={{ display: "flex", alignItems: "center", gap: "10px", fontWeight: "600", cursor: "pointer" }}>
+                        <input
+                          type="radio"
+                          name="withdrawMethod"
+                          value="telebirr"
+                          checked={withdrawMethod === "telebirr"}
+                          onChange={(e) => setWithdrawMethod(e.target.value)}
+                        />
+                        Telebirr ({telebirrNumber})
+                      </label>
+
+                      <label style={{ display: "flex", alignItems: "center", gap: "10px", fontWeight: "600", cursor: "pointer" }}>
+                        <input
+                          type="radio"
+                          name="withdrawMethod"
+                          value="bank"
+                          checked={withdrawMethod === "bank"}
+                          onChange={(e) => setWithdrawMethod(e.target.value)}
+                        />
+                        Bank Account ({selectedBank} - {accountNumber})
+                      </label>
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        setSelectedMethod(withdrawMethod === "telebirr" ? "Telebirr" : `Bank (${selectedBank})`);
+                        setStep(3);
+                      }}
+                      className="interactive-btn"
+                      style={{
+                        marginTop: "10px",
+                        width: "100%",
+                        padding: "16px",
+                        background: "#00A651",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "12px",
+                        fontWeight: "bold",
+                        cursor: "pointer"
+                      }}
+                    >
+                      Continue with {withdrawMethod === "telebirr" ? "Telebirr" : "Bank Account"}
+                    </button>
+                  </div>
+                )}
+
+                {/* CASE 3: ONLY TELEBIRR CONNECTED */}
+                {hasTelebirr && !hasBank && (
+                  <div style={{ marginTop: "20px" }}>
+                    <div
+                      style={{
+                        background: "#f0fdf4",
+                        border: "1px solid #bbf7d0",
+                        padding: "15px",
+                        borderRadius: "12px",
+                        marginBottom: "20px"
+                      }}
+                    >
+                      <p style={{ color: "#166534", fontWeight: "bold" }}>📱 Connected Payout Method: Telebirr</p>
+                      <p style={{ color: "#15803d", marginTop: "5px" }}>Number: {telebirrNumber}</p>
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        setWithdrawMethod("telebirr");
+                        setSelectedMethod("Telebirr");
+                        setStep(3);
+                      }}
+                      className="interactive-btn"
+                      style={{
+                        width: "100%",
+                        padding: "16px",
+                        background: "#00A651",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "12px",
+                        fontWeight: "bold",
+                        cursor: "pointer"
+                      }}
+                    >
+                      Continue with Telebirr
+                    </button>
+                  </div>
+                )}
+
+                {/* CASE 4: ONLY BANK CONNECTED */}
+                {!hasTelebirr && hasBank && (
+                  <div style={{ marginTop: "20px" }}>
+                    <div
+                      style={{
+                        background: "#f0fdf4",
+                        border: "1px solid #bbf7d0",
+                        padding: "15px",
+                        borderRadius: "12px",
+                        marginBottom: "20px"
+                      }}
+                    >
+                      <p style={{ color: "#166534", fontWeight: "bold" }}>🏦 Connected Payout Method: Bank Account</p>
+                      <p style={{ color: "#15803d", marginTop: "5px" }}>{selectedBank} - Acc: {accountNumber}</p>
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        setWithdrawMethod("bank");
+                        setSelectedMethod(`Bank (${selectedBank})`);
+                        setStep(3);
+                      }}
+                      className="interactive-btn"
+                      style={{
+                        width: "100%",
+                        padding: "16px",
+                        background: "#00A651",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "12px",
+                        fontWeight: "bold",
+                        cursor: "pointer"
+                      }}
+                    >
+                      Continue with Bank Account
+                    </button>
+                  </div>
+                )}
               </div>
             ) : (
               <div>Stripe/PayPal configurations here</div>
@@ -520,7 +595,7 @@ export default function WithdrawPage() {
             >
               <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <span>Withdrawal Amount</span>
-                <strong>CA${Number(amount).toFixed(2)}</strong>
+                <strong>CA${Number(confirmedAmount).toFixed(2)}</strong>
               </div>
               <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <span>Creator Share</span>
@@ -541,7 +616,7 @@ export default function WithdrawPage() {
               <hr style={{ margin: "15px 0" }} />
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: "22px", fontWeight: "700", color: "#16a34a" }}>
                 <span>Final Amount You'll Receive</span>
-                <span>CA${(Number(amount) * 0.50).toFixed(2)}</span>
+                <span>CA${(Number(confirmedAmount) * 0.50).toFixed(2)}</span>
               </div>
             </div>
 
@@ -558,7 +633,7 @@ export default function WithdrawPage() {
             <div style={{ marginTop: "25px", display: "flex", gap: "15px" }}>
               <button
                 onClick={() => {
-                  setStep(2);
+                  setStep(1);
                   setSelectedMethod("");
                 }}
                 className="interactive-btn"
@@ -573,7 +648,7 @@ export default function WithdrawPage() {
                   cursor: "pointer"
                 }}
               >
-                Cancel
+                Back / Edit Amount
               </button>
 
               <button
@@ -610,7 +685,7 @@ export default function WithdrawPage() {
             <p style={{ marginTop: "15px" }}><b>Method</b><br />{selectedMethod}</p>
             <p style={{ marginTop: "15px" }}><b>Status</b><br />Pending Review</p>
             <p style={{ marginTop: "15px", color: "#666" }}>
-              Your withdrawal request has been submitted successfully. Our team will review your request and send your payout within 1–5 business days.
+              Your withdrawal request has been submitted successfully. Our team will review your request and send your payout within 1–5 business days after Approved.
             </p>
 
             <Link href="/dashboard/earnings">
@@ -643,7 +718,7 @@ export default function WithdrawPage() {
           borderRadius: "20px"
         }}
       >
-        <h2>Withdrawal History</h2>
+        <h2>Withdrawal History (Last 10 Requests)</h2>
 
         <div style={{ marginTop: "20px" }}>
           {history.length === 0 ? (
@@ -659,8 +734,7 @@ export default function WithdrawPage() {
               No withdrawal history yet.
             </div>
           ) : !isMobile ? (
-            /* Desktop Table View */
-            <div>
+            <div style={{ maxHeight: "400px", overflowY: "auto", paddingRight: "5px" }}>
               <div
                 style={{
                   display: "grid",
@@ -670,6 +744,9 @@ export default function WithdrawPage() {
                   background: "#f1f5f9",
                   borderRadius: "12px",
                   marginBottom: "12px",
+                  position: "sticky",
+                  top: 0,
+                  zIndex: 1,
                 }}
               >
                 <div>Date</div>
@@ -699,16 +776,16 @@ export default function WithdrawPage() {
                   </div>
                   <div>{item.creatorName || "-"}</div>
                   <div>
-  {item.withdrawMethod === "telebirr" ? (
-    <>📱 Telebirr<br />+251 {item.telebirrNumber}</>
-  ) : (
-    <>
-      🏦 {item.bankName}<br />
-      Acc: {item.accountNumber}<br />
-      <span style={{ fontSize: "13px", color: "#666" }}>Holder: {item.accountHolder || "-"}</span>
-    </>
-  )}
-</div>
+                    {item.withdrawMethod === "telebirr" ? (
+                      <>📱 Telebirr<br />{item.telebirrNumber}</>
+                    ) : (
+                      <>
+                        🏦 {item.bankName}<br />
+                        Acc: {item.accountNumber}<br />
+                        <span style={{ fontSize: "13px", color: "#666" }}>Holder: {item.accountHolder || "-"}</span>
+                      </>
+                    )}
+                  </div>
                   <div>
                     <strong>CA${Number(item.finalPayout || 0).toFixed(2)}</strong>
                   </div>
@@ -731,8 +808,7 @@ export default function WithdrawPage() {
               ))}
             </div>
           ) : (
-            /* Mobile Card View */
-            <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+            <div style={{ maxHeight: "450px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "12px", paddingRight: "4px" }}>
               {history.map((item, index) => (
                 <div
                   key={index}
@@ -740,50 +816,55 @@ export default function WithdrawPage() {
                     background: "#fff",
                     border: "1px solid #e5e7eb",
                     borderRadius: "15px",
-                    padding: "18px",
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+                    padding: "16px",
+                    boxShadow: "0 2px 6px rgba(0,0,0,0.03)",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
                   }}
                 >
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "15px" }}>
-                    <strong>
+                  <div>
+                    <div style={{ fontSize: "13px", color: "#666", marginBottom: "4px" }}>
                       {item.requestedAt?.seconds
                         ? new Date(item.requestedAt.seconds * 1000).toLocaleDateString()
                         : "Today"}
-                    </strong>
+                    </div>
+                    <div style={{ fontWeight: "700", fontSize: "16px", color: "#111" }}>
+                      CA${Number(item.finalPayout || 0).toFixed(2)}
+                    </div>
+                    <div style={{ fontSize: "12px", color: "#555", marginTop: "2px" }}>
+                      {item.withdrawMethod === "telebirr" ? "📱 Telebirr" : `🏦 ${item.bankName}`}
+                    </div>
+                  </div>
+
+                  <div style={{ textAlign: "right" }}>
                     <span
                       style={{
+                        display: "inline-block",
+                        padding: "4px 10px",
+                        borderRadius: "20px",
+                        fontSize: "12px",
                         fontWeight: "bold",
+                        background:
+                          item.status === "Paid"
+                            ? "#ecfdf5"
+                            : item.status === "Approved"
+                            ? "#eff6ff"
+                            : item.status === "Rejected"
+                            ? "#fef2f2"
+                            : "#fefce8",
                         color:
                           item.status === "Paid"
                             ? "#16a34a"
                             : item.status === "Approved"
-                            ? "#1455b5"
+                            ? "#2563eb"
                             : item.status === "Rejected"
                             ? "#dc2626"
-                            : "#b5a214",
+                            : "#ca8a04",
                       }}
                     >
                       {item.status}
                     </span>
-                  </div>
-                  <div style={{ marginBottom: "10px" }}>
-                    <strong>Name</strong><br />{item.creatorName || "-"}
-                  </div>
-                  <div style={{ marginBottom: "10px" }}>
-  <strong>Withdrawal Method</strong><br />
-  {item.withdrawMethod === "telebirr" ? (
-    <>📱 Telebirr<br />+251 {item.telebirrNumber}</>
-  ) : (
-    <>
-      🏦 {item.bankName}<br />
-      Acc: {item.accountNumber}<br />
-      <span style={{ fontSize: "13px", color: "#666" }}>Holder: {item.accountHolder || "-"}</span>
-    </>
-  )}
-</div>
-                  <div>
-                    <strong>Payout</strong><br />
-                    CA${Number(item.finalPayout || 0).toFixed(2)}
                   </div>
                 </div>
               ))}
