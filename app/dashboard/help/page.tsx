@@ -53,7 +53,7 @@ export default function HelpPage() {
     {
       question: "How do I contact support?",
       answer:
-        "Email: creatorstore2@gmail.com",
+        "Email: creatorstore.ca@gmail.com",
     },
   ];
 
@@ -115,7 +115,7 @@ export default function HelpPage() {
         <h3>Still need help?</h3>
 
         <p>
-          Contact us: creatorstore2@gmail.com
+          Contact us: creatorstore.ca@gmail.com
         </p>
       </div>
     </div>

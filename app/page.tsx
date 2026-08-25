@@ -180,155 +180,424 @@ export default function Home() {
 <div
   style={{
     marginTop: "50px",
-    maxWidth: "650px",
+    maxWidth: "700px",
     marginLeft: "auto",
     marginRight: "auto",
     background: "white",
-    borderRadius: "20px",
-    padding: "25px",
-    boxShadow: "0 10px 25px rgba(0,0,0,0.12)",
+    borderRadius: "24px",
+    padding: "28px",
+    boxShadow: "0 15px 40px rgba(0,0,0,0.14)",
     textAlign: "left",
+    border: "1px solid rgba(0,0,0,0.06)",
   }}
 >
-  {/* Header */}
+  {/* Dashboard Header */}
   <div
     style={{
       display: "flex",
+      justifyContent: "space-between",
       alignItems: "center",
+      marginBottom: "25px",
+      flexWrap: "wrap",
       gap: "15px",
-      marginBottom: "20px",
     }}
   >
-    <img
-      src="/logo.png"
-      alt="CreatorStore"
+    <div
       style={{
-        width: "55px",
-        height: "55px",
-        borderRadius: "50%",
-        objectFit: "cover",
+        display: "flex",
+        alignItems: "center",
+        gap: "14px",
       }}
-    />
+    >
+      <img
+        src="/logo.png"
+        alt="CreatorStore"
+        style={{
+          width: "58px",
+          height: "58px",
+          borderRadius: "50%",
+          objectFit: "cover",
+          boxShadow: "0 5px 15px rgba(0,0,0,0.15)",
+        }}
+      />
 
-    <div>
-      <h3
+      <div>
+        <h3
+          style={{
+            margin: 0,
+            fontSize: "22px",
+            color: "#111",
+            fontWeight: "800",
+          }}
+        >
+          Creator Dashboard
+        </h3>
+
+        <p
+          style={{
+            margin: "5px 0 0",
+            color: "#777",
+            fontSize: "14px",
+          }}
+        >
+          Revenue overview · August
+        </p>
+      </div>
+    </div>
+
+    {/* Live Badge */}
+    <div
+      style={{
+        background: "#e9faf5",
+        color: "#16866b",
+        padding: "8px 14px",
+        borderRadius: "999px",
+        fontSize: "13px",
+        fontWeight: "700",
+      }}
+    >
+      ● Live
+    </div>
+  </div>
+
+  {/* Revenue Main Card */}
+  <div
+    style={{
+      display: "grid",
+      gridTemplateColumns: "1fr 1fr",
+      gap: "15px",
+      marginBottom: "25px",
+    }}
+  >
+    {/* Total Revenue */}
+    <div
+      style={{
+        background:
+          "linear-gradient(135deg, #f8ffff 0%, #eefafa 100%)",
+        borderRadius: "18px",
+        padding: "22px",
+        border: "1px solid #dff3f3",
+      }}
+    >
+      <p
         style={{
           margin: 0,
-          fontSize: "22px",
-          color: "#111",
+          color: "#666",
+          fontSize: "14px",
+          fontWeight: "600",
         }}
       >
-        Creator Dashboard
-      </h3>
+        Total Revenue
+      </p>
+
+      <h2
+        style={{
+          margin: "7px 0 0",
+          fontSize: "36px",
+          color: "#111",
+          fontWeight: "800",
+          letterSpacing: "-1px",
+        }}
+      >
+        CA$2,100
+      </h2>
+
+      <div
+        style={{
+          marginTop: "8px",
+          display: "inline-flex",
+          alignItems: "center",
+          gap: "6px",
+          background: "#dff8ef",
+          color: "#16866b",
+          padding: "5px 9px",
+          borderRadius: "8px",
+          fontSize: "13px",
+          fontWeight: "700",
+        }}
+      >
+        ↑ 10.8%
+      </div>
+
+      <span
+        style={{
+          marginLeft: "7px",
+          color: "#888",
+          fontSize: "12px",
+        }}
+      >
+        this month
+      </span>
+    </div>
+
+    {/* Mini Stats */}
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "10px",
+      }}
+    >
+      <div
+        style={{
+          flex: 1,
+          background: "#fafafa",
+          borderRadius: "16px",
+          padding: "15px 18px",
+          border: "1px solid #eee",
+        }}
+      >
+        <div
+          style={{
+            color: "#777",
+            fontSize: "13px",
+            marginBottom: "4px",
+          }}
+        >
+          Total Visits
+        </div>
+
+        <strong
+          style={{
+            fontSize: "23px",
+            color: "#111",
+          }}
+        >
+          92
+        </strong>
+      </div>
+
+      <div
+        style={{
+          flex: 1,
+          background: "#fafafa",
+          borderRadius: "16px",
+          padding: "15px 18px",
+          border: "1px solid #eee",
+        }}
+      >
+        <div
+          style={{
+            color: "#777",
+            fontSize: "13px",
+            marginBottom: "4px",
+          }}
+        >
+          Sales
+        </div>
+
+        <strong
+          style={{
+            fontSize: "23px",
+            color: "#111",
+          }}
+        >
+          31
+        </strong>
+      </div>
+    </div>
+  </div>
+
+  {/* Graph Header */}
+  <div
+    style={{
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: "12px",
+    }}
+  >
+    <div>
+      <h4
+        style={{
+          margin: 0,
+          fontSize: "17px",
+          color: "#222",
+          fontWeight: "800",
+        }}
+      >
+        Revenue Growth
+      </h4>
 
       <p
         style={{
           margin: "4px 0 0",
-          color: "#777",
-          fontSize: "14px",
+          fontSize: "12px",
+          color: "#888",
         }}
       >
-        This month
+        Weekly revenue performance
       </p>
     </div>
+
+    <span
+      style={{
+        fontSize: "13px",
+        fontWeight: "700",
+        color: "#14a894",
+      }}
+    >
+      Growing ↑
+    </span>
   </div>
 
-  {/* Revenue */}
+  {/* Realistic Graph */}
   <div
     style={{
-      background: "#f7f7f7",
-      borderRadius: "14px",
-      padding: "20px",
-      marginBottom: "20px",
+      position: "relative",
+      height: "230px",
+      borderRadius: "16px",
+      background: "#fcfefe",
+      border: "1px solid #edf2f2",
+      overflow: "hidden",
+      padding: "15px",
     }}
   >
-    <p
-      style={{
-        margin: 0,
-        color: "#666",
-        fontSize: "15px",
-      }}
-    >
-      Total Revenue
-    </p>
-
-    <h2
-      style={{
-        margin: "6px 0 0",
-        fontSize: "34px",
-        color: "#14b3c5",
-      }}
-    >
-      CA$2,000
-    </h2>
-
-    <p
-      style={{
-        margin: "5px 0 0",
-        color: "#33a285",
-        fontWeight: "bold",
-        fontSize: "14px",
-      }}
-    >
-      ↑ Growing this month
-    </p>
-  </div>
-
-  {/* Simple Graph */}
-  <div>
-    <p
-      style={{
-        margin: "0 0 10px",
-        fontSize: "15px",
-        fontWeight: "bold",
-        color: "#333",
-      }}
-    >
-      Revenue Growth
-    </p>
-
+    {/* Horizontal Grid */}
     <div
       style={{
-        height: "150px",
-        position: "relative",
-        borderBottom: "2px solid #ddd",
-        borderLeft: "2px solid #ddd",
-        padding: "10px",
+        position: "absolute",
+        inset: "20px 15px 35px 45px",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
       }}
     >
-      <svg
-        viewBox="0 0 500 130"
-        style={{
-          width: "100%",
-          height: "100%",
-        }}
-      >
-        <polyline
-          points="10,115 90,105 170,90 250,82 330,55 410,38 490,15"
-          fill="none"
-          stroke="#14b3c5"
-          strokeWidth="5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-
-        <circle cx="10" cy="115" r="5" fill="#14b3c5" />
-        <circle cx="90" cy="105" r="5" fill="#14b3c5" />
-        <circle cx="170" cy="90" r="5" fill="#14b3c5" />
-        <circle cx="250" cy="82" r="5" fill="#14b3c5" />
-        <circle cx="330" cy="55" r="5" fill="#14b3c5" />
-        <circle cx="410" cy="38" r="5" fill="#14b3c5" />
-        <circle cx="490" cy="15" r="6" fill="#D4AF37" />
-      </svg>
+      {[2000, 1500, 1000, 500, 0].map((value) => (
+        <div
+          key={value}
+          style={{
+            borderTop: "1px dashed #e5eaea",
+            width: "100%",
+            position: "relative",
+          }}
+        >
+          <span
+            style={{
+              position: "absolute",
+              left: "-42px",
+              top: "-8px",
+              fontSize: "10px",
+              color: "#999",
+            }}
+          >
+            {value === 0 ? "0" : `CA$${value / 1000}k`}
+          </span>
+        </div>
+      ))}
     </div>
 
+    {/* SVG Chart */}
+    <svg
+      viewBox="0 0 600 180"
+      preserveAspectRatio="none"
+      style={{
+        position: "absolute",
+        left: "55px",
+        right: "15px",
+        bottom: "38px",
+        width: "calc(100% - 70px)",
+        height: "165px",
+        overflow: "visible",
+      }}
+    >
+      {/* Area */}
+      <polygon
+        points="
+          0,150
+          100,135
+          200,115
+          300,92
+          400,60
+          500,35
+          600,8
+          600,180
+          0,180
+        "
+        fill="rgba(20,179,197,0.10)"
+      />
+
+      {/* Main Line */}
+      <polyline
+        points="
+          0,150
+          100,135
+          200,115
+          300,92
+          400,60
+          500,35
+          600,8
+        "
+        fill="none"
+        stroke="#14b3c5"
+        strokeWidth="4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+
+      {/* Data Points */}
+      {[
+        [0, 150],
+        [100, 135],
+        [200, 115],
+        [300, 92],
+        [400, 60],
+        [500, 35],
+      ].map(([cx, cy], index) => (
+        <circle
+          key={index}
+          cx={cx}
+          cy={cy}
+          r="5"
+          fill="white"
+          stroke="#14b3c5"
+          strokeWidth="3"
+        />
+      ))}
+
+      {/* Current Point */}
+      <circle
+        cx="600"
+        cy="8"
+        r="7"
+        fill="#D4AF37"
+        stroke="white"
+        strokeWidth="4"
+      />
+
+      {/* Current Revenue Label */}
+      <rect
+        x="505"
+        y="-28"
+        width="90"
+        height="25"
+        rx="7"
+        fill="#111"
+      />
+
+      <text
+        x="550"
+        y="-11"
+        textAnchor="middle"
+        fontSize="12"
+        fontWeight="bold"
+        fill="white"
+      >
+        CA$2,100
+      </text>
+    </svg>
+
+    {/* Week Labels */}
     <div
       style={{
+        position: "absolute",
+        bottom: "10px",
+        left: "55px",
+        right: "15px",
         display: "flex",
         justifyContent: "space-between",
-        marginTop: "8px",
-        color: "#888",
-        fontSize: "12px",
+        fontSize: "11px",
+        color: "#999",
       }}
     >
       <span>Week 1</span>
@@ -336,6 +605,24 @@ export default function Home() {
       <span>Week 3</span>
       <span>Week 4</span>
     </div>
+  </div>
+
+  {/* Bottom Message */}
+  <div
+    style={{
+      marginTop: "18px",
+      padding: "14px 16px",
+      borderRadius: "12px",
+      background: "#fffaf0",
+      border: "1px solid #f3e3b0",
+      textAlign: "center",
+      fontSize: "14px",
+      color: "#555",
+    }}
+  >
+    <strong style={{ color: "#111" }}>
+      Your knowledge can become income.
+   </strong>
   </div>
 </div>
 

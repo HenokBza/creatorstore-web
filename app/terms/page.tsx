@@ -1,4 +1,11 @@
+'use client'; // Required if using Next.js App Router
+
+import React from 'react';
+import { useRouter } from 'next/navigation'; // Use 'next/router' if you are on the Pages router
+
 export default function TermsPage() {
+  const router = useRouter();
+
   return (
     <div
       style={{
@@ -8,8 +15,26 @@ export default function TermsPage() {
         background: "white",
         borderRadius: "20px",
         lineHeight: "30px",
+        color: "#111"
       }}
     >
+      {/* Back Button to return directly to signup */}
+      <button
+        onClick={() => router.back()}
+        style={{
+          marginBottom: "20px",
+          padding: "8px 16px",
+          background: "#14b3c5",
+          color: "white",
+          border: "none",
+          borderRadius: "8px",
+          cursor: "pointer",
+          fontWeight: "bold"
+        }}
+      >
+        ← Agree Back to Signup
+      </button>
+
       <h1 style={{ color: "#D4AF37" }}>
         Terms of Service
       </h1>
@@ -78,8 +103,25 @@ export default function TermsPage() {
       <p>
         Questions?
         <br />
-        creatorstore2@gmail.com
+        creatorstore.ca@gmail.com
       </p>
+       {/* Back Button to return directly to signup */}
+      <button
+        onClick={() => router.back()}
+        style={{
+          marginBottom: "20px",
+          padding: "8px 16px",
+          background: "#14b3c5",
+          color: "white",
+          border: "none",
+          borderRadius: "8px",
+          cursor: "pointer",
+          fontWeight: "bold"
+        }}
+      >
+        ← Agree Back to Signup
+      </button>
+
 
     </div>
   );

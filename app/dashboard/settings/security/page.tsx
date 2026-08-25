@@ -164,7 +164,7 @@ I understand deleting my account permanently removes my products, store, and acc
 );
 
 window.location.href=
-`mailto:creatorstore2@gmail.com?subject=${subject}&body=${body}`;
+`mailto:creatorstore.ca@gmail.com?subject=${subject}&body=${body}`;
 
 };
 
@@ -373,7 +373,7 @@ After deletion:
 Need help? Contact:
 
 <a
-href="mailto:creatorstore2@gmail.com"
+href="mailto:creatorstore.ca@gmail.com"
 style={{
 marginLeft:"6px",
 color:"#2563eb",
@@ -381,7 +381,7 @@ fontWeight:"bold",
 textDecoration:"none"
 }}
 >
-creatorstore2@gmail.com
+creatorstore.ca@gmail.com
 </a>
 
 </p>
