@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
-import { FaTiktok, FaFacebook, FaYoutube, FaInstagram } from "react-icons/fa";
+
 import { db } from "@/lib/firebase";
 
 import {
@@ -486,21 +486,7 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          {/* SOCIAL MEDIA ICONS ROW */}
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              gap: "20px",
-              marginTop: "15px",
-              marginBottom: "20px",
-            }}
-          >
-            <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" style={{ color: "black", fontSize: "24px" }}><FaTiktok /></a>
-            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" style={{ color: "#1877F2", fontSize: "24px" }}><FaFacebook /></a>
-            <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" style={{ color: "#FF0000", fontSize: "24px" }}><FaYoutube /></a>
-            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" style={{ color: "#E4405F", fontSize: "24px" }}><FaInstagram /></a>
-          </div>
+          
 
           {/* ==========================================
               COACHING AVAILABILITY INFO (Under Socials)

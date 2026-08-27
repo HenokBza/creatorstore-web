@@ -21,21 +21,105 @@ import {
   updateDoc,
 } from "firebase/firestore";
 
+// ==========================================
+// CREATOR TYPES
+// ==========================================
+
+interface CreatorDesign {
+  backgroundColor?: string;
+  textColor?: string;
+  buttonColor?: string;
+  cardColor?: string;
+  cardStyle?: string;
+
+  showTiktok?: boolean;
+  showFacebook?: boolean;
+  showYoutube?: boolean;
+  showInstagram?: boolean;
+
+  tiktokURL?: string;
+  facebookURL?: string;
+  youtubeURL?: string;
+  instagramURL?: string;
+}
+
+interface Creator {
+  id: string;
+
+  name?: string;
+  storeName?: string;
+  bio?: string;
+  profileImage?: string;
+
+  design?: CreatorDesign;
+
+  [key: string]: any;
+}
+
 export default function CreatorPage() {
   const params = useParams();
+
   const storeName = params.storeName as string;
 
-  const [creator, setCreator] = useState<any>(null);
-  const [products, setProducts] = useState<any[]>([]);
+  // ==========================================
+  // STATE
+  // ==========================================
+
+  const [creator, setCreator] =
+    useState<Creator | null>(null);
+
+  const [products, setProducts] =
+    useState<any[]>([]);
+
+  const [error, setError] =
+    useState("");
+
+  // ==========================================
+  // LOAD CREATOR
+  // ==========================================
 
   useEffect(() => {
-    if (!storeName) return;
+    if (!storeName) {
+      console.error(
+        "❌ CreatorPage: storeName is missing."
+      );
+
+      setError(
+        "Store name is missing from the URL."
+      );
+
+      return;
+    }
+
+    console.log(
+      "🔎 Loading creator store:",
+      storeName
+    );
 
     loadCreator();
   }, [storeName]);
 
+  // ==========================================
+  // LOAD CREATOR FUNCTION
+  // ==========================================
+
   const loadCreator = async () => {
     try {
+      setError("");
+
+      console.log(
+        "=========================================="
+      );
+
+      console.log(
+        "🔎 FINDING CREATOR:",
+        storeName
+      );
+
+      console.log(
+        "=========================================="
+      );
+
       // ==========================================
       // FIND CREATOR
       // ==========================================
@@ -45,18 +129,91 @@ export default function CreatorPage() {
         where("storeName", "==", storeName)
       );
 
-      const userSnap = await getDocs(userQuery);
+      console.log(
+        "📡 Running Firestore users query..."
+      );
+
+      const userSnap =
+        await getDocs(userQuery);
+
+      console.log(
+        "📦 Users query completed."
+      );
+
+      console.log(
+        "👤 Number of creators found:",
+        userSnap.size
+      );
+
+      // ==========================================
+      // CREATOR NOT FOUND
+      // ==========================================
 
       if (userSnap.empty) {
+        console.error(
+          "❌ No creator found for storeName:",
+          storeName
+        );
+
+        setError(
+          `Creator store "${storeName}" was not found.`
+        );
+
         return;
       }
 
-      const creatorDoc = userSnap.docs[0];
+      // ==========================================
+      // CREATOR DATA
+      // ==========================================
 
-      const creatorData = {
+      const creatorDoc =
+        userSnap.docs[0];
+
+      const creatorData: Creator = {
         id: creatorDoc.id,
         ...creatorDoc.data(),
       };
+
+      console.log(
+        "✅ Creator found:",
+        creatorDoc.id
+      );
+
+      console.log(
+        "👤 Creator data:",
+        creatorData
+      );
+
+      console.log(
+        "🎨 Design data:",
+        creatorData.design
+      );
+
+      // ==========================================
+      // SOCIAL URL DEBUG
+      // ==========================================
+
+      console.log(
+        "🔗 Social URLs:",
+        {
+          tiktok:
+            creatorData.design?.tiktokURL ||
+            "",
+          facebook:
+            creatorData.design?.facebookURL ||
+            "",
+          youtube:
+            creatorData.design?.youtubeURL ||
+            "",
+          instagram:
+            creatorData.design?.instagramURL ||
+            "",
+        }
+      );
+
+      // ==========================================
+      // SET CREATOR
+      // ==========================================
 
       setCreator(creatorData);
 
@@ -65,68 +222,124 @@ export default function CreatorPage() {
       // ==========================================
 
       try {
+        console.log(
+          "📈 Updating store visit count..."
+        );
+
         await updateDoc(
-          doc(db, "users", creatorDoc.id),
+          doc(
+            db,
+            "users",
+            creatorDoc.id
+          ),
           {
             visits: increment(1),
           }
         );
+
+        console.log(
+          "✅ Store visit counted."
+        );
       } catch (visitError) {
         console.error(
-          "❌ Failed to count visit:",
+          "⚠️ Failed to count visit:",
           visitError
         );
+
+        // Do NOT stop the public page.
       }
 
       // ==========================================
       // LOAD DIGITAL PRODUCTS
       // ==========================================
 
-      const productQuery = query(
-        collection(db, "products"),
-        where("userId", "==", creatorDoc.id)
-      );
+      let productList: any[] = [];
 
-      const productSnap = await getDocs(
-        productQuery
-      );
-
-      const productList =
-        productSnap.docs.map(
-          (docSnap) => ({
-            id: docSnap.id,
-            type: "digital",
-            ...docSnap.data(),
-          })
+      try {
+        console.log(
+          "📦 Loading digital products..."
         );
+
+        const productQuery = query(
+          collection(db, "products"),
+          where(
+            "userId",
+            "==",
+            creatorDoc.id
+          )
+        );
+
+        const productSnap =
+          await getDocs(productQuery);
+
+        console.log(
+          "✅ Digital products found:",
+          productSnap.size
+        );
+
+        productList =
+          productSnap.docs.map(
+            (docSnap) => ({
+              id: docSnap.id,
+              type: "digital",
+              ...docSnap.data(),
+            })
+          );
+      } catch (productError) {
+        console.error(
+          "❌ Failed to load products:",
+          productError
+        );
+      }
 
       // ==========================================
       // LOAD COACHING CALLS
       // ==========================================
 
-      const coachingQuery = query(
-        collection(db, "coachingCalls"),
-        where(
-          "creatorId",
-          "==",
-          creatorDoc.id
-        )
-      );
+      let coachingList: any[] = [];
 
-      const coachingSnap =
-        await getDocs(coachingQuery);
-
-      const coachingList =
-        coachingSnap.docs.map(
-          (docSnap) => ({
-            id: docSnap.id,
-            type: "coaching",
-            ...docSnap.data(),
-          })
+      try {
+        console.log(
+          "🎯 Loading coaching calls..."
         );
 
+        const coachingQuery =
+          query(
+            collection(db, "coachingCalls"),
+            where(
+              "creatorId",
+              "==",
+              creatorDoc.id
+            )
+          );
+
+        const coachingSnap =
+          await getDocs(
+            coachingQuery
+          );
+
+        console.log(
+          "✅ Coaching calls found:",
+          coachingSnap.size
+        );
+
+        coachingList =
+          coachingSnap.docs.map(
+            (docSnap) => ({
+              id: docSnap.id,
+              type: "coaching",
+              ...docSnap.data(),
+            })
+          );
+      } catch (coachingError) {
+        console.error(
+          "❌ Failed to load coaching calls:",
+          coachingError
+        );
+      }
+
       // ==========================================
-      // COMBINE PRODUCTS + COACHING
+      // COMBINE PRODUCTS
       // ==========================================
 
       setProducts([
@@ -134,13 +347,140 @@ export default function CreatorPage() {
         ...coachingList,
       ]);
 
-    } catch (error) {
+      console.log(
+        "=========================================="
+      );
+
+      console.log(
+        "✅ CREATOR PAGE LOAD COMPLETE"
+      );
+
+      console.log(
+        "=========================================="
+      );
+    } catch (error: any) {
+      // ==========================================
+      // MAIN ERROR
+      // ==========================================
+
       console.error(
-        "❌ Failed to load creator:",
+        "❌❌❌ FAILED TO LOAD CREATOR PAGE ❌❌❌"
+      );
+
+      console.error(
+        "Error object:",
         error
+      );
+
+      console.error(
+        "Error message:",
+        error?.message
+      );
+
+      console.error(
+        "Error code:",
+        error?.code
+      );
+
+      console.error(
+        "Error stack:",
+        error?.stack
+      );
+
+      console.error(
+        "Store name:",
+        storeName
+      );
+
+      setError(
+        error?.message ||
+          "Unable to load this creator store."
       );
     }
   };
+
+  // ==========================================
+  // ERROR SCREEN
+  // ==========================================
+
+  if (error) {
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          padding: "30px",
+          background: "#f5f5f5",
+          boxSizing: "border-box",
+        }}
+      >
+        <div
+          style={{
+            width: "100%",
+            maxWidth: "500px",
+            background: "white",
+            borderRadius: "20px",
+            padding: "35px",
+            textAlign: "center",
+            boxShadow:
+              "0 10px 30px rgba(0,0,0,0.10)",
+          }}
+        >
+          <div
+            style={{
+              fontSize: "50px",
+              marginBottom: "15px",
+            }}
+          >
+            ⚠️
+          </div>
+
+          <h1
+            style={{
+              margin: "0 0 12px",
+              fontSize: "24px",
+            }}
+          >
+            Store could not be loaded
+          </h1>
+
+          <p
+            style={{
+              margin: 0,
+              color: "#666",
+              lineHeight: 1.6,
+              wordBreak: "break-word",
+            }}
+          >
+            {error}
+          </p>
+
+          <button
+            onClick={() => {
+              setError("");
+              setCreator(null);
+              setProducts([]);
+              loadCreator();
+            }}
+            style={{
+              marginTop: "25px",
+              padding: "12px 22px",
+              border: "none",
+              borderRadius: "10px",
+              background: "#111",
+              color: "white",
+              fontWeight: "bold",
+              cursor: "pointer",
+            }}
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   // ==========================================
   // LOADING
@@ -152,21 +492,35 @@ export default function CreatorPage() {
         style={{
           minHeight: "100vh",
           display: "flex",
+          flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
           fontSize: "20px",
+          gap: "10px",
         }}
       >
-        Loading...
+        <div>
+          Loading...
+        </div>
+
+        <div
+          style={{
+            fontSize: "13px",
+            color: "#888",
+          }}
+        >
+          Loading @{storeName}
+        </div>
       </div>
     );
   }
 
   // ==========================================
-  // DESIGN SETTINGS
+  // DESIGN
   // ==========================================
 
-  const design = creator.design || {};
+  const design: CreatorDesign =
+    creator.design || {};
 
   const backgroundColor =
     design.backgroundColor ||
@@ -205,28 +559,38 @@ export default function CreatorPage() {
     design.showInstagram ?? true;
 
   // ==========================================
-  // SOCIAL MEDIA URLS
-  //
-  // IMPORTANT:
-  // These now come from:
-  //
-  // creator.design.tiktokURL
-  // creator.design.facebookURL
-  // creator.design.youtubeURL
-  // creator.design.instagramURL
+  // SOCIAL URLS
   // ==========================================
 
   const tiktokURL =
-    design.tiktokURL?.trim() || "";
+    typeof design.tiktokURL === "string"
+      ? design.tiktokURL.trim()
+      : "";
 
   const facebookURL =
-    design.facebookURL?.trim() || "";
+    typeof design.facebookURL === "string"
+      ? design.facebookURL.trim()
+      : "";
 
   const youtubeURL =
-    design.youtubeURL?.trim() || "";
+    typeof design.youtubeURL === "string"
+      ? design.youtubeURL.trim()
+      : "";
 
   const instagramURL =
-    design.instagramURL?.trim() || "";
+    typeof design.instagramURL === "string"
+      ? design.instagramURL.trim()
+      : "";
+
+  // ==========================================
+  // HAS SOCIAL LINKS
+  // ==========================================
+
+  const hasSocialLinks =
+    (showTiktok && tiktokURL) ||
+    (showFacebook && facebookURL) ||
+    (showYoutube && youtubeURL) ||
+    (showInstagram && instagramURL);
 
   // ==========================================
   // CARD RADIUS
@@ -240,14 +604,8 @@ export default function CreatorPage() {
       : "22px";
 
   // ==========================================
-  // CHECK IF SOCIAL LINKS EXIST
+  // PUBLIC STORE
   // ==========================================
-
-  const hasSocialLinks =
-    (showTiktok && tiktokURL) ||
-    (showFacebook && facebookURL) ||
-    (showYoutube && youtubeURL) ||
-    (showInstagram && instagramURL);
 
   return (
     <div
@@ -284,7 +642,7 @@ export default function CreatorPage() {
       >
 
         {/* ======================================
-            PROFILE SECTION
+            PROFILE
         ====================================== */}
 
         <div>
@@ -308,7 +666,7 @@ export default function CreatorPage() {
             }}
           />
 
-          {/* CREATOR NAME */}
+          {/* NAME */}
 
           <h1
             style={{
@@ -317,7 +675,7 @@ export default function CreatorPage() {
               color: textColor,
             }}
           >
-            {creator.name}
+            {creator.name || "Creator"}
           </h1>
 
           {/* STORE NAME */}
@@ -333,9 +691,7 @@ export default function CreatorPage() {
             @{creator.storeName}
           </p>
 
-          {/* ==================================
-              BIO
-          ================================== */}
+          {/* BIO */}
 
           {creator.bio && (
             <p
@@ -354,7 +710,7 @@ export default function CreatorPage() {
           )}
 
           {/* ==================================
-              SOCIAL MEDIA ICONS
+              SOCIAL LINKS
           ================================== */}
 
           {hasSocialLinks ? (
@@ -371,9 +727,7 @@ export default function CreatorPage() {
               }}
             >
 
-              {/* ==============================
-                  TIKTOK
-              ============================== */}
+              {/* TIKTOK */}
 
               {showTiktok &&
                 tiktokURL && (
@@ -381,7 +735,6 @@ export default function CreatorPage() {
                     href={tiktokURL}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="interactive-btn"
                     style={{
                       color: textColor,
                       fontSize: "28px",
@@ -402,9 +755,7 @@ export default function CreatorPage() {
                   </a>
                 )}
 
-              {/* ==============================
-                  FACEBOOK
-              ============================== */}
+              {/* FACEBOOK */}
 
               {showFacebook &&
                 facebookURL && (
@@ -412,7 +763,6 @@ export default function CreatorPage() {
                     href={facebookURL}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="interactive-btn"
                     style={{
                       color:
                         "#1877F2",
@@ -434,9 +784,7 @@ export default function CreatorPage() {
                   </a>
                 )}
 
-              {/* ==============================
-                  YOUTUBE
-              ============================== */}
+              {/* YOUTUBE */}
 
               {showYoutube &&
                 youtubeURL && (
@@ -444,7 +792,6 @@ export default function CreatorPage() {
                     href={youtubeURL}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="interactive-btn"
                     style={{
                       color:
                         "#FF0000",
@@ -466,9 +813,7 @@ export default function CreatorPage() {
                   </a>
                 )}
 
-              {/* ==============================
-                  INSTAGRAM
-              ============================== */}
+              {/* INSTAGRAM */}
 
               {showInstagram &&
                 instagramURL && (
@@ -476,7 +821,6 @@ export default function CreatorPage() {
                     href={instagramURL}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="interactive-btn"
                     style={{
                       color:
                         "#E4405F",
@@ -561,9 +905,7 @@ export default function CreatorPage() {
                   }}
                 >
 
-                  {/* ==================================
-                      TOP ROW
-                  ================================== */}
+                  {/* TOP ROW */}
 
                   <div
                     style={{
@@ -583,7 +925,8 @@ export default function CreatorPage() {
                         "/product-placeholder.png"
                       }
                       alt={
-                        product.title
+                        product.title ||
+                        "Product"
                       }
                       style={{
                         width:
@@ -819,6 +1162,7 @@ export default function CreatorPage() {
 
                     </div>
                   </div>
+
                 </a>
               )
             )
