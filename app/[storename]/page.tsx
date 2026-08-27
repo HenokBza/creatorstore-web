@@ -12,108 +12,79 @@ import {
 } from "react-icons/fa";
 
 import {
+  doc,
   getDocs,
   query,
   collection,
   where,
   increment,
   updateDoc,
-  doc,
 } from "firebase/firestore";
-
-// ======================================================
-// TYPES
-// ======================================================
-
-type Creator = {
-  id: string;
-  name?: string;
-  storeName?: string;
-  bio?: string;
-  profileImage?: string;
-
-  design?: {
-    backgroundColor?: string;
-    textColor?: string;
-    buttonColor?: string;
-    cardColor?: string;
-    cardStyle?: string;
-
-    showTiktok?: boolean;
-    showFacebook?: boolean;
-    showYoutube?: boolean;
-    showInstagram?: boolean;
-
-    tiktokURL?: string;
-    facebookURL?: string;
-    youtubeURL?: string;
-    instagramURL?: string;
-  };
-};
-
-type Product = {
-  id: string;
-  type: "digital" | "coaching";
-
-  title?: string;
-  thumbnail?: string;
-  description?: string;
-
-  price?: number;
-  discountPrice?: number;
-
-  buttonText?: string;
-  duration?: number;
-};
-
-// ======================================================
-// CREATOR PUBLIC PAGE
-// ======================================================
 
 export default function CreatorPage() {
   const params = useParams();
 
-  // ======================================================
-  // GET STORE NAME SAFELY
-  // ======================================================
+  // =========================================================
+  // GET STORE NAME
+  // =========================================================
+  //
+  // Next.js may return either:
+  //
+  // params.storeName
+  //
+  // or in your current production situation:
+  //
+  // params.storename
+  //
+  // We support BOTH.
+  // =========================================================
 
-  const rawStoreName = params?.storeName;
+  const rawStoreName =
+    params?.storeName ??
+    params?.storename;
 
-  const storeName =
-    typeof rawStoreName === "string"
-      ? rawStoreName
-      : Array.isArray(rawStoreName)
-      ? rawStoreName[0]
-      : "";
+  const storeName = Array.isArray(rawStoreName)
+    ? rawStoreName[0]
+    : rawStoreName;
 
-  // ======================================================
+  // =========================================================
   // STATE
-  // ======================================================
+  // =========================================================
 
-  const [creator, setCreator] =
-    useState<Creator | null>(null);
+  const [creator, setCreator] = useState<any>(null);
+  const [products, setProducts] = useState<any[]>([]);
+  const [error, setError] = useState("");
 
-  const [products, setProducts] =
-    useState<Product[]>([]);
+  // =========================================================
+  // DEBUG LOGS
+  // =========================================================
 
-  const [error, setError] =
-    useState("");
+  console.log(
+    "🔎 CreatorPage params:",
+    params
+  );
 
-  const [loading, setLoading] =
-    useState(true);
+  console.log(
+    "🔎 CreatorPage storeName:",
+    storeName
+  );
 
-  // ======================================================
+  // =========================================================
   // LOAD CREATOR
-  // ======================================================
+  // =========================================================
 
   useEffect(() => {
     console.log(
-      "🔎 CreatorPage params:",
+      "🔄 CreatorPage useEffect running..."
+    );
+
+    console.log(
+      "🔎 Current params:",
       params
     );
 
     console.log(
-      "🔎 CreatorPage storeName:",
+      "🔎 Current storeName:",
       storeName
     );
 
@@ -124,10 +95,8 @@ export default function CreatorPage() {
       );
 
       setError(
-        "Store name is missing from the URL."
+        "Creator store name is missing from the URL."
       );
-
-      setLoading(false);
 
       return;
     }
@@ -135,25 +104,36 @@ export default function CreatorPage() {
     loadCreator(storeName);
   }, [storeName]);
 
-  // ======================================================
+  // =========================================================
   // LOAD CREATOR FROM FIRESTORE
-  // ======================================================
+  // =========================================================
 
   const loadCreator = async (
     currentStoreName: string
   ) => {
     try {
-      setLoading(true);
       setError("");
 
       console.log(
-        "🔍 Searching Firestore for storeName:",
+        "=========================================="
+      );
+
+      console.log(
+        "🚀 CreatorPage: Starting load..."
+      );
+
+      console.log(
+        "🏪 Searching for store:",
         currentStoreName
       );
 
-      // ==================================================
+      console.log(
+        "=========================================="
+      );
+
+      // ======================================================
       // FIND CREATOR
-      // ==================================================
+      // ======================================================
 
       const userQuery = query(
         collection(db, "users"),
@@ -165,24 +145,24 @@ export default function CreatorPage() {
       );
 
       console.log(
-        "📡 Sending users query..."
+        "🔎 Querying Firestore users collection..."
       );
 
       const userSnap =
         await getDocs(userQuery);
 
       console.log(
-        "📦 Users found:",
+        "📊 Users found:",
         userSnap.size
       );
 
-      // ==================================================
+      // ======================================================
       // CREATOR NOT FOUND
-      // ==================================================
+      // ======================================================
 
       if (userSnap.empty) {
         console.error(
-          "❌ No creator found for storeName:",
+          "❌ No creator found for store:",
           currentStoreName
         );
 
@@ -190,42 +170,53 @@ export default function CreatorPage() {
           `Creator store "${currentStoreName}" was not found.`
         );
 
-        setLoading(false);
-
         return;
       }
 
-      // ==================================================
-      // CREATOR DATA
-      // ==================================================
+      // ======================================================
+      // CREATOR DOCUMENT
+      // ======================================================
 
       const creatorDoc =
         userSnap.docs[0];
 
-      const creatorData: Creator = {
+      console.log(
+        "✅ Creator document found:",
+        creatorDoc.id
+      );
+
+      const creatorFirestoreData =
+        creatorDoc.data();
+
+      console.log(
+        "📄 Creator Firestore data:",
+        creatorFirestoreData
+      );
+
+      const creatorData = {
         id: creatorDoc.id,
-        ...creatorDoc.data(),
+        ...creatorFirestoreData,
       };
 
-      console.log(
-        "✅ Creator found:",
-        creatorData
-      );
+      setCreator(creatorData);
 
       console.log(
-        "🎨 Creator design:",
-        creatorData.design
+        "✅ Creator state loaded."
       );
 
-      setCreator(
-        creatorData
-      );
-
-      // ==================================================
-      // COUNT VISIT
-      // ==================================================
+      // ======================================================
+      // COUNT STORE VISIT
+      // ======================================================
+      //
+      // If this fails, DON'T stop the public page.
+      // The customer should still be able to see the store.
+      // ======================================================
 
       try {
+        console.log(
+          "👁️ Updating store visit..."
+        );
+
         await updateDoc(
           doc(
             db,
@@ -238,7 +229,7 @@ export default function CreatorPage() {
         );
 
         console.log(
-          "✅ Store visit counted."
+          "✅ Store visit updated."
         );
       } catch (visitError) {
         console.error(
@@ -246,42 +237,35 @@ export default function CreatorPage() {
           visitError
         );
 
-        // Don't stop the public page
-        // if visit counting fails.
+        // Don't stop the page because of visit counting.
       }
 
-      // ==================================================
+      // ======================================================
       // LOAD DIGITAL PRODUCTS
-      // ==================================================
+      // ======================================================
 
       console.log(
-        "🔍 Loading digital products..."
+        "📦 Loading digital products..."
       );
 
-      const productQuery =
-        query(
-          collection(
-            db,
-            "products"
-          ),
-          where(
-            "userId",
-            "==",
-            creatorDoc.id
-          )
-        );
+      const productQuery = query(
+        collection(db, "products"),
+        where(
+          "userId",
+          "==",
+          creatorDoc.id
+        )
+      );
 
       const productSnap =
-        await getDocs(
-          productQuery
-        );
+        await getDocs(productQuery);
 
       console.log(
-        "📦 Digital products:",
+        "📦 Digital products found:",
         productSnap.size
       );
 
-      const productList: Product[] =
+      const productList =
         productSnap.docs.map(
           (docSnap) => ({
             id: docSnap.id,
@@ -290,38 +274,32 @@ export default function CreatorPage() {
           })
         );
 
-      // ==================================================
+      // ======================================================
       // LOAD COACHING CALLS
-      // ==================================================
+      // ======================================================
 
       console.log(
-        "🔍 Loading coaching calls..."
+        "🎯 Loading coaching calls..."
       );
 
-      const coachingQuery =
-        query(
-          collection(
-            db,
-            "coachingCalls"
-          ),
-          where(
-            "creatorId",
-            "==",
-            creatorDoc.id
-          )
-        );
+      const coachingQuery = query(
+        collection(db, "coachingCalls"),
+        where(
+          "creatorId",
+          "==",
+          creatorDoc.id
+        )
+      );
 
       const coachingSnap =
-        await getDocs(
-          coachingQuery
-        );
+        await getDocs(coachingQuery);
 
       console.log(
-        "📦 Coaching calls:",
+        "🎯 Coaching calls found:",
         coachingSnap.size
       );
 
-      const coachingList: Product[] =
+      const coachingList =
         coachingSnap.docs.map(
           (docSnap) => ({
             id: docSnap.id,
@@ -330,38 +308,72 @@ export default function CreatorPage() {
           })
         );
 
-      // ==================================================
-      // COMBINE
-      // ==================================================
+      // ======================================================
+      // COMBINE PRODUCTS + COACHING
+      // ======================================================
 
-      setProducts([
+      const allProducts = [
         ...productList,
         ...coachingList,
-      ]);
+      ];
 
       console.log(
-        "✅ Creator public page loaded successfully."
+        "🛍️ Total store items:",
+        allProducts.length
       );
 
+      setProducts(allProducts);
+
+      console.log(
+        "=========================================="
+      );
+
+      console.log(
+        "🎉 CreatorPage loaded successfully!"
+      );
+
+      console.log(
+        "🏪 Store:",
+        currentStoreName
+      );
+
+      console.log(
+        "=========================================="
+      );
     } catch (error) {
       console.error(
-        "❌ CreatorPage: failed to load creator:",
+        "=========================================="
+      );
+
+      console.error(
+        "❌ CreatorPage: Failed to load creator."
+      );
+
+      console.error(
+        "🏪 Store:",
+        currentStoreName
+      );
+
+      console.error(
+        "❌ Error:",
         error
       );
 
-      setError(
-        "Unable to load this creator store."
+      console.error(
+        "=========================================="
       );
-    } finally {
-      setLoading(false);
+
+      setError(
+        "Unable to load this creator store. Please try again."
+      );
     }
   };
 
-  // ======================================================
-  // LOADING
-  // ======================================================
+  // =========================================================
+  // ERROR SCREEN
+  // =========================================================
 
-  if (loading) {
+  if (error) {
     return (
       <div
         style={{
@@ -370,49 +382,23 @@ export default function CreatorPage() {
           flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
-          gap: "10px",
-          fontSize: "20px",
-          padding: "20px",
-        }}
-      >
-        <div>Loading creator store...</div>
-
-        <div
-          style={{
-            fontSize: "13px",
-            opacity: 0.6,
-          }}
-        >
-          Store: {storeName || "not detected"}
-        </div>
-      </div>
-    );
-  }
-
-  // ======================================================
-  // ERROR
-  // ======================================================
-
-  if (error || !creator) {
-    return (
-      <div
-        style={{
-          minHeight: "100vh",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          padding: "20px",
+          padding: "30px",
           textAlign: "center",
+          background: "#f7f7f7",
+          color: "#111",
+          boxSizing: "border-box",
         }}
       >
         <div
           style={{
-            maxWidth: "500px",
-            padding: "30px",
+            background: "white",
+            padding: "35px",
             borderRadius: "20px",
-            background: "#ffffff",
+            maxWidth: "500px",
+            width: "100%",
             boxShadow:
-              "0 5px 20px rgba(0,0,0,0.1)",
+              "0 5px 20px rgba(0,0,0,0.10)",
+            boxSizing: "border-box",
           }}
         >
           <div
@@ -427,39 +413,64 @@ export default function CreatorPage() {
           <h1
             style={{
               margin: "0 0 10px",
+              fontSize: "24px",
             }}
           >
-            Store Not Found
+            Store Not Available
           </h1>
 
           <p
             style={{
               margin: 0,
               color: "#666",
+              lineHeight: 1.6,
             }}
           >
-            {error ||
-              "This creator store could not be found."}
-          </p>
-
-          <p
-            style={{
-              marginTop: "15px",
-              fontSize: "13px",
-              color: "#999",
-            }}
-          >
-            URL store name:{" "}
-            {storeName || "missing"}
+            {error}
           </p>
         </div>
       </div>
     );
   }
 
-  // ======================================================
+  // =========================================================
+  // LOADING
+  // =========================================================
+
+  if (!creator) {
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          flexDirection: "column",
+          gap: "15px",
+          fontSize: "20px",
+          color: "#111",
+          background: "#f7f7f7",
+        }}
+      >
+        <div>
+          Loading creator store...
+        </div>
+
+        <div
+          style={{
+            fontSize: "13px",
+            color: "#777",
+          }}
+        >
+          @{storeName || "store"}
+        </div>
+      </div>
+    );
+  }
+
+  // =========================================================
   // DESIGN SETTINGS
-  // ======================================================
+  // =========================================================
 
   const design =
     creator.design || {};
@@ -484,9 +495,9 @@ export default function CreatorPage() {
     design.cardStyle ||
     "rounded";
 
-  // ======================================================
+  // =========================================================
   // SOCIAL VISIBILITY
-  // ======================================================
+  // =========================================================
 
   const showTiktok =
     design.showTiktok ?? true;
@@ -500,25 +511,64 @@ export default function CreatorPage() {
   const showInstagram =
     design.showInstagram ?? true;
 
-  // ======================================================
-  // SOCIAL URLs
-  // ======================================================
+  // =========================================================
+  // SOCIAL MEDIA URLS
+  // =========================================================
+  //
+  // IMPORTANT:
+  // These are read from creator.design.
+  //
+  // design.tiktokURL
+  // design.facebookURL
+  // design.youtubeURL
+  // design.instagramURL
+  //
+  // =========================================================
 
   const tiktokURL =
-    design.tiktokURL?.trim() || "";
+    typeof design.tiktokURL === "string"
+      ? design.tiktokURL.trim()
+      : "";
 
   const facebookURL =
-    design.facebookURL?.trim() || "";
+    typeof design.facebookURL === "string"
+      ? design.facebookURL.trim()
+      : "";
 
   const youtubeURL =
-    design.youtubeURL?.trim() || "";
+    typeof design.youtubeURL === "string"
+      ? design.youtubeURL.trim()
+      : "";
 
   const instagramURL =
-    design.instagramURL?.trim() || "";
+    typeof design.instagramURL === "string"
+      ? design.instagramURL.trim()
+      : "";
 
-  // ======================================================
+  console.log(
+    "🔗 Social URLs:",
+    {
+      tiktokURL,
+      facebookURL,
+      youtubeURL,
+      instagramURL,
+    }
+  );
+
+  // =========================================================
+  // CARD RADIUS
+  // =========================================================
+
+  const cardRadius =
+    cardStyle === "square"
+      ? "4px"
+      : cardStyle === "soft"
+      ? "12px"
+      : "22px";
+
+  // =========================================================
   // SOCIAL LINK CHECK
-  // ======================================================
+  // =========================================================
 
   const hasSocialLinks =
     Boolean(
@@ -528,41 +578,26 @@ export default function CreatorPage() {
       (showInstagram && instagramURL)
     );
 
-  // ======================================================
-  // CARD RADIUS
-  // ======================================================
-
-  const cardRadius =
-    cardStyle === "square"
-      ? "4px"
-      : cardStyle === "soft"
-      ? "12px"
-      : "22px";
-
-  // ======================================================
+  // =========================================================
   // PUBLIC PAGE
-  // ======================================================
+  // =========================================================
 
   return (
     <div
       style={{
         minHeight: "100vh",
-        background:
-          backgroundColor,
+        background: backgroundColor,
         display: "flex",
-        justifyContent:
-          "center",
-        padding:
-          "40px 20px",
+        justifyContent: "center",
+        padding: "40px 20px",
         color: textColor,
-        transition:
-          "all 0.2s ease",
+        transition: "all 0.2s ease",
         boxSizing: "border-box",
       }}
     >
-      {/* ==========================================
+      {/* =====================================================
           MAIN STORE CARD
-      ========================================== */}
+      ===================================================== */}
 
       <div
         style={{
@@ -575,25 +610,28 @@ export default function CreatorPage() {
           boxShadow:
             "0 5px 20px rgba(0,0,0,.1)",
           display: "flex",
-          flexDirection:
-            "column",
+          flexDirection: "column",
           gap: "25px",
-          boxSizing:
-            "border-box",
+          boxSizing: "border-box",
         }}
       >
-        {/* ==========================================
-            PROFILE
-        ========================================== */}
+        {/* ===================================================
+            PROFILE SECTION
+        =================================================== */}
 
         <div>
+
+          {/* PROFILE IMAGE */}
 
           <img
             src={
               creator.profileImage ||
               "/profile-placeholder.png"
             }
-            alt="profile"
+            alt={
+              creator.name ||
+              "Creator profile"
+            }
             style={{
               width: "120px",
               height: "120px",
@@ -604,6 +642,8 @@ export default function CreatorPage() {
                 `4px solid ${buttonColor}`,
             }}
           />
+
+          {/* CREATOR NAME */}
 
           <h1
             style={{
@@ -616,18 +656,23 @@ export default function CreatorPage() {
               "Creator"}
           </h1>
 
+          {/* STORE NAME */}
+
           <p
             style={{
               color: textColor,
               opacity: 0.65,
               margin:
-                "5px 0 15px",
+                "5px 0 15px 0",
             }}
           >
-            @{creator.storeName}
+            @{creator.storeName ||
+              storeName}
           </p>
 
-          {/* BIO */}
+          {/* =================================================
+              BIO
+          ================================================= */}
 
           {creator.bio && (
             <p
@@ -645,9 +690,9 @@ export default function CreatorPage() {
             </p>
           )}
 
-          {/* ==========================================
-              SOCIAL LINKS
-          ========================================== */}
+          {/* =================================================
+              SOCIAL MEDIA
+          ================================================= */}
 
           {hasSocialLinks && (
             <div
@@ -659,8 +704,7 @@ export default function CreatorPage() {
                   "center",
                 gap: "20px",
                 marginTop: "15px",
-                marginBottom:
-                  "10px",
+                marginBottom: "10px",
               }}
             >
 
@@ -673,18 +717,17 @@ export default function CreatorPage() {
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{
-                      color:
-                        textColor,
-                      fontSize:
-                        "28px",
-                      display:
-                        "flex",
+                      color: textColor,
+                      fontSize: "28px",
+                      display: "flex",
                       alignItems:
                         "center",
                       justifyContent:
                         "center",
                       textDecoration:
                         "none",
+                      cursor:
+                        "pointer",
                     }}
                     aria-label="TikTok"
                     title="TikTok"
@@ -704,16 +747,16 @@ export default function CreatorPage() {
                     style={{
                       color:
                         "#1877F2",
-                      fontSize:
-                        "28px",
-                      display:
-                        "flex",
+                      fontSize: "28px",
+                      display: "flex",
                       alignItems:
                         "center",
                       justifyContent:
                         "center",
                       textDecoration:
                         "none",
+                      cursor:
+                        "pointer",
                     }}
                     aria-label="Facebook"
                     title="Facebook"
@@ -733,16 +776,16 @@ export default function CreatorPage() {
                     style={{
                       color:
                         "#FF0000",
-                      fontSize:
-                        "28px",
-                      display:
-                        "flex",
+                      fontSize: "28px",
+                      display: "flex",
                       alignItems:
                         "center",
                       justifyContent:
                         "center",
                       textDecoration:
                         "none",
+                      cursor:
+                        "pointer",
                     }}
                     aria-label="YouTube"
                     title="YouTube"
@@ -762,16 +805,16 @@ export default function CreatorPage() {
                     style={{
                       color:
                         "#E4405F",
-                      fontSize:
-                        "28px",
-                      display:
-                        "flex",
+                      fontSize: "28px",
+                      display: "flex",
                       alignItems:
                         "center",
                       justifyContent:
                         "center",
                       textDecoration:
                         "none",
+                      cursor:
+                        "pointer",
                     }}
                     aria-label="Instagram"
                     title="Instagram"
@@ -782,11 +825,12 @@ export default function CreatorPage() {
 
             </div>
           )}
+
         </div>
 
-        {/* ==========================================
+        {/* ===================================================
             PRODUCTS + COACHING
-        ========================================== */}
+        =================================================== */}
 
         <div
           style={{
@@ -794,10 +838,13 @@ export default function CreatorPage() {
             flexDirection:
               "column",
             gap: "15px",
-            textAlign:
-              "left",
+            textAlign: "left",
           }}
         >
+
+          {/* =================================================
+              NO PRODUCTS
+          ================================================= */}
 
           {products.length === 0 ? (
             <p
@@ -812,8 +859,14 @@ export default function CreatorPage() {
               No products available.
             </p>
           ) : (
+
+            /* =================================================
+               PRODUCTS
+            ================================================= */
+
             products.map(
               (product) => (
+
                 <a
                   key={`${product.type}-${product.id}`}
                   href={
@@ -830,8 +883,7 @@ export default function CreatorPage() {
                       `1px solid ${textColor}22`,
                     borderRadius:
                       cardRadius,
-                    padding:
-                      "18px",
+                    padding: "18px",
                     textDecoration:
                       "none",
                     color:
@@ -843,14 +895,15 @@ export default function CreatorPage() {
                   }}
                 >
 
-                  {/* TOP ROW */}
+                  {/* =================================================
+                      TOP ROW
+                  ================================================= */}
 
                   <div
                     style={{
                       display:
                         "flex",
-                      gap:
-                        "18px",
+                      gap: "18px",
                       alignItems:
                         "flex-start",
                     }}
@@ -879,7 +932,8 @@ export default function CreatorPage() {
                           "square"
                             ? "4px"
                             : "14px",
-                        flexShrink: 0,
+                        flexShrink:
+                          0,
                       }}
                     />
 
@@ -893,12 +947,11 @@ export default function CreatorPage() {
                           "flex",
                         flexDirection:
                           "column",
-                        gap:
-                          "8px",
+                        gap: "8px",
                       }}
                     >
 
-                      {/* COACHING */}
+                      {/* COACHING LABEL */}
 
                       {product.type ===
                         "coaching" && (
@@ -918,6 +971,8 @@ export default function CreatorPage() {
                               "12px",
                             fontWeight:
                               "bold",
+                            marginBottom:
+                              "5px",
                             width:
                               "fit-content",
                           }}
@@ -941,10 +996,12 @@ export default function CreatorPage() {
                             textColor,
                         }}
                       >
-                        {product.title}
+                        {
+                          product.title
+                        }
                       </h2>
 
-                      {/* DURATION */}
+                      {/* COACHING DURATION */}
 
                       {product.type ===
                         "coaching" && (
@@ -975,8 +1032,7 @@ export default function CreatorPage() {
                             "flex",
                           alignItems:
                             "center",
-                          gap:
-                            "10px",
+                          gap: "10px",
                         }}
                       >
 
@@ -1014,8 +1070,7 @@ export default function CreatorPage() {
                             >
                               CA$
                               {Number(
-                                product.price ||
-                                  0
+                                product.price
                               ).toFixed(2)}
                             </span>
                           </>
@@ -1042,31 +1097,33 @@ export default function CreatorPage() {
 
                       {/* DESCRIPTION */}
 
-                      <p
-                        style={{
-                          color:
-                            textColor,
-                          opacity:
-                            0.75,
-                          overflow:
-                            "hidden",
-                          display:
-                            "-webkit-box",
-                          WebkitLineClamp:
-                            3,
-                          WebkitBoxOrient:
-                            "vertical",
-                          lineHeight:
-                            1.5,
-                          margin: 0,
-                          fontSize:
-                            "14px",
-                        }}
-                      >
-                        {
-                          product.description
-                        }
-                      </p>
+                      {product.description && (
+                        <p
+                          style={{
+                            color:
+                              textColor,
+                            opacity:
+                              0.75,
+                            overflow:
+                              "hidden",
+                            display:
+                              "-webkit-box",
+                            WebkitLineClamp:
+                              3,
+                            WebkitBoxOrient:
+                              "vertical",
+                            lineHeight:
+                              1.5,
+                            margin: 0,
+                            fontSize:
+                              "14px",
+                          }}
+                        >
+                          {
+                            product.description
+                          }
+                        </p>
+                      )}
 
                       {/* BUTTON */}
 
@@ -1106,6 +1163,7 @@ export default function CreatorPage() {
           )}
 
         </div>
+
       </div>
     </div>
   );
