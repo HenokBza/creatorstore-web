@@ -9,7 +9,7 @@ import {
   Bar,
   XAxis,
   YAxis,
-  Tooltip
+  Tooltip,
 } from "recharts";
 
 import {
@@ -32,7 +32,6 @@ export default function Dashboard() {
     customers: 0,
   });
 
-  // Dynamic graph data state initialized to 0 for all months
   const [graphData, setGraphData] = useState([
     { month: "Jan", visits: 0, revenue: 0 },
     { month: "Feb", visits: 0, revenue: 0 },
@@ -52,7 +51,6 @@ export default function Dashboard() {
     const user = auth.currentUser;
     if (!user) return;
 
-    // 1. Listen to user document in real-time (Pulls exact Revenue and Customers/Sales)
     const userRef = doc(db, "users", user.uid);
     const unsubscribeUser = onSnapshot(userRef, (snapshot) => {
       if (!snapshot.exists()) return;
@@ -62,15 +60,11 @@ export default function Dashboard() {
       setStats((prev) => ({
         ...prev,
         visits: data.visits || 0,
-        revenue: data.totalRevenue || 0, // 👈 Grabs the 1080 directly from your user document
-        customers: data.totalSales || 0, // 👈 Grabs the 4 customers directly from your user document
       }));
     });
 
-    // 2. Fetch and calculate Products, Coaching Stats & Real Monthly Orders
     const fetchStoreStats = async () => {
       try {
-        // --- PRODUCTS STATS ---
         const productsQuery = query(
           collection(db, "products"),
           where("userId", "==", user.uid)
@@ -80,13 +74,12 @@ export default function Dashboard() {
         let productRevenue = 0;
         let productCustomers = 0;
 
-        productsSnapshot.forEach((doc) => {
-          const product = doc.data();
+        productsSnapshot.forEach((docSnap) => {
+          const product = docSnap.data();
           productRevenue += Number(product.revenue || 0);
           productCustomers += Number(product.customers || 0);
         });
 
-        // --- COACHING CALLS STATS ---
         const coachingSnapshot = await getDocs(
           collection(db, "coachingCalls")
         );
@@ -95,8 +88,8 @@ export default function Dashboard() {
         let coachingCustomers = 0;
         let coachingCount = 0;
 
-        coachingSnapshot.forEach((doc) => {
-          const coaching = doc.data();
+        coachingSnapshot.forEach((docSnap) => {
+          const coaching = docSnap.data();
           const ownerId = coaching.creatorId || coaching.userId;
 
           if (ownerId === user.uid) {
@@ -106,14 +99,12 @@ export default function Dashboard() {
           }
         });
 
-        // --- REAL ORDERS FETCHING (For dynamic month tracking) ---
         const ordersQuery = query(
           collection(db, "orders"),
           where("creatorId", "==", user.uid)
         );
         const ordersSnapshot = await getDocs(ordersQuery);
 
-        // Initialize 12 months accumulator
         const monthlyDataMap: { [key: string]: { visits: number; revenue: number } } = {
           "Jan": { visits: 0, revenue: 0 },
           "Feb": { visits: 0, revenue: 0 },
@@ -140,12 +131,11 @@ export default function Dashboard() {
 
             if (monthlyDataMap[monthStr]) {
               monthlyDataMap[monthStr].revenue += amount;
-              monthlyDataMap[monthStr].visits += Number(order.visits || 1); // Tracks visits associated with the order or increments by 1
+              monthlyDataMap[monthStr].visits += Number(order.visits || 1);
             }
           }
         });
 
-        // Format map into array for Recharts
         const formattedGraphData = Object.keys(monthlyDataMap).map((month) => ({
           month,
           visits: monthlyDataMap[month].visits,
@@ -154,7 +144,6 @@ export default function Dashboard() {
 
         setGraphData(formattedGraphData);
 
-        // --- TOTALS ---
         const totalRevenue = productRevenue + coachingRevenue;
         const totalCustomers = productCustomers + coachingCustomers;
 
@@ -176,6 +165,7 @@ export default function Dashboard() {
       unsubscribeUser();
     };
   }, []);
+
   const copyLink = () => {
     navigator.clipboard.writeText(`https://${userData?.storeURL}`);
     alert("Store link copied!");
@@ -183,60 +173,54 @@ export default function Dashboard() {
 
   return (
     <div>
+      {/* Welcome Banner */}
       <div
         style={{
           background: "#D4AF37",
           padding: "15px",
           borderRadius: "10px",
-          marginBottom: "30px",
-          fontWeight: "bold"
+          marginBottom: "20px",
+          fontWeight: "bold",
         }}
       >
         Welcome to CreatorStore 🚀
+        <div>
+          <h1>{userData?.name || "Creator"}</h1>
+          <p style={{ color: "#f11329", margin: 0 }}>{userData?.storeURL}</p>
+        </div>
       </div>
 
+      <button
+        onClick={copyLink}
+        className="interactive-btn"
+        style={{
+          color: "blue",
+          background: "white",
+          border: "none",
+          padding: "10px 16px",
+          borderRadius: "10px",
+          cursor: "pointer",
+          fontWeight: "bold",
+          fontSize: "12px",
+          marginBottom: "20px",
+        }}
+      >
+        copy Store 🔗
+      </button>
+
+      {/* Social Media Icons */}
       <div
         style={{
           display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "25px"
+          justifyContent: "flex-start",
+          gap: "20px",
+          marginBottom: "30px",
         }}
       >
-        <div>
-          <h1>Welcome back, {userData?.name || "Creator"}!</h1>
-          <p style={{ color: "#f11329" }}>{userData?.storeURL}</p>
-        </div>
-
-        <button
-          onClick={copyLink}
-          className="interactive-btn"
-          style={{
-            color: "blue",
-            border: "none",
-            padding: "12px 20px",
-            borderRadius: "10px",
-            cursor: "pointer",
-            fontWeight: "bold"
-          }}
-        >
-          🔗 copy Store Link
-        </button>
-
-        {/* Social Media Icons */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            gap: "20px",
-            marginTop: "20px",
-          }}
-        >
-          <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" className="interactive-btn" style={{ color: "black", fontSize: "28px" }}><FaTiktok /></a>
-          <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="interactive-btn" style={{ color: "#1877F2", fontSize: "28px" }}><FaFacebook /></a>
-          <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="interactive-btn" style={{ color: "#FF0000", fontSize: "28px" }}><FaYoutube /></a>
-          <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="interactive-btn" style={{ color: "#E4405F", fontSize: "28px" }}><FaInstagram /></a>
-        </div>
+        <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" className="interactive-btn" style={{ color: "black", fontSize: "28px" }}><FaTiktok /></a>
+        <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="interactive-btn" style={{ color: "#1877F2", fontSize: "28px" }}><FaFacebook /></a>
+        <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="interactive-btn" style={{ color: "#FF0000", fontSize: "28px" }}><FaYoutube /></a>
+        <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="interactive-btn" style={{ color: "#E4405F", fontSize: "28px" }}><FaInstagram /></a>
       </div>
 
       {/* LIVE STATS */}
@@ -244,10 +228,10 @@ export default function Dashboard() {
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-          gap: "20px"
+          gap: "20px",
         }}
       >
-         <div style={{ background: "white", padding: "20px", borderRadius: "12px" }}>
+        <div style={{ background: "white", padding: "20px", borderRadius: "12px" }}>
           <h3>💰 Revenue</h3>
           <h2>${stats.revenue}</h2>
         </div>
@@ -255,24 +239,21 @@ export default function Dashboard() {
           <h3>👀 Store Visits</h3>
           <h2>{stats.visits}</h2>
         </div>
-
         <div style={{ background: "white", padding: "20px", borderRadius: "12px" }}>
           <h3>📦 Products</h3>
           <h2>{stats.products}</h2>
         </div>
-
         <div style={{ background: "white", padding: "20px", borderRadius: "12px" }}>
           <h3>🎯 Coaching Calls</h3>
           <h2>{stats.coachingCalls}</h2>
         </div>
-
         <div style={{ background: "white", padding: "20px", borderRadius: "12px" }}>
           <h3>👥 Customers</h3>
           <h2>{stats.customers}</h2>
         </div>
       </div>
 
-     {/* GRAPH */}
+      {/* GRAPH */}
       <div
         style={{
           marginTop: "40px",
@@ -290,7 +271,6 @@ export default function Dashboard() {
           📈 Store Analytics (All Months)
         </h2>
 
-        {/* Responsive scroll wrapper for mobile and laptop */}
         <div
           style={{
             width: "100%",
@@ -308,9 +288,7 @@ export default function Dashboard() {
                 <XAxis dataKey="month" stroke="#000" />
                 <YAxis stroke="#000" />
                 <Tooltip />
-                {/* Blue bar for visits */}
                 <Bar dataKey="visits" fill="#3417d9" radius={[4, 4, 0, 0]} />
-                {/* Orange bar for revenue */}
                 <Bar dataKey="revenue" fill="#f97316" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>

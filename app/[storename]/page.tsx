@@ -3,7 +3,14 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { db } from "@/lib/firebase";
-import { FaTiktok, FaFacebook, FaYoutube, FaInstagram } from "react-icons/fa";
+
+import {
+  FaTiktok,
+  FaFacebook,
+  FaYoutube,
+  FaInstagram,
+} from "react-icons/fa";
+
 import {
   doc,
   getDocs,
@@ -23,6 +30,7 @@ export default function CreatorPage() {
 
   useEffect(() => {
     if (!storeName) return;
+
     loadCreator();
   }, [storeName]);
 
@@ -31,6 +39,7 @@ export default function CreatorPage() {
       // ==========================================
       // FIND CREATOR
       // ==========================================
+
       const userQuery = query(
         collection(db, "users"),
         where("storeName", "==", storeName)
@@ -43,6 +52,7 @@ export default function CreatorPage() {
       }
 
       const creatorDoc = userSnap.docs[0];
+
       const creatorData = {
         id: creatorDoc.id,
         ...creatorDoc.data(),
@@ -53,55 +63,98 @@ export default function CreatorPage() {
       // ==========================================
       // COUNT STORE VISIT
       // ==========================================
-      await updateDoc(doc(db, "users", creatorDoc.id), {
-        visits: increment(1),
-      });
+
+      try {
+        await updateDoc(
+          doc(db, "users", creatorDoc.id),
+          {
+            visits: increment(1),
+          }
+        );
+      } catch (visitError) {
+        console.error(
+          "❌ Failed to count visit:",
+          visitError
+        );
+      }
 
       // ==========================================
       // LOAD DIGITAL PRODUCTS
       // ==========================================
+
       const productQuery = query(
         collection(db, "products"),
         where("userId", "==", creatorDoc.id)
       );
 
-      const productSnap = await getDocs(productQuery);
-      const productList = productSnap.docs.map((docSnap) => ({
-        id: docSnap.id,
-        type: "digital",
-        ...docSnap.data(),
-      }));
+      const productSnap = await getDocs(
+        productQuery
+      );
+
+      const productList =
+        productSnap.docs.map(
+          (docSnap) => ({
+            id: docSnap.id,
+            type: "digital",
+            ...docSnap.data(),
+          })
+        );
 
       // ==========================================
       // LOAD COACHING CALLS
       // ==========================================
+
       const coachingQuery = query(
         collection(db, "coachingCalls"),
-        where("creatorId", "==", creatorDoc.id)
+        where(
+          "creatorId",
+          "==",
+          creatorDoc.id
+        )
       );
 
-      const coachingSnap = await getDocs(coachingQuery);
-      const coachingList = coachingSnap.docs.map((docSnap) => ({
-        id: docSnap.id,
-        type: "coaching",
-        ...docSnap.data(),
-      }));
+      const coachingSnap =
+        await getDocs(coachingQuery);
+
+      const coachingList =
+        coachingSnap.docs.map(
+          (docSnap) => ({
+            id: docSnap.id,
+            type: "coaching",
+            ...docSnap.data(),
+          })
+        );
 
       // ==========================================
-      // COMBINE EVERYTHING
+      // COMBINE PRODUCTS + COACHING
       // ==========================================
-      setProducts([...productList, ...coachingList]);
+
+      setProducts([
+        ...productList,
+        ...coachingList,
+      ]);
+
     } catch (error) {
-      console.log(error);
+      console.error(
+        "❌ Failed to load creator:",
+        error
+      );
     }
   };
+
+  // ==========================================
+  // LOADING
+  // ==========================================
 
   if (!creator) {
     return (
       <div
         style={{
-          padding: "80px",
-          textAlign: "center",
+          minHeight: "100vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          fontSize: "20px",
         }}
       >
         Loading...
@@ -109,34 +162,140 @@ export default function CreatorPage() {
     );
   }
 
+  // ==========================================
+  // DESIGN SETTINGS
+  // ==========================================
+
+  const design = creator.design || {};
+
+  const backgroundColor =
+    design.backgroundColor ||
+    "#D4AF37";
+
+  const textColor =
+    design.textColor ||
+    "#111111";
+
+  const buttonColor =
+    design.buttonColor ||
+    "#14b3c5";
+
+  const cardColor =
+    design.cardColor ||
+    "#ffffff";
+
+  const cardStyle =
+    design.cardStyle ||
+    "rounded";
+
+  // ==========================================
+  // SOCIAL VISIBILITY
+  // ==========================================
+
+  const showTiktok =
+    design.showTiktok ?? true;
+
+  const showFacebook =
+    design.showFacebook ?? true;
+
+  const showYoutube =
+    design.showYoutube ?? true;
+
+  const showInstagram =
+    design.showInstagram ?? true;
+
+  // ==========================================
+  // SOCIAL MEDIA URLS
+  //
+  // IMPORTANT:
+  // These now come from:
+  //
+  // creator.design.tiktokURL
+  // creator.design.facebookURL
+  // creator.design.youtubeURL
+  // creator.design.instagramURL
+  // ==========================================
+
+  const tiktokURL =
+    design.tiktokURL?.trim() || "";
+
+  const facebookURL =
+    design.facebookURL?.trim() || "";
+
+  const youtubeURL =
+    design.youtubeURL?.trim() || "";
+
+  const instagramURL =
+    design.instagramURL?.trim() || "";
+
+  // ==========================================
+  // CARD RADIUS
+  // ==========================================
+
+  const cardRadius =
+    cardStyle === "square"
+      ? "4px"
+      : cardStyle === "soft"
+      ? "12px"
+      : "22px";
+
+  // ==========================================
+  // CHECK IF SOCIAL LINKS EXIST
+  // ==========================================
+
+  const hasSocialLinks =
+    (showTiktok && tiktokURL) ||
+    (showFacebook && facebookURL) ||
+    (showYoutube && youtubeURL) ||
+    (showInstagram && instagramURL);
+
   return (
     <div
       style={{
         minHeight: "100vh",
-        background: "#D4AF37",
+        background: backgroundColor,
         display: "flex",
         justifyContent: "center",
-        padding: "40px",
+        padding: "40px 20px",
+        color: textColor,
+        transition: "all 0.2s ease",
+        boxSizing: "border-box",
       }}
     >
-      {/* MAIN CARD CONTAINER */}
+      {/* ======================================
+          MAIN STORE CARD
+      ====================================== */}
+
       <div
         style={{
-          width: "520px",
-          background: "white",
+          width: "100%",
+          maxWidth: "520px",
+          background: cardColor,
           borderRadius: "20px",
           padding: "30px",
           textAlign: "center",
-          boxShadow: "0 5px 20px rgba(0,0,0,.1)",
+          boxShadow:
+            "0 5px 20px rgba(0,0,0,.1)",
           display: "flex",
           flexDirection: "column",
           gap: "25px",
+          boxSizing: "border-box",
         }}
       >
-        {/* PROFILE SECTION */}
+
+        {/* ======================================
+            PROFILE SECTION
+        ====================================== */}
+
         <div>
+
+          {/* PROFILE IMAGE */}
+
           <img
-            src={creator.profileImage || "/profile-placeholder.png"}
+            src={
+              creator.profileImage ||
+              "/profile-placeholder.png"
+            }
             alt="profile"
             style={{
               width: "120px",
@@ -144,280 +303,530 @@ export default function CreatorPage() {
               borderRadius: "50%",
               objectFit: "cover",
               marginBottom: "20px",
+              border:
+                `4px solid ${buttonColor}`,
             }}
           />
 
-          <h1 style={{ margin: 0, fontSize: "24px" }}>{creator.name}</h1>
+          {/* CREATOR NAME */}
+
+          <h1
+            style={{
+              margin: 0,
+              fontSize: "24px",
+              color: textColor,
+            }}
+          >
+            {creator.name}
+          </h1>
+
+          {/* STORE NAME */}
 
           <p
             style={{
-              color: "#666",
-              margin: "5px 0 15px 0",
+              color: textColor,
+              opacity: 0.65,
+              margin:
+                "5px 0 15px 0",
             }}
           >
             @{creator.storeName}
           </p>
-{/* SOCIAL MEDIA ICONS ROW (Temporary static test) */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            gap: "20px",
-            marginTop: "10px",
-            marginBottom: "30px",
-          }}
-        >
-          <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" className="interactive-btn" style={{ color: "black", fontSize: "28px" }}><FaTiktok /></a>
-          <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="interactive-btn" style={{ color: "#1877F2", fontSize: "28px" }}><FaFacebook /></a>
-          <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="interactive-btn" style={{ color: "#FF0000", fontSize: "28px" }}><FaYoutube /></a>
-          <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="interactive-btn" style={{ color: "#E4405F", fontSize: "28px" }}><FaInstagram /></a>
-        </div>
-          {/* SOCIAL MEDIA ICONS ROW (Dynamic using creator data) */}
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              gap: "20px",
-            }}
-          >
-            {creator.tiktok && (
-              <a
-                href={creator.tiktok}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="interactive-btn"
-                style={{ color: "black", fontSize: "28px" }}
-              >
-                <FaTiktok />
-              </a>
-            )}
-            {creator.facebook && (
-              <a
-                href={creator.facebook}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="interactive-btn"
-                style={{ color: "#1877F2", fontSize: "28px" }}
-              >
-                <FaFacebook />
-              </a>
-            )}
-            {creator.youtube && (
-              <a
-                href={creator.youtube}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="interactive-btn"
-                style={{ color: "#FF0000", fontSize: "28px" }}
-              >
-                <FaYoutube />
-              </a>
-            )}
-            {creator.instagram && (
-              <a
-                href={creator.instagram}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="interactive-btn"
-                style={{ color: "#E4405F", fontSize: "28px" }}
-              >
-                <FaInstagram />
-              </a>
-            )}
-          </div>
+
+          {/* ==================================
+              BIO
+          ================================== */}
+
+          {creator.bio && (
+            <p
+              style={{
+                margin:
+                  "10px auto 20px",
+                maxWidth: "430px",
+                lineHeight: 1.6,
+                color: textColor,
+                opacity: 0.8,
+                fontSize: "15px",
+              }}
+            >
+              {creator.bio}
+            </p>
+          )}
+
+          {/* ==================================
+              SOCIAL MEDIA ICONS
+          ================================== */}
+
+          {hasSocialLinks ? (
+            <div
+              style={{
+                display: "flex",
+                justifyContent:
+                  "center",
+                alignItems:
+                  "center",
+                gap: "20px",
+                marginTop: "15px",
+                marginBottom: "10px",
+              }}
+            >
+
+              {/* ==============================
+                  TIKTOK
+              ============================== */}
+
+              {showTiktok &&
+                tiktokURL && (
+                  <a
+                    href={tiktokURL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="interactive-btn"
+                    style={{
+                      color: textColor,
+                      fontSize: "28px",
+                      display: "flex",
+                      alignItems:
+                        "center",
+                      justifyContent:
+                        "center",
+                      textDecoration:
+                        "none",
+                      cursor:
+                        "pointer",
+                    }}
+                    aria-label="TikTok"
+                    title="TikTok"
+                  >
+                    <FaTiktok />
+                  </a>
+                )}
+
+              {/* ==============================
+                  FACEBOOK
+              ============================== */}
+
+              {showFacebook &&
+                facebookURL && (
+                  <a
+                    href={facebookURL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="interactive-btn"
+                    style={{
+                      color:
+                        "#1877F2",
+                      fontSize: "28px",
+                      display: "flex",
+                      alignItems:
+                        "center",
+                      justifyContent:
+                        "center",
+                      textDecoration:
+                        "none",
+                      cursor:
+                        "pointer",
+                    }}
+                    aria-label="Facebook"
+                    title="Facebook"
+                  >
+                    <FaFacebook />
+                  </a>
+                )}
+
+              {/* ==============================
+                  YOUTUBE
+              ============================== */}
+
+              {showYoutube &&
+                youtubeURL && (
+                  <a
+                    href={youtubeURL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="interactive-btn"
+                    style={{
+                      color:
+                        "#FF0000",
+                      fontSize: "28px",
+                      display: "flex",
+                      alignItems:
+                        "center",
+                      justifyContent:
+                        "center",
+                      textDecoration:
+                        "none",
+                      cursor:
+                        "pointer",
+                    }}
+                    aria-label="YouTube"
+                    title="YouTube"
+                  >
+                    <FaYoutube />
+                  </a>
+                )}
+
+              {/* ==============================
+                  INSTAGRAM
+              ============================== */}
+
+              {showInstagram &&
+                instagramURL && (
+                  <a
+                    href={instagramURL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="interactive-btn"
+                    style={{
+                      color:
+                        "#E4405F",
+                      fontSize: "28px",
+                      display: "flex",
+                      alignItems:
+                        "center",
+                      justifyContent:
+                        "center",
+                      textDecoration:
+                        "none",
+                      cursor:
+                        "pointer",
+                    }}
+                    aria-label="Instagram"
+                    title="Instagram"
+                  >
+                    <FaInstagram />
+                  </a>
+                )}
+
+            </div>
+          ) : null}
+
         </div>
 
-        {/* PRODUCTS & COACHING LIST */}
+        {/* ======================================
+            PRODUCTS + COACHING
+        ====================================== */}
+
         <div
           style={{
             display: "flex",
-            flexDirection: "column",
+            flexDirection:
+              "column",
             gap: "15px",
             textAlign: "left",
           }}
         >
+
           {products.length === 0 ? (
-            <p style={{ textAlign: "center", color: "#666" }}>
+            <p
+              style={{
+                textAlign:
+                  "center",
+                color:
+                  textColor,
+                opacity: 0.65,
+              }}
+            >
               No products available.
             </p>
           ) : (
-            products.map((product) => (
-              <a
-                key={`${product.type}-${product.id}`}
-                href={
-                  product.type === "coaching"
-                    ? `/checkout/${product.id}?type=coaching`
-                    : `/checkout/${product.id}`
-                }
-                style={{
-                  display: "block",
-                  background: "white",
-                  border: "1px solid #ddd",
-                  borderRadius: "18px",
-                  padding: "18px",
-                  textDecoration: "none",
-                  color: "#111",
-                  boxShadow: "0 3px 10px rgba(0,0,0,.08)",
-                }}
-              >
-                {/* TOP ROW */}
-                <div
+            products.map(
+              (product) => (
+
+                <a
+                  key={`${product.type}-${product.id}`}
+                  href={
+                    product.type ===
+                    "coaching"
+                      ? `/checkout/${product.id}?type=coaching`
+                      : `/checkout/${product.id}`
+                  }
                   style={{
-                    display: "flex",
-                    gap: "18px",
-                    alignItems: "flex-start",
+                    display: "block",
+                    background:
+                      cardColor,
+                    border:
+                      `1px solid ${textColor}22`,
+                    borderRadius:
+                      cardRadius,
+                    padding: "18px",
+                    textDecoration:
+                      "none",
+                    color:
+                      textColor,
+                    boxShadow:
+                      "0 3px 10px rgba(0,0,0,.08)",
+                    transition:
+                      "all 0.2s ease",
                   }}
                 >
-                  {/* Thumbnail */}
-                  <img
-                    src={product.thumbnail || "/product-placeholder.png"}
-                    alt={product.title}
-                    style={{
-                      width: "100px",
-                      height: "100px",
-                      objectFit: "cover",
-                      borderRadius: "14px",
-                      flexShrink: 0,
-                    }}
-                  />
 
-                  {/* Right Side */}
+                  {/* ==================================
+                      TOP ROW
+                  ================================== */}
+
                   <div
                     style={{
-                      flex: 1,
-                      minWidth: 0,
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "8px",
+                      display:
+                        "flex",
+                      gap: "18px",
+                      alignItems:
+                        "flex-start",
                     }}
                   >
-                    {product.type === "coaching" && (
-                      <div
-                        style={{
-                          display: "inline-block",
-                          background: "#50567b",
-                          color: "white",
-                          padding: "5px 10px",
-                          borderRadius: "8px",
-                          fontSize: "12px",
-                          fontWeight: "bold",
-                          marginBottom: "5px",
-                          width: "fit-content",
-                        }}
-                      >
-                        🎯 Coaching Call
-                      </div>
-                    )}
 
-                    {/* Title */}
-                    <h2
+                    {/* THUMBNAIL */}
+
+                    <img
+                      src={
+                        product.thumbnail ||
+                        "/product-placeholder.png"
+                      }
+                      alt={
+                        product.title
+                      }
                       style={{
-                        margin: 0,
-                        fontSize: "20px",
-                        fontWeight: "bold",
-                        wordBreak: "break-word",
+                        width:
+                          "100px",
+                        height:
+                          "100px",
+                        objectFit:
+                          "cover",
+                        borderRadius:
+                          cardStyle ===
+                          "square"
+                            ? "4px"
+                            : "14px",
+                        flexShrink:
+                          0,
                       }}
-                    >
-                      {product.title}
-                    </h2>
+                    />
 
-                    {product.type === "coaching" && (
-                      <p
-                        style={{
-                          margin: 0,
-                          color: "#666",
-                          fontSize: "16px",
-                        }}
-                      >
-                        ⏱️ {product.duration} minutes • 1-on-1 session
-                      </p>
-                    )}
+                    {/* RIGHT SIDE */}
 
-                    {/* Price */}
                     <div
                       style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "10px",
+                        flex: 1,
+                        minWidth: 0,
+                        display:
+                          "flex",
+                        flexDirection:
+                          "column",
+                        gap: "8px",
                       }}
                     >
-                      {product.discountPrice ? (
-                        <>
-                          <span
-                            style={{
-                              color: "#37b2d4",
-                              fontWeight: "bold",
-                              fontSize: "18px",
-                            }}
-                          >
-                            CA${Number(product.discountPrice).toFixed(2)}
-                          </span>
-                          <span
-                            style={{
-                              textDecoration: "line-through",
-                              color: "#888",
-                              fontSize: "16px",
-                              fontWeight: "bold",
-                            }}
-                          >
-                            CA${Number(product.price).toFixed(2)}
-                          </span>
-                        </>
-                      ) : (
-                        <span
+
+                      {/* COACHING LABEL */}
+
+                      {product.type ===
+                        "coaching" && (
+                        <div
                           style={{
-                            color: "#40463f",
-                            fontWeight: "bold",
-                            fontSize: "18px",
+                            display:
+                              "inline-block",
+                            background:
+                              buttonColor,
+                            color:
+                              "white",
+                            padding:
+                              "5px 10px",
+                            borderRadius:
+                              "8px",
+                            fontSize:
+                              "12px",
+                            fontWeight:
+                              "bold",
+                            marginBottom:
+                              "5px",
+                            width:
+                              "fit-content",
                           }}
                         >
-                          CA${Number(product.price).toFixed(2)}
-                        </span>
+                          🎯 Coaching Call
+                        </div>
                       )}
+
+                      {/* TITLE */}
+
+                      <h2
+                        style={{
+                          margin: 0,
+                          fontSize:
+                            "20px",
+                          fontWeight:
+                            "bold",
+                          wordBreak:
+                            "break-word",
+                          color:
+                            textColor,
+                        }}
+                      >
+                        {
+                          product.title
+                        }
+                      </h2>
+
+                      {/* COACHING DURATION */}
+
+                      {product.type ===
+                        "coaching" && (
+                        <p
+                          style={{
+                            margin: 0,
+                            color:
+                              textColor,
+                            opacity:
+                              0.65,
+                            fontSize:
+                              "16px",
+                          }}
+                        >
+                          ⏱️{" "}
+                          {product.duration ||
+                            60}{" "}
+                          minutes •
+                          1-on-1 session
+                        </p>
+                      )}
+
+                      {/* PRICE */}
+
+                      <div
+                        style={{
+                          display:
+                            "flex",
+                          alignItems:
+                            "center",
+                          gap: "10px",
+                        }}
+                      >
+
+                        {product.discountPrice ? (
+                          <>
+                            <span
+                              style={{
+                                color:
+                                  buttonColor,
+                                fontWeight:
+                                  "bold",
+                                fontSize:
+                                  "18px",
+                              }}
+                            >
+                              CA$
+                              {Number(
+                                product.discountPrice
+                              ).toFixed(2)}
+                            </span>
+
+                            <span
+                              style={{
+                                textDecoration:
+                                  "line-through",
+                                color:
+                                  textColor,
+                                opacity:
+                                  0.5,
+                                fontSize:
+                                  "16px",
+                                fontWeight:
+                                  "bold",
+                              }}
+                            >
+                              CA$
+                              {Number(
+                                product.price
+                              ).toFixed(2)}
+                            </span>
+                          </>
+                        ) : (
+                          <span
+                            style={{
+                              color:
+                                buttonColor,
+                              fontWeight:
+                                "bold",
+                              fontSize:
+                                "18px",
+                            }}
+                          >
+                            CA$
+                            {Number(
+                              product.price
+                            ).toFixed(2)}
+                          </span>
+                        )}
+
+                      </div>
+
+                      {/* DESCRIPTION */}
+
+                      <p
+                        style={{
+                          color:
+                            textColor,
+                          opacity:
+                            0.75,
+                          overflow:
+                            "hidden",
+                          display:
+                            "-webkit-box",
+                          WebkitLineClamp:
+                            3,
+                          WebkitBoxOrient:
+                            "vertical",
+                          lineHeight:
+                            1.5,
+                          margin: 0,
+                          fontSize:
+                            "14px",
+                        }}
+                      >
+                        {
+                          product.description
+                        }
+                      </p>
+
+                      {/* BUTTON */}
+
+                      <div
+                        style={{
+                          marginTop:
+                            "10px",
+                          background:
+                            buttonColor,
+                          color:
+                            "white",
+                          padding:
+                            "10px 18px",
+                          borderRadius:
+                            "10px",
+                          fontWeight:
+                            "bold",
+                          textAlign:
+                            "center",
+                          width:
+                            "100%",
+                          boxSizing:
+                            "border-box",
+                        }}
+                      >
+                        {product.type ===
+                        "coaching"
+                          ? "See available days & Book Coaching Call"
+                          : "Get Access Now"}
+                      </div>
+
                     </div>
-
-                    {/* Description */}
-                    <p
-                      style={{
-                        color: "#171616",
-                        overflow: "hidden",
-                        display: "-webkit-box",
-                        WebkitLineClamp: 3,
-                        WebkitBoxOrient: "vertical",
-                        lineHeight: "1.5",
-                        margin: 0,
-                        fontSize: "14px",
-                      }}
-                    >
-                      {product.description}
-                    </p>
-
-                    {/* Button */}
-                    <button
-                      className="interactive-btn"
-                      style={{
-                        marginTop: "10px",
-                        background: "#D4AF37",
-                        color: "white",
-                        border: "none",
-                        padding: "10px 18px",
-                        borderRadius: "10px",
-                        fontWeight: "bold",
-                        cursor: "pointer",
-                        width: "100%",
-                      }}
-                    >
-                      {product.type === "coaching"
-                        ? "See available days & Book Coaching Call"
-                        : "Get Access Now"}
-                    </button>
                   </div>
-                </div>
-              </a>
-            ))
+                </a>
+              )
+            )
           )}
+
         </div>
+
       </div>
     </div>
   );
-} 
+}

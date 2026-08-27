@@ -403,7 +403,7 @@ lineHeight:"28px"
 }}
 >
 
-To publish and sell digital products on CreatorStore,
+To publish and sell digital products/coaching on CreatorStore,
 
 a Creator Pro subscription is required.
 

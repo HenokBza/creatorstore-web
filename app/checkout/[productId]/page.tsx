@@ -196,7 +196,7 @@ export default function CheckoutPage() {
   // ==========================================
 
   const buyProduct = async () => {
-    if (reservationExpired) {
+    if (isCoaching && reservationExpired) {
       alert("Your reservation has expired. Please re-select your schedule.");
       return;
     }
@@ -790,34 +790,8 @@ export default function CheckoutPage() {
                     >
                       Many clients waiting this reservation! Please complete your payment before the reservation expires.
                     </div>
-                
-          <button
-            onClick={buyProduct}
-            disabled={product.isActive === false || reservationExpired}
-            className="interactive-btn"
-            style={{
-              marginTop: "20px",
-              width: "100%",
-              padding: isMobile ? "16px" : "18px",
-              background: product.isActive === false || reservationExpired ? "#999" : "#D4AF37",
-              color: "white",
-              border: "none",
-              borderRadius: "14px",
-              fontWeight: "bold",
-              fontSize: "18px",
-              cursor: product.isActive === false || reservationExpired ? "not-allowed" : "pointer",
-              opacity: product.isActive === false || reservationExpired ? 0.6 : 1,
-            }}
-          >
-            {product.isActive === false
-              ? "Unavailable"
-              : reservationExpired
-              ? "Reservation Expired"
-              : product.buttonText || "Get Access Now"}
-          </button>
-                 </>
+                  </>
                 ) : (
-                
                   <div
                     style={{
                       fontSize: "15px",
@@ -831,6 +805,32 @@ export default function CheckoutPage() {
                 )}
               </div>
             )}
+
+          {/* MAIN CHECKOUT BUTTON (Placed outside conditionals so it's always rendered) */}
+          <button
+            onClick={buyProduct}
+            disabled={product.isActive === false || (isCoaching && reservationExpired)}
+            className="interactive-btn"
+            style={{
+              marginTop: "20px",
+              width: "100%",
+              padding: isMobile ? "16px" : "18px",
+              background: product.isActive === false || (isCoaching && reservationExpired) ? "#999" : "#D4AF37",
+              color: "white",
+              border: "none",
+              borderRadius: "14px",
+              fontWeight: "bold",
+              fontSize: "18px",
+              cursor: product.isActive === false || (isCoaching && reservationExpired) ? "not-allowed" : "pointer",
+              opacity: product.isActive === false || (isCoaching && reservationExpired) ? 0.6 : 1,
+            }}
+          >
+            {product.isActive === false
+              ? "Unavailable"
+              : isCoaching && reservationExpired
+              ? "Reservation Expired"
+              : product.buttonText || "Get Access Now"}
+          </button>
 
           <div
             style={{
