@@ -27,17 +27,6 @@ export default function CreatorPage() {
   // =========================================================
   // GET STORE NAME
   // =========================================================
-  //
-  // Next.js may return either:
-  //
-  // params.storeName
-  //
-  // or in your current production situation:
-  //
-  // params.storename
-  //
-  // We support BOTH.
-  // =========================================================
 
   const rawStoreName =
     params?.storeName ??
@@ -207,10 +196,6 @@ export default function CreatorPage() {
       // ======================================================
       // COUNT STORE VISIT
       // ======================================================
-      //
-      // If this fails, DON'T stop the public page.
-      // The customer should still be able to see the store.
-      // ======================================================
 
       try {
         console.log(
@@ -236,8 +221,6 @@ export default function CreatorPage() {
           "⚠️ Failed to count visit:",
           visitError
         );
-
-        // Don't stop the page because of visit counting.
       }
 
       // ======================================================
@@ -514,16 +497,6 @@ export default function CreatorPage() {
   // =========================================================
   // SOCIAL MEDIA URLS
   // =========================================================
-  //
-  // IMPORTANT:
-  // These are read from creator.design.
-  //
-  // design.tiktokURL
-  // design.facebookURL
-  // design.youtubeURL
-  // design.instagramURL
-  //
-  // =========================================================
 
   const tiktokURL =
     typeof design.tiktokURL === "string"
@@ -544,16 +517,6 @@ export default function CreatorPage() {
     typeof design.instagramURL === "string"
       ? design.instagramURL.trim()
       : "";
-
-  console.log(
-    "🔗 Social URLs:",
-    {
-      tiktokURL,
-      facebookURL,
-      youtubeURL,
-      instagramURL,
-    }
-  );
 
   // =========================================================
   // CARD RADIUS
@@ -589,327 +552,350 @@ export default function CreatorPage() {
         background: backgroundColor,
         display: "flex",
         justifyContent: "center",
-        padding: "40px 20px",
+        padding:
+          "40px 20px 25px",
         color: textColor,
         transition: "all 0.2s ease",
         boxSizing: "border-box",
       }}
     >
+
       {/* =====================================================
-          MAIN STORE CARD
+          PAGE CONTENT
       ===================================================== */}
 
       <div
         style={{
           width: "100%",
           maxWidth: "520px",
-          background: cardColor,
-          borderRadius: "20px",
-          padding: "30px",
-          textAlign: "center",
-          boxShadow:
-            "0 5px 20px rgba(0,0,0,.1)",
           display: "flex",
           flexDirection: "column",
-          gap: "25px",
-          boxSizing: "border-box",
+          gap: "20px",
         }}
       >
-        {/* ===================================================
-            PROFILE SECTION
-        =================================================== */}
-
-        <div>
-
-          {/* PROFILE IMAGE */}
-
-          <img
-            src={
-              creator.profileImage ||
-              "/profile-placeholder.png"
-            }
-            alt={
-              creator.name ||
-              "Creator profile"
-            }
-            style={{
-              width: "120px",
-              height: "120px",
-              borderRadius: "50%",
-              objectFit: "cover",
-              marginBottom: "20px",
-              border:
-                `4px solid ${buttonColor}`,
-            }}
-          />
-
-          {/* CREATOR NAME */}
-
-          <h1
-            style={{
-              margin: 0,
-              fontSize: "24px",
-              color: textColor,
-            }}
-          >
-            {creator.name ||
-              "Creator"}
-          </h1>
-
-          {/* STORE NAME */}
-
-          <p
-            style={{
-              color: textColor,
-              opacity: 0.65,
-              margin:
-                "5px 0 15px 0",
-            }}
-          >
-            @{creator.storeName ||
-              storeName}
-          </p>
-
-          {/* =================================================
-              BIO
-          ================================================= */}
-
-          {creator.bio && (
-            <p
-              style={{
-                margin:
-                  "10px auto 20px",
-                maxWidth: "430px",
-                lineHeight: 1.6,
-                color: textColor,
-                opacity: 0.8,
-                fontSize: "15px",
-              }}
-            >
-              {creator.bio}
-            </p>
-          )}
-
-          {/* =================================================
-              SOCIAL MEDIA
-          ================================================= */}
-
-          {hasSocialLinks && (
-            <div
-              style={{
-                display: "flex",
-                justifyContent:
-                  "center",
-                alignItems:
-                  "center",
-                gap: "20px",
-                marginTop: "15px",
-                marginBottom: "10px",
-              }}
-            >
-
-              {/* TIKTOK */}
-
-              {showTiktok &&
-                tiktokURL && (
-                  <a
-                    href={tiktokURL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      color: textColor,
-                      fontSize: "28px",
-                      display: "flex",
-                      alignItems:
-                        "center",
-                      justifyContent:
-                        "center",
-                      textDecoration:
-                        "none",
-                      cursor:
-                        "pointer",
-                    }}
-                    aria-label="TikTok"
-                    title="TikTok"
-                  >
-                    <FaTiktok />
-                  </a>
-                )}
-
-              {/* FACEBOOK */}
-
-              {showFacebook &&
-                facebookURL && (
-                  <a
-                    href={facebookURL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      color:
-                        "#1877F2",
-                      fontSize: "28px",
-                      display: "flex",
-                      alignItems:
-                        "center",
-                      justifyContent:
-                        "center",
-                      textDecoration:
-                        "none",
-                      cursor:
-                        "pointer",
-                    }}
-                    aria-label="Facebook"
-                    title="Facebook"
-                  >
-                    <FaFacebook />
-                  </a>
-                )}
-
-              {/* YOUTUBE */}
-
-              {showYoutube &&
-                youtubeURL && (
-                  <a
-                    href={youtubeURL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      color:
-                        "#FF0000",
-                      fontSize: "28px",
-                      display: "flex",
-                      alignItems:
-                        "center",
-                      justifyContent:
-                        "center",
-                      textDecoration:
-                        "none",
-                      cursor:
-                        "pointer",
-                    }}
-                    aria-label="YouTube"
-                    title="YouTube"
-                  >
-                    <FaYoutube />
-                  </a>
-                )}
-
-              {/* INSTAGRAM */}
-
-              {showInstagram &&
-                instagramURL && (
-                  <a
-                    href={instagramURL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      color:
-                        "#E4405F",
-                      fontSize: "28px",
-                      display: "flex",
-                      alignItems:
-                        "center",
-                      justifyContent:
-                        "center",
-                      textDecoration:
-                        "none",
-                      cursor:
-                        "pointer",
-                    }}
-                    aria-label="Instagram"
-                    title="Instagram"
-                  >
-                    <FaInstagram />
-                  </a>
-                )}
-
-            </div>
-          )}
-
-        </div>
 
         {/* ===================================================
-            PRODUCTS + COACHING
+            MAIN STORE CARD
         =================================================== */}
 
         <div
           style={{
+            width: "100%",
+            background: cardColor,
+            borderRadius: "20px",
+            padding: "30px",
+            textAlign: "center",
+            boxShadow:
+              "0 5px 20px rgba(0,0,0,.1)",
             display: "flex",
-            flexDirection:
-              "column",
-            gap: "15px",
-            textAlign: "left",
+            flexDirection: "column",
+            gap: "25px",
+            boxSizing: "border-box",
           }}
         >
 
           {/* =================================================
-              NO PRODUCTS
+              PROFILE SECTION
           ================================================= */}
 
-          {products.length === 0 ? (
-            <p
+          <div>
+
+            {/* PROFILE IMAGE */}
+
+            <img
+              src={
+                creator.profileImage ||
+                "/profile-placeholder.png"
+              }
+              alt={
+                creator.name ||
+                "Creator profile"
+              }
               style={{
-                textAlign:
-                  "center",
-                color:
-                  textColor,
-                opacity: 0.65,
+                width: "120px",
+                height: "120px",
+                borderRadius: "50%",
+                objectFit: "cover",
+                marginBottom: "20px",
+                border:
+                  `4px solid ${buttonColor}`,
+              }}
+            />
+
+            {/* CREATOR NAME */}
+
+            <h1
+              style={{
+                margin: 0,
+                fontSize: "24px",
+                color: textColor,
               }}
             >
-              No products available.
+              {creator.name ||
+                "Creator"}
+            </h1>
+
+            {/* STORE NAME */}
+
+            <p
+              style={{
+                color: textColor,
+                opacity: 0.65,
+                margin:
+                  "5px 0 15px 0",
+              }}
+            >
+              @{creator.storeName ||
+                storeName}
             </p>
-          ) : (
 
-            /* =================================================
-               PRODUCTS
-            ================================================= */
+            {/* BIO */}
 
-            products.map(
-              (product) => (
+            {creator.bio && (
+              <p
+                style={{
+                  margin:
+                    "10px auto 20px",
+                  maxWidth: "430px",
+                  lineHeight: 1.6,
+                  color: textColor,
+                  opacity: 0.8,
+                  fontSize: "15px",
+                }}
+              >
+                {creator.bio}
+              </p>
+            )}
 
-                <a
-                  key={`${product.type}-${product.id}`}
-                  href={
-                    product.type ===
-                    "coaching"
-                      ? `/checkout/${product.id}?type=coaching`
-                      : `/checkout/${product.id}`
-                  }
-                  style={{
-                    display: "block",
-                    background:
-                      cardColor,
-                    border:
-                      `1px solid ${textColor}22`,
-                    borderRadius:
-                      cardRadius,
-                    padding: "18px",
-                    textDecoration:
-                      "none",
-                    color:
-                      textColor,
-                    boxShadow:
-                      "0 3px 10px rgba(0,0,0,.08)",
-                    transition:
-                      "all 0.2s ease",
-                  }}
-                >
+            {/* =================================================
+                SOCIAL MEDIA ICONS
+            ================================================= */}
 
-                  {/* =================================================
-                      TOP ROW
-                  ================================================= */}
+            {hasSocialLinks && (
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent:
+                    "center",
+                  alignItems:
+                    "center",
+                  gap: "20px",
+                  marginTop: "15px",
+                  marginBottom: "10px",
+                }}
+              >
 
-                  <div
+                {/* TIKTOK */}
+
+                {showTiktok &&
+                  tiktokURL && (
+                    <a
+                      href={tiktokURL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        color:
+                          textColor,
+                        fontSize:
+                          "28px",
+                        display:
+                          "flex",
+                        alignItems:
+                          "center",
+                        justifyContent:
+                          "center",
+                        textDecoration:
+                          "none",
+                        cursor:
+                          "pointer",
+                      }}
+                      aria-label="TikTok"
+                      title="TikTok"
+                    >
+                      <FaTiktok />
+                    </a>
+                  )}
+
+                {/* FACEBOOK */}
+
+                {showFacebook &&
+                  facebookURL && (
+                    <a
+                      href={facebookURL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        color:
+                          "#1877F2",
+                        fontSize:
+                          "28px",
+                        display:
+                          "flex",
+                        alignItems:
+                          "center",
+                        justifyContent:
+                          "center",
+                        textDecoration:
+                          "none",
+                        cursor:
+                          "pointer",
+                      }}
+                      aria-label="Facebook"
+                      title="Facebook"
+                    >
+                      <FaFacebook />
+                    </a>
+                  )}
+
+                {/* YOUTUBE */}
+
+                {showYoutube &&
+                  youtubeURL && (
+                    <a
+                      href={youtubeURL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        color:
+                          "#FF0000",
+                        fontSize:
+                          "28px",
+                        display:
+                          "flex",
+                        alignItems:
+                          "center",
+                        justifyContent:
+                          "center",
+                        textDecoration:
+                          "none",
+                        cursor:
+                          "pointer",
+                      }}
+                      aria-label="YouTube"
+                      title="YouTube"
+                    >
+                      <FaYoutube />
+                    </a>
+                  )}
+
+                {/* INSTAGRAM */}
+
+                {showInstagram &&
+                  instagramURL && (
+                    <a
+                      href={instagramURL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        color:
+                          "#E4405F",
+                        fontSize:
+                          "28px",
+                        display:
+                          "flex",
+                        alignItems:
+                          "center",
+                        justifyContent:
+                          "center",
+                        textDecoration:
+                          "none",
+                        cursor:
+                          "pointer",
+                      }}
+                      aria-label="Instagram"
+                      title="Instagram"
+                    >
+                      <FaInstagram />
+                    </a>
+                  )}
+
+              </div>
+            )}
+
+          </div>
+
+          {/* =================================================
+              PRODUCTS + COACHING
+              
+              NEW DESIGN:
+              THUMBNAIL ON TOP
+              CONTENT BELOW
+              
+              Responsive on mobile + laptop.
+          ================================================= */}
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns:
+                "1fr",
+              gap: "18px",
+              textAlign: "left",
+            }}
+          >
+
+            {/* =================================================
+                NO PRODUCTS
+            ================================================= */}
+
+            {products.length === 0 ? (
+              <p
+                style={{
+                  textAlign:
+                    "center",
+                  color:
+                    textColor,
+                  opacity: 0.65,
+                }}
+              >
+                No products available.
+              </p>
+            ) : (
+
+              /* =================================================
+                 PRODUCT CARDS
+              ================================================= */
+
+              products.map(
+                (product) => (
+
+                  <a
+                    key={`${product.type}-${product.id}`}
+                    href={
+                      product.type ===
+                      "coaching"
+                        ? `/checkout/${product.id}?type=coaching`
+                        : `/checkout/${product.id}`
+                    }
                     style={{
                       display:
-                        "flex",
-                      gap: "18px",
-                      alignItems:
-                        "flex-start",
+                        "block",
+                      background:
+                        cardColor,
+                      border:
+                        `1px solid ${textColor}22`,
+                      borderRadius:
+                        cardRadius,
+                      padding:
+                        "15px",
+                      textDecoration:
+                        "none",
+                      color:
+                        textColor,
+                      boxShadow:
+                        "0 5px 15px rgba(0,0,0,0.10)",
+                      transition:
+                        "all 0.2s ease",
+                      boxSizing:
+                        "border-box",
+                      width:
+                        "100%",
                     }}
                   >
 
-                    {/* THUMBNAIL */}
+                    {/* =================================================
+                        THUMBNAIL ON TOP
+                    ================================================= */}
 
                     <img
                       src={
@@ -922,32 +908,33 @@ export default function CreatorPage() {
                       }
                       style={{
                         width:
-                          "100px",
+                          "100%",
                         height:
-                          "100px",
+                          "220px",
                         objectFit:
                           "cover",
                         borderRadius:
                           cardStyle ===
                           "square"
                             ? "4px"
-                            : "14px",
-                        flexShrink:
-                          0,
+                            : "12px",
+                        display:
+                          "block",
+                        marginBottom:
+                          "15px",
                       }}
                     />
 
-                    {/* RIGHT SIDE */}
+                    {/* =================================================
+                        CARD CONTENT
+                    ================================================= */}
 
                     <div
                       style={{
-                        flex: 1,
-                        minWidth: 0,
-                        display:
-                          "flex",
-                        flexDirection:
-                          "column",
-                        gap: "8px",
+                        width:
+                          "100%",
+                        boxSizing:
+                          "border-box",
                       }}
                     >
 
@@ -972,9 +959,7 @@ export default function CreatorPage() {
                             fontWeight:
                               "bold",
                             marginBottom:
-                              "5px",
-                            width:
-                              "fit-content",
+                              "10px",
                           }}
                         >
                           🎯 Coaching Call
@@ -985,7 +970,8 @@ export default function CreatorPage() {
 
                       <h2
                         style={{
-                          margin: 0,
+                          margin:
+                            "0 0 7px",
                           fontSize:
                             "20px",
                           fontWeight:
@@ -1007,13 +993,14 @@ export default function CreatorPage() {
                         "coaching" && (
                         <p
                           style={{
-                            margin: 0,
+                            margin:
+                              "0 0 8px",
                             color:
                               textColor,
                             opacity:
                               0.65,
                             fontSize:
-                              "16px",
+                              "14px",
                           }}
                         >
                           ⏱️{" "}
@@ -1032,7 +1019,12 @@ export default function CreatorPage() {
                             "flex",
                           alignItems:
                             "center",
-                          gap: "10px",
+                          gap:
+                            "10px",
+                          marginBottom:
+                            "8px",
+                          flexWrap:
+                            "wrap",
                         }}
                       >
 
@@ -1063,7 +1055,7 @@ export default function CreatorPage() {
                                 opacity:
                                   0.5,
                                 fontSize:
-                                  "16px",
+                                  "14px",
                                 fontWeight:
                                   "bold",
                               }}
@@ -1104,19 +1096,20 @@ export default function CreatorPage() {
                               textColor,
                             opacity:
                               0.75,
-                            overflow:
-                              "hidden",
+                            lineHeight:
+                              1.5,
+                            margin:
+                              "0 0 12px",
+                            fontSize:
+                              "14px",
                             display:
                               "-webkit-box",
                             WebkitLineClamp:
                               3,
                             WebkitBoxOrient:
                               "vertical",
-                            lineHeight:
-                              1.5,
-                            margin: 0,
-                            fontSize:
-                              "14px",
+                            overflow:
+                              "hidden",
                           }}
                         >
                           {
@@ -1136,7 +1129,7 @@ export default function CreatorPage() {
                           color:
                             "white",
                           padding:
-                            "10px 18px",
+                            "11px 18px",
                           borderRadius:
                             "10px",
                           fontWeight:
@@ -1147,6 +1140,8 @@ export default function CreatorPage() {
                             "100%",
                           boxSizing:
                             "border-box",
+                          lineHeight:
+                            1.4,
                         }}
                       >
                         {product.type ===
@@ -1156,15 +1151,117 @@ export default function CreatorPage() {
                       </div>
 
                     </div>
-                  </div>
-                </a>
+
+                  </a>
+                )
               )
-            )
-          )}
+            )}
+
+          </div>
+
+        </div>
+
+        {/* =====================================================
+            CREATORSTORE FOOTER
+        ===================================================== */}
+
+        <div
+          style={{
+            width: "100%",
+            display: "flex",
+            justifyContent:
+              "space-between",
+            alignItems:
+              "center",
+            gap: "15px",
+            padding:
+              "5px 5px 10px",
+            boxSizing:
+              "border-box",
+            flexWrap:
+              "wrap",
+          }}
+        >
+
+          {/* =================================================
+              LEFT — CREATORSTORE LOGO
+          ================================================= */}
+
+          <a
+            href="/"
+            style={{
+              display:
+                "flex",
+              alignItems:
+                "center",
+              textDecoration:
+                "none",
+              color:
+                textColor,
+              fontWeight:
+                "bold",
+            }}
+          >
+            <img
+              src="/logo.png"
+              alt="CreatorStore"
+              style={{
+                height:
+                  "32px",
+                width:
+                  "auto",
+                maxWidth:
+                  "160px",
+                objectFit:
+                  "contain",
+                display:
+                  "block",
+              }}
+            />
+          </a>
+
+          {/* =================================================
+              RIGHT — ETHIOPIA CTA
+          ================================================= */}
+
+          <a
+            href="/"
+            style={{
+              color:
+                textColor,
+              fontSize:
+                "13px",
+              fontWeight:
+                "600",
+              textDecoration:
+                "none",
+              textAlign:
+                "right",
+              lineHeight:
+                1.4,
+              transition:
+                "opacity 0.2s ease",
+            }}
+            title="Join CreatorStore for free"
+          >
+            Now live in Ethiopia —
+            <br />
+            <span
+              style={{
+                textDecoration:
+                  "underline",
+                fontWeight:
+                  "bold",
+              }}
+            >
+              Join for free
+            </span>
+          </a>
 
         </div>
 
       </div>
+
     </div>
   );
 }
