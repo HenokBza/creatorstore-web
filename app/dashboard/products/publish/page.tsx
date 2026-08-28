@@ -364,25 +364,52 @@ export default function PublishPage() {
   | PRODUCT FILE
   |--------------------------------------------------------------------------
   */
-
-  const handleProductFileChange = (
+const handleProductFileChange = async (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = e.target.files?.[0];
 
     if (!file) return;
 
-    /*
-    | Prevent video uploads.
-    */
+    // 1. Limit File Size (Example: Max 100MB)
+    const MAX_MB = 100;
+    const fileSizeInMB = file.size / (1024 * 1024);
 
-    if (file.type.startsWith("video/")) {
-      alert(
-        "if this Video more than 5 minutes you'll be charged."
-      );
+    if (fileSizeInMB > MAX_MB) {
+      alert(`File is too large (${fileSizeInMB.toFixed(1)}MB). Maximum allowed file size is ${MAX_MB}MB.`);
+      e.target.value = ""; // Clear the file input
       return;
     }
 
+    // 2. Limit Video Duration (If it's a video file, check if it's over 5 minutes / 300 seconds)
+    if (file.type.startsWith("video/")) {
+      const videoDurationLimitSeconds = 300; // 5 minutes
+
+      const videoElement = document.createElement("video");
+      videoElement.preload = "metadata";
+
+      videoElement.onloadedmetadata = () => {
+        window.URL.revokeObjectURL(videoElement.src);
+        
+        if (videoElement.duration > videoDurationLimitSeconds) {
+          alert(`Video is too long (${Math.ceil(videoElement.duration / 60)} minutes). Maximum allowed duration is 5 minutes.`);
+          setProductFile(null);
+          e.target.value = ""; // Clear input
+        } else {
+          setProductFile(file);
+        }
+      };
+
+      videoElement.onerror = () => {
+        alert("Could not read video metadata. Please select a valid video file.");
+        e.target.value = "";
+      };
+
+      videoElement.src = URL.createObjectURL(file);
+      return;
+    }
+
+    // Set non-video or valid video files
     setProductFile(file);
   };
 
