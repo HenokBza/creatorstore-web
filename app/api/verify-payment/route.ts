@@ -313,7 +313,9 @@ export async function GET(
         { status: 400 }
       );
     }
-
+console.log("🔥 DIGITAL PRODUCT:", product.title);
+console.log("🔥 FILE URL:", product.fileUrl);
+console.log("🔥 DOWNLOAD URL:", product.fileUrl || "");
     return NextResponse.json({
 
       productType:

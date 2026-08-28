@@ -470,7 +470,8 @@ function PaymentSuccessContent() {
   // ==========================================
   // SUCCESS
   // ==========================================
-
+  console.log("🔥 PAYMENT DATA:", paymentData);
+console.log("🔥 DOWNLOAD URL:", paymentData?.downloadUrl);
   return (
     <div
       style={{
