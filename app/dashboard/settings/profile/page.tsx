@@ -122,7 +122,7 @@ export default function ProfilePage() {
       if (selectedFile) {
         const imageRef = ref(
           storage,
-          `profiles/${user.uid}`
+          `profileImages/${user.uid}/avatar`
         );
 
         await uploadBytes(

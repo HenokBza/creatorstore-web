@@ -291,13 +291,13 @@ export default function CoachingCallPage() {
         return;
       }
 
-      let thumbnailUrl = thumbnailPreview;
+     let thumbnailUrl = thumbnailPreview;
       if (thumbnailFile) {
         setMessage("Uploading coaching thumbnail...");
         const safeFileName = thumbnailFile.name.replace(/[^a-zA-Z0-9._-]/g, "_");
         const storageRef = ref(
           storage,
-          `coaching/${user.uid}/thumbnails/${Date.now()}-${safeFileName}`
+          `coaching/${user.uid}/items/${Date.now()}-${safeFileName}`
         );
         await uploadBytes(storageRef, thumbnailFile);
         thumbnailUrl = await getDownloadURL(storageRef);

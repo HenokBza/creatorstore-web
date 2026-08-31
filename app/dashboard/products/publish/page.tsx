@@ -617,7 +617,7 @@ console.log("===========================================");
         const thumbnailRef =
           ref(
             storage,
-            `thumbnails/${user.uid}/${Date.now()}-${safeFileName}`
+            `thumbnails/${user.uid}/items/${Date.now()}-${safeFileName}`
           );
 
         await uploadBytes(
@@ -656,7 +656,7 @@ console.log("===========================================");
         const storageRef =
           ref(
             storage,
-            `products/${user.uid}/${Date.now()}-${safeFileName}`
+            `products/${user.uid}/items/${Date.now()}-${safeFileName}`
           );
 
         await uploadBytes(

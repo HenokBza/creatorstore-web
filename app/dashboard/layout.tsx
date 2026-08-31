@@ -87,7 +87,7 @@ export default function DashboardLayout({
 
     try {
       setUploading(true);
-      const storageRef = ref(storage, `profiles/${user.uid}`);
+      const storageRef = ref(storage, `profileImages/${user.uid}/avatar`);
       await uploadBytes(storageRef, file);
       const imageUrl = await getDownloadURL(storageRef);
 
