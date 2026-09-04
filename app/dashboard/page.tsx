@@ -33,19 +33,19 @@ export default function Dashboard() {
   });
 
   const [graphData, setGraphData] = useState([
-    { month: "Jan", visits: 0, revenue: 0 },
-    { month: "Feb", visits: 0, revenue: 0 },
-    { month: "Mar", visits: 0, revenue: 0 },
-    { month: "Apr", visits: 0, revenue: 0 },
-    { month: "May", visits: 0, revenue: 0 },
-    { month: "Jun", visits: 0, revenue: 0 },
-    { month: "July", visits: 0, revenue: 0 },
-    { month: "Aug", visits: 0, revenue: 0 },
-    { month: "Sep", visits: 0, revenue: 0 },
-    { month: "Oct", visits: 0, revenue: 0 },
-    { month: "Nov", visits: 0, revenue: 0 },
-    { month: "Dec", visits: 0, revenue: 0 },
-  ]);
+  { month: "Jan", revenue: 0 },
+  { month: "Feb", revenue: 0 },
+  { month: "Mar", revenue: 0 },
+  { month: "Apr", revenue: 0 },
+  { month: "May", revenue: 0 },
+  { month: "Jun", revenue: 0 },
+  { month: "July", revenue: 0 },
+  { month: "Aug", revenue: 0 },
+  { month: "Sep", revenue: 0 },
+  { month: "Oct", revenue: 0 },
+  { month: "Nov", revenue: 0 },
+  { month: "Dec", revenue: 0 },
+]);
 
   useEffect(() => {
     const user = auth.currentUser;
@@ -105,21 +105,20 @@ export default function Dashboard() {
         );
         const ordersSnapshot = await getDocs(ordersQuery);
 
-        const monthlyDataMap: { [key: string]: { visits: number; revenue: number } } = {
-          "Jan": { visits: 0, revenue: 0 },
-          "Feb": { visits: 0, revenue: 0 },
-          "Mar": { visits: 0, revenue: 0 },
-          "Apr": { visits: 0, revenue: 0 },
-          "May": { visits: 0, revenue: 0 },
-          "Jun": { visits: 0, revenue: 0 },
-          "July": { visits: 0, revenue: 0 },
-          "Aug": { visits: 0, revenue: 0 },
-          "Sep": { visits: 0, revenue: 0 },
-          "Oct": { visits: 0, revenue: 0 },
-          "Nov": { visits: 0, revenue: 0 },
-          "Dec": { visits: 0, revenue: 0 },
+        const monthlyDataMap: { [key: string]: { revenue: number } } = {
+"Jan": { revenue: 0 },
+"Feb": { revenue: 0 },
+"Mar": { revenue: 0 },
+"Apr": { revenue: 0 },
+"May": { revenue: 0 },
+"Jun": { revenue: 0 },
+"July": { revenue: 0 },
+"Aug": { revenue: 0 },
+"Sep": { revenue: 0 },
+"Oct": { revenue: 0 },
+"Nov": { revenue: 0 },
+"Dec": { revenue: 0 },
         };
-
         ordersSnapshot.forEach((docSnap) => {
           const order = docSnap.data();
           const amount = Number(order.amount || 0);
@@ -131,14 +130,14 @@ export default function Dashboard() {
 
             if (monthlyDataMap[monthStr]) {
               monthlyDataMap[monthStr].revenue += amount;
-              monthlyDataMap[monthStr].visits += Number(order.visits || 1);
+             
             }
           }
         });
 
         const formattedGraphData = Object.keys(monthlyDataMap).map((month) => ({
           month,
-          visits: monthlyDataMap[month].visits,
+          
           revenue: monthlyDataMap[month].revenue,
         }));
 
@@ -283,15 +282,19 @@ export default function Dashboard() {
               height: "320px",
             }}
           >
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={graphData}>
-                <XAxis dataKey="month" stroke="#000" />
-                <YAxis stroke="#000" />
-                <Tooltip />
-                <Bar dataKey="visits" fill="#3417d9" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="revenue" fill="#f97316" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+           <ResponsiveContainer width="100%" height="100%">
+  <BarChart data={graphData}>
+    <XAxis dataKey="month" stroke="#000" />
+    <YAxis stroke="#000" />
+    <Tooltip />
+    
+    <Bar
+      dataKey="revenue"
+      fill="#f97316"
+      radius={[4, 4, 0, 0]}
+    />
+  </BarChart>
+</ResponsiveContainer>
           </div>
         </div>
       </div>
