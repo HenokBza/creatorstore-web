@@ -16,6 +16,8 @@ interface Product {
   id: string;
   userId: string;
   creatorId?: string;
+  creatorName?: string;   
+  creatorEmail?: string;
   title: string;
   description: string;
   thumbnail: string;
@@ -151,38 +153,50 @@ export default function CheckoutPage() {
         visits: increment(1),
       });
 
-      const creatorId = productData.userId || productData.creatorId;
-
-      if (!creatorId) {
-        console.error("❌ Creator ID missing");
-        setLoading(false);
-        return;
-      }
-
-      const creatorRef = doc(db, "users", creatorId);
-      const creatorSnap = await getDoc(creatorRef);
-
-      if (creatorSnap.exists()) {
-        const data = creatorSnap.data();
-
+      // Check if creator details are embedded directly in coaching calls or products
+      if (productData.creatorName) {
         setCreator({
-          id: creatorSnap.id,
-          name:
-            data.name ||
-            data.fullName ||
-            data.displayName ||
-            "Creator",
-          storeName:
-            data.storeName ||
-            data.store ||
-            data.shopName ||
-            "Store",
-          profileImage:
-            data.profileImage ||
-            data.photoURL ||
-            "/profile-placeholder.png",
-          email: data.email || "",
-        } as Creator);
+          id: productData.creatorId || "",
+          name: productData.creatorName,
+          storeName: productData.creatorEmail ? productData.creatorEmail.split("@")[0] : "Store",
+          profileImage: "/profile-placeholder.png",
+          email: productData.creatorEmail || "",
+        });
+      } else {
+        // Otherwise, fetch from the "users" collection using userId or creatorId
+        const creatorId = productData.userId || productData.creatorId;
+
+        if (!creatorId) {
+          console.error("❌ Creator ID missing");
+          setLoading(false);
+          return;
+        }
+
+        const creatorRef = doc(db, "users", creatorId);
+        const creatorSnap = await getDoc(creatorRef);
+
+        if (creatorSnap.exists()) {
+          const data = creatorSnap.data();
+
+          setCreator({
+            id: creatorSnap.id,
+            name:
+              data.name ||
+              data.fullName ||
+              data.displayName ||
+              "Creator",
+            storeName:
+              data.storeName ||
+              data.store ||
+              data.shopName ||
+              "Store",
+            profileImage:
+              data.profileImage ||
+              data.photoURL ||
+              "/profile-placeholder.png",
+            email: data.email || "",
+          } as Creator);
+        }
       }
     } catch (error) {
       console.error("❌ LOAD CHECKOUT ERROR:", error);
