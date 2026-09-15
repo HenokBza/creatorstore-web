@@ -5,7 +5,14 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth, db, storage } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 
-import { doc, setDoc } from "firebase/firestore";
+import {
+  doc,
+  setDoc,
+  collection,
+  query,
+  where,
+  getDocs,
+} from "firebase/firestore";
 
 import {
   ref,
@@ -36,6 +43,9 @@ export default function SignupPage() {
   const [name, setName] = useState("");
   const [storeName, setStoreName] =
     useState("");
+  const [storeNameStatus, setStoreNameStatus] = useState<
+  "checking" | "available" | "taken" | ""
+>("");  
 
   const [email, setEmail] =
     useState("");
@@ -76,21 +86,64 @@ export default function SignupPage() {
     }
     return true;
   };
+ const checkStoreName = async (value: string) => {
+  const normalizedName = value
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "");
+
+  if (!normalizedName) {
+    setStoreNameStatus("");
+    return;
+  }
+
+  setStoreNameStatus("checking");
+
+  try {
+    const q = query(
+      collection(db, "users"),
+      where("storeName", "==", normalizedName)
+    );
+
+    const snapshot = await getDocs(q);
+
+    if (!snapshot.empty) {
+      setStoreNameStatus("taken");
+    } else {
+      setStoreNameStatus("available");
+    }
+  } catch (error) {
+    console.error("Store name check error:", error);
+    setStoreNameStatus("");
+  }
+};
 
   const handleSignup = async () => {
     setError("");
 
     if (
-      !profession ||
-      !prefix ||
-      !name ||
-      !storeName ||
-      !email ||
-      !password
-    ) {
-      setError("Please fill all required fields");
-      return;
-    }
+  !profession ||
+  !prefix ||
+  !name ||
+  !storeName ||
+  !email ||
+  !password
+) {
+  setError("Please fill all required fields");
+  return;
+}
+
+if (storeNameStatus === "checking") {
+  setError("Please wait while we check your StoreName.");
+  return;
+}
+
+if (storeNameStatus === "taken") {
+  setError(
+    "This StoreName is already taken. Please choose another one."
+  );
+  return;
+}
 
     /* PASSWORD VALIDATION */
     if (!validatePassword(password)) {
@@ -333,35 +386,80 @@ export default function SignupPage() {
           </div>
 
           <div>
-            <input
-              placeholder="StoreName"
-              value={storeName}
-              onChange={(e) => {
-                const valueWithoutSpaces = e.target.value.replace(/\s+/g, '');
-                setStoreName(valueWithoutSpaces);
-              }}
-              style={{
-                width: "100%",
-                padding: "14px",
-                borderRadius: "10px",
-                border: "1px solid #ddd",
-                outline: "none",
-                boxSizing: "border-box"
-              }}
-            />
-            {storeName && (
-              <div
-                style={{
-                  fontSize: "12px",
-                  color: "#666",
-                  marginTop: "5px",
-                  paddingLeft: "4px"
-                }}
-              >
-                Your store link: <strong style={{ color: "#33a285" }}>creatorstore.ca/{storeName}</strong>
-              </div>
-            )}
-          </div>
+  <input
+    placeholder="StoreName"
+    value={storeName}
+    onChange={(e) => {
+      const value = e.target.value
+        .toLowerCase()
+        .replace(/\s+/g, "");
+
+      setStoreName(value);
+      checkStoreName(value);
+    }}
+    style={{
+      width: "100%",
+      padding: "14px",
+      borderRadius: "10px",
+      border: "1px solid #ddd",
+      outline: "none",
+      boxSizing: "border-box"
+    }}
+  />
+
+  {storeName && (
+    <div
+      style={{
+        fontSize: "12px",
+        marginTop: "5px",
+        paddingLeft: "4px"
+      }}
+    >
+      Your store link:{" "}
+      <strong style={{ color: "#33a285" }}>
+        creatorstore.ca/{storeName}
+      </strong>
+    </div>
+  )}
+
+  {storeNameStatus === "checking" && (
+    <div
+      style={{
+        fontSize: "13px",
+        color: "#777",
+        marginTop: "5px"
+      }}
+    >
+      Checking StoreName...
+    </div>
+  )}
+
+  {storeNameStatus === "available" && (
+    <div
+      style={{
+        fontSize: "13px",
+        color: "green",
+        marginTop: "5px",
+        fontWeight: "bold"
+      }}
+    >
+      ✓ StoreName is available
+    </div>
+  )}
+
+  {storeNameStatus === "taken" && (
+    <div
+      style={{
+        fontSize: "13px",
+        color: "red",
+        marginTop: "5px",
+        fontWeight: "bold"
+      }}
+    >
+      ✕ This StoreName is already taken. Please choose another one.
+    </div>
+  )}
+</div>
 
           <input
             placeholder="Email"
