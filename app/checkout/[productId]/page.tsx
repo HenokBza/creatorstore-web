@@ -467,17 +467,7 @@ export default function CheckoutPage() {
               gap: "15px",
             }}
           >
-            <img
-              src={creator?.profileImage || "/profile-placeholder.png"}
-              alt="creator"
-              style={{
-                width: "70px",
-                height: "70px",
-                borderRadius: "50%",
-                objectFit: "cover",
-                border: "3px solid #D4AF37",
-              }}
-            />
+            
 
             <div>
               <div
