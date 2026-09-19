@@ -17,8 +17,11 @@ export default function RegisterApplicationPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Remove any spaces or dashes from the phone number input first
+    const cleanPhone = phone.replace(/\s+/g, "").trim();
+
     // Validate phone number format for Ethiopia
-    if (!phone.startsWith("+251") || phone.length < 13) {
+    if (!cleanPhone.startsWith("+251") || cleanPhone.length < 13) {
       alert("Please enter a valid Ethiopian phone number starting with +251 (e.g., +2519xxxxxxxx)");
       return;
     }
@@ -31,11 +34,15 @@ export default function RegisterApplicationPage() {
     setLoading(true);
 
     try {
-      // Save application request to Firestore with isActive: false
+      // Automatically extract the last 4 digits from the cleaned phone number
+      const lastFourDigits = cleanPhone.slice(-4);
+
+      // Save application request to Firestore with clean phone and lastFourDigits
       await addDoc(collection(db, "pendingApplications"), {
         fullName: fullName.trim(),
         country,
-        phone: phone.trim(),
+        phone: cleanPhone,       // Saved without accidental spaces
+        lastFourDigits: lastFourDigits, // Automatically saved for easy payment matching!
         isActive: false,
         status: "pending_payment",
         createdAt: serverTimestamp(),
