@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { db } from "@/lib/firebase";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { collection, doc, setDoc,  addDoc, serverTimestamp } from "firebase/firestore";
 
 export default function RegisterApplicationPage() {
   const router = useRouter();
@@ -33,20 +33,25 @@ export default function RegisterApplicationPage() {
 
     setLoading(true);
 
-    try {
+    
       // Automatically extract the last 4 digits from the cleaned phone number
+      try {
+      const cleanPhone = phone.replace(/\s+/g, "").trim();
       const lastFourDigits = cleanPhone.slice(-4);
 
-      // Save application request to Firestore with clean phone and lastFourDigits
-      await addDoc(collection(db, "pendingApplications"), {
+      // Use doc() and setDoc() with the phone number as the unique document ID
+      // This guarantees 1 document per phone number, preventing duplicates!
+      const docRef = doc(db, "pendingApplications", cleanPhone);
+
+      await setDoc(docRef, {
         fullName: fullName.trim(),
         country,
-        phone: cleanPhone,       // Saved without accidental spaces
-        lastFourDigits: lastFourDigits, // Automatically saved for easy payment matching!
-        isActive: false,
+        phone: cleanPhone,
+        lastFourDigits: lastFourDigits,
+        isActive: false, // Keeps them pending until you verify payment
         status: "pending_payment",
         createdAt: serverTimestamp(),
-      });
+      }, { merge: true }); // merge: true keeps existing data safe if they update it
 
       setSubmitted(true);
     } catch (error) {
