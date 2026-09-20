@@ -69,7 +69,7 @@ export default function RegisterApplicationPage() {
           <div style={{ fontSize: "50px", marginBottom: "20px" }}>🎉</div>
           <h1 style={{ fontSize: "24px", marginBottom: "15px", color: "#333" }}>Application Received!</h1>
           <p style={{ color: "#666", lineHeight: 1.6, marginBottom: "25px" }}>
-            Thank you! Please make sure you have transferred the **100 Birr** registration fee to Telebirr number: <strong>0922086245</strong>. 
+            Thank you! Please make sure you have transferred the **300 Birr** registration fee to Telebirr number: <strong>0922086245</strong>. 
             Once verified, you will receive a confirmation message, and you can click Get start and proceed using same this phone number: <strong>{phone}</strong>.
           </p>
           <button
@@ -91,10 +91,15 @@ export default function RegisterApplicationPage() {
           Fill out your details below and complete your payment via Telebirr to set up your store.
         </p>
 
-        {/* Telebirr Payment Instruction Box with 100 Birr */}
+        {/* Telebirr Payment Instruction Box with Crossed-out Price */}
         <div style={{ background: "#fdf8e2", border: "1px solid #f3e5ab", borderRadius: "14px", padding: "16px", marginBottom: "25px", fontSize: "14px", color: "#444", lineHeight: 1.6 }}>
           💳 <strong>Telebirr Payment Instruction:</strong><br />
-          Send the registration fee of <strong style={{ color: "#D4AF37", fontSize: "16px" }}>100 Birr</strong> to Telebirr account: <strong style={{ color: "#D4AF37", fontSize: "16px" }}>0922086245</strong> before submitting this form.
+          Send the registration fee of{" "}
+          <span style={{ textDecoration: "line-through", color: "#888", marginRight: "6px" }}>
+            100 Birr
+          </span>
+          <strong style={{ color: "#D4AF37", fontSize: "16px" }}>300 Birr</strong> to Telebirr account:{" "}
+          <strong style={{ color: "#D4AF37", fontSize: "16px" }}>0922086245</strong> before submitting this form.
         </div>
 
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
@@ -150,7 +155,7 @@ export default function RegisterApplicationPage() {
               cursor: loading ? "not-allowed" : "pointer",
             }}
           >
-            {loading ? "Submitting..." : "Submit Application (100 Birr)"}
+            {loading ? "Submitting..." : "Submit Application (300 Birr)"}
           </button>
         </form>
       </div>

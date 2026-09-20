@@ -68,7 +68,7 @@ export default function PhonePage() {
 
         if (!isApproved) {
           // Record exists, but payment hasn't been verified/activated yet
-          setError("We see your application! If you already transferred the 100 Birr to 0922086245, please wait until you receive your confirmation SMS. We will activate your account shortly. If you have not paid Please complete payment to 0922086245. Thank you");
+          setError("We see your application! If you already transferred the 300 Birr to 0922086245, please wait until you receive your confirmation SMS. We will activate your account shortly. If you have not paid Please complete payment to 0922086245. Thank you");
           setLoading(false);
           return;
         }

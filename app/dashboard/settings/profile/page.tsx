@@ -111,7 +111,7 @@ export default function ProfilePage() {
     setImagePreview(preview);
   };
 
-  const saveChanges = async () => {
+ const saveChanges = async () => {
     const user = auth.currentUser;
 
     if (!user) return;
@@ -135,27 +135,39 @@ export default function ProfilePage() {
         );
       }
 
-      await updateDoc(
-        doc(
-          db,
-          "users",
-          user.uid
-        ),
-        {
-          name,
-          storeName,
-          email,
-          profileImage: imageURL,
-        }
-      );
+      // Automatically generate the new storeURL based on the storeName
+      // This converts spaces to empty or handles formatting cleanly
+      const formattedStorePath = storeName.toLowerCase().replace(/\s+/g, "");
+      const newStoreURL = `creatorstore.ca/${formattedStorePath}`;
 
-      alert("Profile updated!");
+      const userDocRef = doc(db, "users", user.uid);
+
+      // Update both storeName and storeURL in Firestore together
+      await updateDoc(userDocRef, {
+        name,
+        storeName,
+        email,
+        storeURL: newStoreURL, // <-- Automatically updates the URL!
+        profileImage: imageURL,
+      });
+
+      // Immediately fetch the fresh data to guarantee UI updates
+      const updatedSnap = await getDoc(userDocRef);
+      if (updatedSnap.exists()) {
+        const freshData = updatedSnap.data();
+        setUserData(freshData);
+        setName(freshData.name || "");
+        setStoreName(freshData.storeName || "");
+        setEmail(freshData.email || "");
+        setImagePreview(freshData.profileImage || "");
+      }
+
+      alert("updated successfully!");
 
       setEditing(false);
-
-      loadUser();
     } catch (error) {
       console.log(error);
+      alert("Failed to update profile. Please try again.");
     }
   };
 
