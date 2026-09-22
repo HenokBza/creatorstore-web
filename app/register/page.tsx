@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { db } from "@/lib/firebase";
-import { collection, doc, setDoc,  addDoc, serverTimestamp } from "firebase/firestore";
+import { collection, doc, setDoc, serverTimestamp } from "firebase/firestore";
 
 export default function RegisterApplicationPage() {
   const router = useRouter();
@@ -11,6 +11,12 @@ export default function RegisterApplicationPage() {
   const [fullName, setFullName] = useState("");
   const [country, setCountry] = useState("Ethiopia");
   const [phone, setPhone] = useState("+251");
+  
+  // New state variables for referral section
+  const [showReferral, setShowReferral] = useState(false);
+  const [referrerName, setReferrerName] = useState("");
+  const [referrerPhone, setReferrerPhone] = useState("");
+
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
@@ -33,14 +39,11 @@ export default function RegisterApplicationPage() {
 
     setLoading(true);
 
-    
+    try {
       // Automatically extract the last 4 digits from the cleaned phone number
-      try {
-      const cleanPhone = phone.replace(/\s+/g, "").trim();
       const lastFourDigits = cleanPhone.slice(-4);
 
       // Use doc() and setDoc() with the phone number as the unique document ID
-      // This guarantees 1 document per phone number, preventing duplicates!
       const docRef = doc(db, "pendingApplications", cleanPhone);
 
       await setDoc(docRef, {
@@ -48,10 +51,15 @@ export default function RegisterApplicationPage() {
         country,
         phone: cleanPhone,
         lastFourDigits: lastFourDigits,
+        // Save referral information if provided
+        referredBy: showReferral ? {
+          name: referrerName.trim(),
+          phone: referrerPhone.trim(),
+        } : null,
         isActive: false, // Keeps them pending until you verify payment
         status: "pending_payment",
         createdAt: serverTimestamp(),
-      }, { merge: true }); // merge: true keeps existing data safe if they update it
+      }, { merge: true });
 
       setSubmitted(true);
     } catch (error) {
@@ -137,6 +145,54 @@ export default function RegisterApplicationPage() {
               style={{ width: "100%", padding: "14px", borderRadius: "12px", border: "1px solid #ddd", fontSize: "15px", boxSizing: "border-box" }}
             />
             <span style={{ fontSize: "12px", color: "#888", marginTop: "4px", display: "block" }}>Must start with +251</span>
+          </div>
+
+          {/* Referral Toggle Section */}
+          <div style={{ borderTop: "1px solid #eee", paddingTop: "15px" }}>
+            {!showReferral ? (
+              <button
+                type="button"
+                onClick={() => setShowReferral(true)}
+                style={{ background: "none", border: "none", color: "#2563eb", fontWeight: "bold", cursor: "pointer", padding: "0", fontSize: "14px" }}
+              >
+                + Who referred you? (Optional)
+              </button>
+            ) : (
+              <div style={{ background: "#f9fafb", padding: "16px", borderRadius: "12px", border: "1px solid #e5e7eb", display: "flex", flexDirection: "column", gap: "15px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span style={{ fontWeight: "bold", fontSize: "14px", color: "#333" }}>Referrer Details</span>
+                  <button
+                    type="button"
+                    onClick={() => { setShowReferral(false); setReferrerName(""); setReferrerPhone(""); }}
+                    style={{ background: "none", border: "none", color: "#ef4444", fontSize: "12px", cursor: "pointer", fontWeight: "bold" }}
+                  >
+                    Remove
+                  </button>
+                </div>
+
+                <div>
+                  <label style={{ display: "block", fontWeight: "500", marginBottom: "6px", fontSize: "13px" }}>Referrer's Full Name</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Henok Sileshi"
+                    value={referrerName}
+                    onChange={(e) => setReferrerName(e.target.value)}
+                    style={{ width: "100%", padding: "12px", borderRadius: "10px", border: "1px solid #ddd", fontSize: "14px", boxSizing: "border-box" }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: "block", fontWeight: "500", marginBottom: "6px", fontSize: "13px" }}>Referrer's Phone Number</label>
+                  <input
+                    type="text"
+                    placeholder="+2519xxxxxxxx"
+                    value={referrerPhone}
+                    onChange={(e) => setReferrerPhone(e.target.value)}
+                    style={{ width: "100%", padding: "12px", borderRadius: "10px", border: "1px solid #ddd", fontSize: "14px", boxSizing: "border-box" }}
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           <button
