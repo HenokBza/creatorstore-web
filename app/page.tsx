@@ -832,7 +832,7 @@ export default function Home() {
           }}
         >
           <iframe
-            src="https://youtu.be/jaeshGai4G8?si=AtCpL98IHZixxATR"
+           src="https://www.youtube.com/embed/jaeshGai4G8"
             title="How CreatorStore Works"
             style={{
               position: "absolute",
