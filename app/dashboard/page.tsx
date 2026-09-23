@@ -33,19 +33,19 @@ export default function Dashboard() {
   });
 
   const [graphData, setGraphData] = useState([
-  { month: "Jan", revenue: 0 },
-  { month: "Feb", revenue: 0 },
-  { month: "Mar", revenue: 0 },
-  { month: "Apr", revenue: 0 },
-  { month: "May", revenue: 0 },
-  { month: "Jun", revenue: 0 },
-  { month: "July", revenue: 0 },
-  { month: "Aug", revenue: 0 },
-  { month: "Sep", revenue: 0 },
-  { month: "Oct", revenue: 0 },
-  { month: "Nov", revenue: 0 },
-  { month: "Dec", revenue: 0 },
-]);
+    { month: "Jan", revenue: 0 },
+    { month: "Feb", revenue: 0 },
+    { month: "Mar", revenue: 0 },
+    { month: "Apr", revenue: 0 },
+    { month: "May", revenue: 0 },
+    { month: "Jun", revenue: 0 },
+    { month: "July", revenue: 0 },
+    { month: "Aug", revenue: 0 },
+    { month: "Sep", revenue: 0 },
+    { month: "Oct", revenue: 0 },
+    { month: "Nov", revenue: 0 },
+    { month: "Dec", revenue: 0 },
+  ]);
 
   useEffect(() => {
     const user = auth.currentUser;
@@ -106,18 +106,18 @@ export default function Dashboard() {
         const ordersSnapshot = await getDocs(ordersQuery);
 
         const monthlyDataMap: { [key: string]: { revenue: number } } = {
-"Jan": { revenue: 0 },
-"Feb": { revenue: 0 },
-"Mar": { revenue: 0 },
-"Apr": { revenue: 0 },
-"May": { revenue: 0 },
-"Jun": { revenue: 0 },
-"July": { revenue: 0 },
-"Aug": { revenue: 0 },
-"Sep": { revenue: 0 },
-"Oct": { revenue: 0 },
-"Nov": { revenue: 0 },
-"Dec": { revenue: 0 },
+          "Jan": { revenue: 0 },
+          "Feb": { revenue: 0 },
+          "Mar": { revenue: 0 },
+          "Apr": { revenue: 0 },
+          "May": { revenue: 0 },
+          "Jun": { revenue: 0 },
+          "July": { revenue: 0 },
+          "Aug": { revenue: 0 },
+          "Sep": { revenue: 0 },
+          "Oct": { revenue: 0 },
+          "Nov": { revenue: 0 },
+          "Dec": { revenue: 0 },
         };
         ordersSnapshot.forEach((docSnap) => {
           const order = docSnap.data();
@@ -130,14 +130,12 @@ export default function Dashboard() {
 
             if (monthlyDataMap[monthStr]) {
               monthlyDataMap[monthStr].revenue += amount;
-             
             }
           }
         });
 
         const formattedGraphData = Object.keys(monthlyDataMap).map((month) => ({
           month,
-          
           revenue: monthlyDataMap[month].revenue,
         }));
 
@@ -189,23 +187,50 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <button
-        onClick={copyLink}
-        className="interactive-btn"
+      <div style={{ display: "flex", alignItems: "center", gap: "15px", marginBottom: "20px", flexWrap: "wrap" }}>
+        <button
+          onClick={copyLink}
+          className="interactive-btn"
+          style={{
+            color: "blue",
+            background: "white",
+            border: "none",
+            padding: "10px 16px",
+            borderRadius: "10px",
+            cursor: "pointer",
+            fontWeight: "bold",
+            fontSize: "12px",
+          }}
+        >
+          copy Store 🔗
+        </button>
+      </div>
+
+      {/* Store Link Guide Box */}
+      <div
         style={{
-          color: "blue",
           background: "white",
-          border: "none",
-          padding: "10px 16px",
-          borderRadius: "10px",
-          cursor: "pointer",
-          fontWeight: "bold",
-          fontSize: "12px",
-          marginBottom: "20px",
+          padding: "20px",
+          borderRadius: "14px",
+          marginBottom: "30px",
+          boxShadow: "0 4px 15px rgba(0,0,0,0.05)",
+          borderLeft: "5px solid #14b3c5",
+          lineHeight: "1.6",
         }}
       >
-        copy Store 🔗
-      </button>
+        <p style={{ margin: 0, fontSize: "16px", color: "#111" }}>
+          ይሄ የእርስዎ <strong>Store</strong> ነው! 🛍️
+        </p>
+        <p style={{ margin: "8px 0 0", fontSize: "15px", color: "#444" }}>
+          የStore ሊንኩን <strong>Copy</strong> በማድረግ በተለያዩ <strong>Social Media</strong> መድረክዎ ላይ በ<strong>Bio</strong> ውስጥ ያስቀምጡ። 🔗
+        </p>
+        <p style={{ margin: "8px 0 0", fontSize: "15px", color: "#444" }}>
+          ከዚያም በSocial Media ላይ የሚሸጡትን <strong>Digital Products</strong> ወይም <strong>Coaching Services</strong> ማስተዋወቅ ይጀምሩ። 📱💻
+        </p>
+        <p style={{ margin: "8px 0 0", fontSize: "15px", color: "#444" }}>
+          ደንበኞችዎ የእርስዎን Store በቀጥታ በመጎብኘት ምርቶችዎን ማየትና መግዛት ይችላሉ። 🚀💰
+        </p>
+      </div>
 
       {/* Social Media Icons */}
       <div
@@ -283,18 +308,17 @@ export default function Dashboard() {
             }}
           >
            <ResponsiveContainer width="100%" height="100%">
-  <BarChart data={graphData}>
-    <XAxis dataKey="month" stroke="#000" />
-    <YAxis stroke="#000" />
-    <Tooltip />
-    
-    <Bar
-      dataKey="revenue"
-      fill="#f97316"
-      radius={[4, 4, 0, 0]}
-    />
-  </BarChart>
-</ResponsiveContainer>
+              <BarChart data={graphData}>
+                <XAxis dataKey="month" stroke="#000" />
+                <YAxis stroke="#000" />
+                <Tooltip />
+                <Bar
+                  dataKey="revenue"
+                  fill="#f97316"
+                  radius={[4, 4, 0, 0]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
         </div>
       </div>

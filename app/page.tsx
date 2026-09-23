@@ -151,7 +151,7 @@ export default function Home() {
         }}
       >
         <h3 style={{ margin: 0, fontSize: "22px", color: "#111", lineHeight: "1.4" }}>
-          🇪🇹 Now Live in Ethiopia! Join for FREE — No Subscription Required.
+          🇪🇹 Now Live in Ethiopia! Join by one time Fee — No Subscription Required.
         </h3>
         <p style={{ margin: 0, fontSize: "18px", color: "#555" }}>
           You have the talent, we give you the platform. Turn your knowledge into income today.
@@ -780,6 +780,73 @@ export default function Home() {
 
   </div>
 )}
+{/* ================= HOW IT WORKS VIDEO SECTION ================= */}
+      <div
+        style={{
+          marginTop: "60px",
+          maxWidth: "800px",
+          marginLeft: "auto",
+          marginRight: "auto",
+          background: "white",
+          borderRadius: "24px",
+          padding: "30px",
+          boxShadow: "0 15px 40px rgba(0,0,0,0.14)",
+          textAlign: "center",
+        }}
+      >
+        <h3
+          style={{
+            margin: "0 0 10px 0",
+            fontSize: "26px",
+            color: "#111",
+            fontWeight: "800",
+          }}
+        >
+          🎬 See How CreatorStore.ca Works in 6 Minutes
+          ስለ **CreatorStore.ca** ሙሉ መረጃ ለማግኘት ይህን አጭር ቪዲዮ ይመልከቱ። 🎥
+    በCreatorStore.ca እንዴት ይመዝገቡ፣ የራስዎን ሱቅ እንዴት ይፍጠሩ፣ ዲጂታል ምርቶችዎን እንዴት ይሸጡ እና ከእውቀትዎ ገቢ እንዴት ያገኛሉ 
+    — ሁሉንም በአጭሩ ይመልከቱ። 🚀💰
+
+        </h3>
+        
+        <p
+          style={{
+            margin: "0 0 25px 0",
+            fontSize: "16px",
+            color: "#666",
+          }}
+        >
+          Watch how easy it is to set up your store, list your digital products, and start earning.
+        </p>
+
+        {/* Responsive Video Container */}
+        <div
+          style={{
+            position: "relative",
+            width: "100%",
+            paddingBottom: "56.25%", /* 16:9 Aspect Ratio */
+            height: 0,
+            borderRadius: "16px",
+            overflow: "hidden",
+            boxShadow: "0 8px 20px rgba(0,0,0,0.1)",
+          }}
+        >
+          <iframe
+            src="https://youtu.be/jaeshGai4G8?si=AtCpL98IHZixxATR"
+            title="How CreatorStore Works"
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              border: "none",
+            }}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          ></iframe>
+        </div>
+      </div>
       {/* ================= FAQ ================= */}
       <section
         style={{
@@ -924,7 +991,7 @@ export default function Home() {
                 color: "#555",
               }}
             >
-             Now live in Ethiopia, Yes! 🎉 CreatorStore is free to join. But from other countries subscription Required.
+             Now live in Ethiopia, 🎉 CreatorStore is only one time fee required. But from other countries subscription Required.
               You can create your store and start building your creator business.
             </div>
           </details>
