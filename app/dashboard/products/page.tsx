@@ -58,7 +58,7 @@ export default function NewProductPage() {
         </div>
 
         <div
-          onClick={() => router.push("/dashboard/products/lead")}
+          onClick={() => router.push("/dashboard/products/medical-support")}
           className="interactive-btn"
           style={{
             border: "1px solid #ddd",
@@ -68,8 +68,8 @@ export default function NewProductPage() {
             background: "white",
           }}
         >
-          <h2>📧 Lead Magnet</h2>
-          <p>Collect emails and build your audience</p>
+          <h2>Medical Support</h2>
+          <p>fillout some information here</p>
         </div>
       </div>
     </div>

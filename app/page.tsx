@@ -847,6 +847,74 @@ export default function Home() {
           ></iframe>
         </div>
       </div>
+      {/* ================= MEDICAL SUPPORT SECTION ================= */}
+      <div
+        style={{
+          marginTop: "40px",
+          maxWidth: "800px",
+          marginLeft: "auto",
+          marginRight: "auto",
+          background: "#fff9e6",
+          border: "2px solid #D4AF37",
+          borderRadius: "24px",
+          padding: "30px",
+          boxShadow: "0 15px 40px rgba(0,0,0,0.08)",
+          textAlign: "left",
+        }}
+      >
+        <h3
+          style={{
+            margin: "0 0 15px 0",
+            fontSize: "22px",
+            color: "#111",
+            fontWeight: "800",
+            lineHeight: "1.4",
+          }}
+        >
+          🙏 የሕክምና ድጋፍ ለሚያስፈልጋችሁ
+          coming soon...
+        </h3>
+
+        <p
+          style={{
+            margin: "0 0 15px 0",
+            fontSize: "15px",
+            color: "#333",
+            lineHeight: "1.7",
+          }}
+        >
+          በተለያየ የጤና ችግር ውስጥ ያላቹ፣ ከሀገር ውጪ መታከም እንዳለባችሁ ከተነገራቹ እና አቅማቹ የማይፈቅድ ታማሚዎች ብቻ <strong>original documents</strong> በማቅረብ በተለያዪ ሀገር ውስጥ ከሚኖሩ ልበደግ ኢትዮጵያውያን እና ኤርትራውያን የአቅማቸውን እንዲያግዙ አብረን እንሰራለን።
+        </p>
+
+        <p
+          style={{
+            margin: "0 0 15px 0",
+            fontSize: "15px",
+            color: "#333",
+            lineHeight: "1.7",
+            fontWeight: "600",
+          }}
+        >
+          ከእርስዎ የምንፈልገው 📄 ትክክለኛና Original የሕክምና ማስረጃዎችዎን በዚህ Email ይላኩልን፡
+          እባክዎ ማስረጃዎቹ እውነተኛና ከሚመለከተው የጤና ተቋም የተሰጡ መሆናቸውን ያረጋግጡ።
+         🤝 በአብሮነት ለተቸገሩት እንድረስ።
+        </p>
+
+        <div
+          style={{
+            background: "white",
+            padding: "12px 20px",
+            borderRadius: "12px",
+            display: "inline-block",
+            border: "1px dashed #D4AF37",
+            fontWeight: "bold",
+            fontSize: "16px",
+            color: "#b45309",
+          }}
+        >
+          📧 Email: creatorstore.ca@gmail.com
+        </div>
+      </div>
       {/* ================= FAQ ================= */}
       <section
         style={{
