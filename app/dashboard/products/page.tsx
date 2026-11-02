@@ -70,6 +70,11 @@ export default function NewProductPage() {
         >
           <h2>Medical Support</h2>
           <p>fillout some information here</p>
+          <p> የሕክምና ድጋፍ ለሚያስፈልጋችሁ
+በተለያየ የጤና ችግር ውስጥ ያላቹ፣ ከሀገር ውጪ መታከም እንዳለባችሁ ከተነገራቹ እና አቅማቹ የማይፈቅድ ታማሚዎች ብቻ original documents በማቅረብ በተለያዪ ሀገር ውስጥ ከሚኖሩ ልበደግ ኢትዮጵያውያን እና ኤርትራውያን የአቅማቸውን እንዲያግዙ አብረን እንሰራለን።
+ከእርስዎ የምንፈልገው 📄 ትክክለኛና Original የሕክምና ማስረጃዎችዎን በዚህ Email ይላኩልን፡ እባክዎ ማስረጃዎቹ እውነተኛና ከሚመለከተው የጤና ተቋም የተሰጡ መሆናቸውን ያረጋግጡ። 🤝 በአብሮነት ለተቸገሩት እንድረስ።
+
+📧 Email: creatorstore.ca@gmail.com</p>
         </div>
       </div>
     </div>

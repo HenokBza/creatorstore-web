@@ -290,15 +290,55 @@ export default function CreatorPage() {
             ...docSnap.data(),
           })
         );
+      // ======================================================
+// LOAD MEDICAL SUPPORT CAMPAIGNS
+// ======================================================
 
+console.log(
+  "❤️ Loading medical support campaigns..."
+);
+
+const medicalQuery = query(
+  collection(db, "medicalSupport"),
+  where(
+    "userId",
+    "==",
+    creatorDoc.id
+  )
+);
+
+const medicalSnap =
+  await getDocs(medicalQuery);
+
+console.log(
+  "❤️ Medical Support campaigns found:",
+  medicalSnap.size
+);
+
+const medicalList = medicalSnap.docs
+  .map((docSnap) => ({
+    id: docSnap.id,
+    type: "medical_support",
+    ...docSnap.data(),
+  }) as { id: string; type: string; status?: string; [key: string]: any })
+  .filter(
+    (campaign) =>
+      campaign.status === "published"
+  );
+
+console.log(
+  "❤️ Published Medical Support campaigns:",
+  medicalList.length
+);
       // ======================================================
       // COMBINE PRODUCTS + COACHING
       // ======================================================
 
-      const allProducts = [
-        ...productList,
-        ...coachingList,
-      ];
+     const allProducts = [
+  ...productList,
+  ...coachingList,
+  ...medicalList,
+];
 
       console.log(
         "🛍️ Total store items:",
@@ -861,12 +901,13 @@ export default function CreatorPage() {
 
                   <a
                     key={`${product.type}-${product.id}`}
-                    href={
-                      product.type ===
-                      "coaching"
-                        ? `/checkout/${product.id}?type=coaching`
-                        : `/checkout/${product.id}`
-                    }
+                   href={
+  product.type === "coaching"
+    ? `/checkout/${product.id}?type=coaching`
+    : product.type === "medical_support"
+    ? `/medical-support/${product.id}`
+    : `/checkout/${product.id}`
+}
                     style={{
                       display:
                         "block",
@@ -897,11 +938,12 @@ export default function CreatorPage() {
                         THUMBNAIL ON TOP
                     ================================================= */}
 
-                    <img
-                      src={
-                        product.thumbnail ||
-                        "/product-placeholder.png"
-                      }
+                   <img
+  src={
+    product.type === "medical_support"
+      ? product.images?.[0] || "/product-placeholder.png"
+      : product.thumbnail || "/product-placeholder.png"
+  }
                       alt={
                         product.title ||
                         "Product"
@@ -986,7 +1028,64 @@ export default function CreatorPage() {
                           product.title
                         }
                       </h2>
+            {/* =================================================
+    MEDICAL SUPPORT INFO
+================================================= */}
 
+{product.type === "medical_support" && (
+  <div style={{ marginBottom: "12px" }}>
+
+    <div
+      style={{
+        fontWeight: "bold",
+        fontSize: "17px",
+        color: textColor,
+        marginBottom: "6px",
+      }}
+    >
+      CA${Number(product.raisedAmount || 0).toLocaleString()} raised of CA$
+      {Number(product.goalAmount || 0).toLocaleString()}
+    </div>
+
+    {/* Progress Bar */}
+    <div
+      style={{
+        width: "100%",
+        height: "8px",
+        background: "rgba(0,0,0,0.06)",
+        borderRadius: "10px",
+        overflow: "hidden",
+        marginBottom: "8px",
+      }}
+    >
+      <div
+        style={{
+          width: `${Math.min(
+            100,
+            ((Number(product.raisedAmount) || 0) /
+              (Number(product.goalAmount) || 1)) *
+              100
+          )}%`,
+          height: "100%",
+          background: buttonColor,
+          borderRadius: "10px",
+        }}
+      />
+    </div>
+
+    <div
+      style={{
+        fontSize: "13px",
+        color: textColor,
+        opacity: 0.65,
+      }}
+    >
+      {Number(product.donors || 0)} donor
+      {Number(product.donors || 0) === 1 ? "" : "s"}
+    </div>
+
+  </div>
+)}
                       {/* COACHING DURATION */}
 
                       {product.type ===
@@ -1013,20 +1112,16 @@ export default function CreatorPage() {
 
                       {/* PRICE */}
 
-                      <div
-                        style={{
-                          display:
-                            "flex",
-                          alignItems:
-                            "center",
-                          gap:
-                            "10px",
-                          marginBottom:
-                            "8px",
-                          flexWrap:
-                            "wrap",
-                        }}
-                      >
+                     {product.type !== "medical_support" && (
+  <div
+    style={{
+      display: "flex",
+      alignItems: "center",
+      gap: "10px",
+      marginBottom: "8px",
+      flexWrap: "wrap",
+    }}
+  >
 
                         {product.discountPrice ? (
                           <>
@@ -1085,7 +1180,7 @@ export default function CreatorPage() {
                           </span>
                         )}
 
-                      </div>
+                      </div>)}
 
                       {/* DESCRIPTION */}
 
@@ -1120,35 +1215,26 @@ export default function CreatorPage() {
 
                       {/* BUTTON */}
 
-                      <div
-                        style={{
-                          marginTop:
-                            "10px",
-                          background:
-                            buttonColor,
-                          color:
-                            "white",
-                          padding:
-                            "11px 18px",
-                          borderRadius:
-                            "10px",
-                          fontWeight:
-                            "bold",
-                          textAlign:
-                            "center",
-                          width:
-                            "100%",
-                          boxSizing:
-                            "border-box",
-                          lineHeight:
-                            1.4,
-                        }}
-                      >
-                        {product.type ===
-                        "coaching"
-                          ? "See available days & Book Coaching Call"
-                          : "Get Access Now"}
-                      </div>
+                     <div
+  style={{
+    marginTop: "10px",
+    background: buttonColor,
+    color: "white",
+    padding: "11px 18px",
+    borderRadius: "10px",
+    fontWeight: "bold",
+    textAlign: "center",
+    width: "100%",
+    boxSizing: "border-box",
+    lineHeight: 1.4,
+  }}
+>
+  {product.type === "coaching"
+    ? "See available days & Book Coaching Call"
+    : product.type === "medical_support"
+    ? "❤️ Choose Donation Amount"
+    : "Get Access Now"}
+</div>
 
                     </div>
 
@@ -1244,7 +1330,7 @@ export default function CreatorPage() {
             }}
             title="Join CreatorStore for free"
           >
-            Now live in Ethiopia —
+            Now live in Ethiopia—join here
             <br />
             <span
               style={{
@@ -1254,7 +1340,7 @@ export default function CreatorPage() {
                   "bold",
               }}
             >
-              Join for free
+              Start selling today
             </span>
           </a>
 

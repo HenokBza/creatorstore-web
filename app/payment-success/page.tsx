@@ -11,7 +11,7 @@ import { useSearchParams } from "next/navigation";
 const formatDisplayTime = (timeStr: string) => {
   if (!timeStr) return "";
   const parts = timeStr.split(":");
-  if (parts.length < 2) return timeStr;
+  if (parts.length < 2) return timeStr; 
   
   let hour = parseInt(parts[0], 10);
   const minuteStr = parts[1];
@@ -446,26 +446,140 @@ function PaymentSuccessContent() {
       </div>
     );
   }
-
   // ==========================================
-  // COACHING CONFIRMED
-  // ==========================================
+// PAYMENT TYPES
+// ==========================================
 
-  const isCoaching =
-    paymentData?.productType ===
-    "coaching";
+const isCoaching =
+  paymentData?.productType === "coaching";
 
-  const scheduledDate =
-    paymentData?.scheduledDate ||
-    "N/A";
+const isMedicalSupport =
+  paymentData?.paymentType === "medical_support" ||
+  paymentData?.productType === "medical_support";
 
-  const scheduledTime =
-    paymentData?.scheduledTime ||
-    "N/A";
+const scheduledDate =
+  paymentData?.scheduledDate || "N/A";
 
-  const duration =
-    paymentData?.duration ||
-    "60";
+const scheduledTime =
+  paymentData?.scheduledTime || "N/A";
+
+const duration =
+  paymentData?.duration || "60";
+// ==========================================
+// MEDICAL SUPPORT SUCCESS
+// ==========================================
+
+if (
+  isMedicalSupport &&
+  paymentData?.paymentStatus === "paid"
+) {
+  return (
+    <div
+      style={{
+        maxWidth: 650,
+        margin: "80px auto",
+        padding: "40px 25px",
+        background: "white",
+        borderRadius: "24px",
+        boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
+        textAlign: "center",
+        fontFamily: "system-ui, sans-serif",
+      }}
+    >
+      <div style={{ fontSize: "60px", marginBottom: "15px" }}>
+        🎉
+      </div>
+
+      <h1
+        style={{
+          color: "#33a285",
+          fontSize: "34px",
+          marginBottom: "15px",
+        }}
+      >
+        Payment Successful!
+      </h1>
+
+      <h2
+        style={{
+          color: "#222",
+          fontSize: "25px",
+          marginBottom: "15px",
+        }}
+      >
+        Thank You for Your Donation!
+      </h2>
+
+      <p
+        style={{
+          color: "#666",
+          fontSize: "17px",
+          lineHeight: 1.8,
+          marginBottom: "25px",
+        }}
+      >
+        Thank you for your generosity and for supporting
+        this medical fundraising campaign. Your contribution
+        can make a meaningful difference.
+      </p>
+
+      {(paymentData?.title || paymentData?.productTitle) && (
+        <div
+          style={{
+            padding: "20px",
+            background: "#f9fafb",
+            borderRadius: "14px",
+            marginBottom: "20px",
+          }}
+        >
+          <p style={{ color: "#666", marginBottom: "8px" }}>
+            Campaign
+          </p>
+
+          <h3 style={{ color: "#222", margin: 0 }}>
+            {paymentData.title || paymentData.productTitle}
+          </h3>
+        </div>
+      )}
+
+      {typeof paymentData?.donationAmount === "number" && (
+        <p
+          style={{
+            fontSize: "25px",
+            fontWeight: "bold",
+            color: "#059669",
+            marginBottom: "25px",
+          }}
+        >
+          Donation:{" "}
+          {new Intl.NumberFormat("en-CA", {
+            style: "currency",
+            currency: "CAD",
+          }).format(paymentData.donationAmount)}
+        </p>
+      )}
+
+      <button
+        type="button"
+        onClick={() => {
+          window.location.href = "/";
+        }}
+        style={{
+          padding: "15px 28px",
+          borderRadius: "10px",
+          border: "none",
+          background: "#D4AF37",
+          color: "white",
+          fontSize: "16px",
+          fontWeight: "bold",
+          cursor: "pointer",
+        }}
+      >
+        Return to CreatorStore
+      </button>
+    </div>
+  );
+}
 
   // ==========================================
   // SUCCESS

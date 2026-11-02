@@ -39,11 +39,7 @@ export default function MedicalSupportPage() {
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [existingImageURLs, setExistingImageURLs] = useState<string[]>([]);
 
-  // Reward Product states
-  const [productTitle, setProductTitle] = useState("");
-  const [productFile, setProductFile] = useState<File | null>(null);
-  const [existingProductFileUrl, setExistingProductFileUrl] = useState("");
-
+  
   // Edit Mode & Loading States
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -78,8 +74,6 @@ export default function MedicalSupportPage() {
           setGoalAmount(data.goalAmount ? data.goalAmount.toString() : "");
           setExistingImageURLs(data.images || []);
 
-          setProductTitle(data.productTitle || "");
-          setExistingProductFileUrl(data.productFileUrl || "");
         }
       } catch (error) {
         console.error("Error fetching campaign:", error);
@@ -258,24 +252,13 @@ export default function MedicalSupportPage() {
 
       const finalImages = [...existingImageURLs, ...newlyUploadedURLs];
 
-      let productFileUrl = existingProductFileUrl;
-      if (productFile) {
-        setUploadProgress("Uploading reward product file...");
-        productFileUrl = await uploadFileToStorage(
-          productFile,
-          user.uid,
-          "medical-support-products"
-        );
-      }
-
       const campaignData = {
         userId: user.uid,
         title: title.trim(),
         description: description.trim(),
         images: finalImages,
         goalAmount: goal,
-        productTitle: productTitle.trim(),
-        productFileUrl: productFileUrl,
+       
         updatedAt: serverTimestamp(),
       };
 
@@ -307,7 +290,7 @@ export default function MedicalSupportPage() {
 
       setImages([]);
       setImagePreviews([]);
-      setProductFile(null);
+     
       setUploadProgress("");
       setIsEditing(false);
 
@@ -355,9 +338,6 @@ export default function MedicalSupportPage() {
       setExistingImageURLs([]);
       setImages([]);
       setImagePreviews([]);
-      setProductTitle("");
-      setExistingProductFileUrl("");
-      setProductFile(null);
       setIsEditing(false);
       setUploadProgress("");
     } catch (error) {
@@ -531,15 +511,16 @@ export default function MedicalSupportPage() {
                   }}
                 >
                   <img
-                    src={url}
-                    alt={`Existing ${index + 1}`}
-                    style={{
-                      width: "100%",
-                      height: "180px",
-                      objectFit: "cover",
-                      display: "block",
-                    }}
-                  />
+  src={url}
+  alt={`Existing ${index + 1}`}
+  style={{
+    width: "100%",
+    height: "auto",
+    maxHeight: "400px",
+    objectFit: "contain",
+    display: "block",
+  }}
+/>
                   {canEdit && (
                     <button
                       type="button"
@@ -577,15 +558,16 @@ export default function MedicalSupportPage() {
                   }}
                 >
                   <img
-                    src={preview}
-                    alt={`New ${index + 1}`}
-                    style={{
-                      width: "100%",
-                      height: "180px",
-                      objectFit: "cover",
-                      display: "block",
-                    }}
-                  />
+  src={preview}
+  alt={`New ${index + 1}`}
+  style={{
+    width: "100%",
+    height: "auto",
+    maxHeight: "400px",
+    objectFit: "contain",
+    display: "block",
+  }}
+/>
                   {canEdit && (
                     <button
                       type="button"
@@ -724,158 +706,6 @@ export default function MedicalSupportPage() {
                   background: "transparent",
                 }}
               />
-            </div>
-          </div>
-
-          {/* REWARD PRODUCT FOR SUPPORTERS */}
-          <div
-            style={{
-              background: "#fafafa",
-              border: "1px solid #eaeaea",
-              borderRadius: "14px",
-              padding: "20px",
-              marginBottom: "25px",
-            }}
-          >
-            <h3
-              style={{
-                fontSize: "18px",
-                fontWeight: 700,
-                marginBottom: "8px",
-                color: "#111",
-              }}
-            >
-              🎁 Reward Product for Supporters
-            </h3>
-            <p
-              style={{
-                fontSize: "14px",
-                color: "#666",
-                marginBottom: "20px",
-              }}
-            >
-              Optionally attach a digital product or file that supporters receive when they donate.
-            </p>
-
-            {/* Product Title */}
-            <div style={{ marginBottom: "15px" }}>
-              <label
-                style={{
-                  display: "block",
-                  fontWeight: 600,
-                  marginBottom: "8px",
-                  color: "#222",
-                  fontSize: "14px",
-                }}
-              >
-                Product Title
-              </label>
-
-              <input
-                type="text"
-                value={productTitle}
-                onChange={(e) => setProductTitle(e.target.value)}
-                placeholder="Example: Exclusive Thank-You Digital Guide"
-                disabled={!canEdit || isPublishing}
-                style={{
-                  width: "100%",
-                  padding: "12px",
-                  borderRadius: "8px",
-                  border: "1px solid #ddd",
-                  fontSize: "15px",
-                  outline: "none",
-                  boxSizing: "border-box",
-                  background: canEdit ? "white" : "#f9f9f9",
-                }}
-              />
-            </div>
-
-            {/* Choose Product File */}
-            <div>
-              <label
-                style={{
-                  display: "block",
-                  fontWeight: 600,
-                  marginBottom: "8px",
-                  color: "#222",
-                  fontSize: "14px",
-                }}
-              >
-                Product File
-              </label>
-
-              {existingProductFileUrl && !productFile && (
-                <div style={{ marginBottom: "10px", fontSize: "14px" }}>
-                  <a href={existingProductFileUrl} target="_blank" rel="noreferrer" style={{ color: "#D4AF37", fontWeight: 600 }}>
-                    📄 View Current Product File
-                  </a>
-                </div>
-              )}
-
-              {canEdit && (
-                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                  <label
-                    style={{
-                      flex: 1,
-                      padding: "12px",
-                      borderRadius: "8px",
-                      border: "1px dashed #ccc",
-                      background: "white",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      cursor: isPublishing ? "not-allowed" : "pointer",
-                      fontSize: "14px",
-                      color: productFile ? "#111" : "#777",
-                    }}
-                  >
-                    <span>
-                      {productFile ? productFile.name : "Choose a new file to upload..."}
-                    </span>
-                    <span
-                      style={{
-                        background: "#eee",
-                        padding: "6px 12px",
-                        borderRadius: "6px",
-                        fontSize: "13px",
-                        fontWeight: 600,
-                        color: "#333",
-                      }}
-                    >
-                      Browse
-                    </span>
-                    <input
-                      type="file"
-                      onChange={(e) => {
-                        if (e.target.files && e.target.files[0]) {
-                          setProductFile(e.target.files[0]);
-                        }
-                      }}
-                      disabled={isPublishing}
-                      style={{ display: "none" }}
-                    />
-                  </label>
-
-                  {productFile && (
-                    <button
-                      type="button"
-                      onClick={() => setProductFile(null)}
-                      disabled={isPublishing}
-                      style={{
-                        padding: "12px 15px",
-                        borderRadius: "8px",
-                        border: "1px solid #ddd",
-                        background: "white",
-                        color: "#d9534f",
-                        fontWeight: 600,
-                        cursor: "pointer",
-                      }}
-                    >
-                      Remove
-                    </button>
-                  )}
-                </div>
-              )}
             </div>
           </div>
 

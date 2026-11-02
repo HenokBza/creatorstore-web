@@ -111,7 +111,7 @@ export default function MedicalSupportPublicPage() {
       setDonating(true);
 
       const response = await fetch(
-        "/api/create-checkout-session",
+        "/api/medical-create-checkout",
         {
           method: "POST",
 
@@ -304,55 +304,53 @@ export default function MedicalSupportPublicPage() {
           </h1>
         </div>
 
-        {/* ==========================
-            PHOTOS
-        ========================== */}
+      {/* ==========================
+    PHOTOS
+========================== */}
 
-        {campaign.images &&
-          campaign.images.length > 0 && (
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns:
-                  campaign.images.length === 1
-                    ? "1fr"
-                    : "repeat(auto-fit, minmax(220px, 1fr))",
-                gap: "15px",
-                marginBottom: "30px",
-              }}
-            >
-              {campaign.images.map(
-                (image, index) => (
-                  <div
-                    key={image}
-                    style={{
-                      background: "white",
-                      borderRadius: "16px",
-                      overflow: "hidden",
-                      boxShadow:
-                        "0 5px 20px rgba(0,0,0,0.06)",
-                    }}
-                  >
-                    <img
-                      src={image}
-                      alt={`${campaign.title} ${
-                        index + 1
-                      }`}
-                      style={{
-                        width: "100%",
-                        height:
-                          campaign.images.length === 1
-                            ? "450px"
-                            : "280px",
-                        objectFit: "cover",
-                        display: "block",
-                      }}
-                    />
-                  </div>
-                )
-              )}
-            </div>
-          )}
+{campaign.images && campaign.images.length > 0 && (
+  <div
+    style={{
+      display: "grid",
+      gridTemplateColumns:
+        campaign.images.length === 1
+          ? "minmax(0, 1fr)"
+          : "repeat(auto-fit, minmax(min(100%, 280px), 1fr))",
+      gap: "15px",
+      marginBottom: "30px",
+      width: "100%",
+    }}
+  >
+    {campaign.images.map((image, index) => (
+      <div
+        key={image}
+        style={{
+          background: "#f8f8f8",
+          borderRadius: "16px",
+          overflow: "hidden",
+          boxShadow: "0 5px 20px rgba(0,0,0,0.06)",
+          width: "100%",
+          minWidth: 0,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <img
+          src={image}
+          alt={`${campaign.title} ${index + 1}`}
+          style={{
+            display: "block",
+            width: "100%",
+            height: "auto",
+            maxHeight: "500px",
+            objectFit: "contain",
+          }}
+        />
+      </div>
+    ))}
+  </div>
+)}
 
         {/* ==========================
             DESCRIPTION
@@ -553,7 +551,7 @@ export default function MedicalSupportPublicPage() {
               marginBottom: "20px",
             }}
           >
-            {[10, 25, 50, 100].map(
+            {[5, 10, 25, 50, 100].map(
               (amount) => (
                 <button
                   key={amount}

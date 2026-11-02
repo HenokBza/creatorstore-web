@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
-
 import { adminDb } from "@/lib/firebaseAdmin";
 
 const stripe = new Stripe(
@@ -38,56 +37,122 @@ export async function GET(
         sessionId
       );
 
-    // ==========================================
+   // ==========================================
     // GET METADATA
     // ==========================================
 
-    const productId =
-      session.metadata?.productId;
-
-    const creatorId =
-      session.metadata?.creatorId;
+    const paymentType =
+      session.metadata?.paymentType || "";
 
     const productType =
-      session.metadata?.productType ||
-      "digital";
+      session.metadata?.productType || "";
+
+    const isMedicalSupport =
+      paymentType === "medical_support" ||
+      productType === "medical_support";
+
+    const campaignId =
+      session.metadata?.campaignId || "";
 
     const customerEmail =
       session.customer_email ||
+      session.metadata?.donorEmail ||
       session.metadata?.buyerEmail ||
       "";
 
-    if (!productId) {
-      return NextResponse.json(
-        {
-          error: "Missing product",
-        },
-        { status: 400 }
-      );
-    }
+    const creatorId =
+      session.metadata?.creatorId || "";
 
-    // ==========================================
-    // COACHING PAYMENT
+   // ==========================================
+    // MEDICAL SUPPORT PAYMENT
     // ==========================================
 
-    if (productType === "coaching") {
-
-      const bookingId =
-        session.metadata?.bookingId || "";
-
-      if (!bookingId) {
+    if (isMedicalSupport) {
+      
+      if (!campaignId) {
         return NextResponse.json(
           {
-            error:
-              "Missing coaching booking ID",
+            error: "Missing campaign ID",
           },
           { status: 400 }
         );
       }
 
-      // ========================================
-      // GET COACHING
-      // ========================================
+      if (session.payment_status !== "paid") {
+        return NextResponse.json(
+          {
+            error: "Medical Support payment not completed",
+            paymentStatus: session.payment_status,
+          },
+          { status: 400 }
+        );
+      }
+
+      if (session.mode !== "payment") {
+        return NextResponse.json(
+          {
+            error: "Invalid Medical Support payment session",
+          },
+          { status: 400 }
+        );
+      }
+
+      const campaignDoc = await adminDb
+        .collection("medicalSupport")
+        .doc(campaignId)
+        .get();
+
+      if (!campaignDoc.exists) {
+        return NextResponse.json(
+          {
+            error: "Medical Support campaign not found",
+          },
+          { status: 404 }
+        );
+      }
+
+      const campaign = campaignDoc.data()!;
+
+      return NextResponse.json({
+        productType: "medical_support",
+        paymentType: "medical_support",
+        paymentStatus: "paid",
+        campaignId,
+        title: campaign.title || "Medical Support",
+        description: campaign.description || "",
+        images: Array.isArray(campaign.images) ? campaign.images : [],
+        goal: Number(campaign.goalAmount || 0),
+        raised: Number(campaign.raisedAmount || 0),
+        donors: Number(campaign.donors || 0),
+        donationAmount: session.amount_total
+          ? session.amount_total / 100
+          : 0,
+        currency: session.currency || "cad",
+        creatorId: campaign.userId || campaign.creatorId || "",
+        customerEmail,
+        sessionId: session.id,
+      });
+    }
+    // ==========================================
+    // COACHING PAYMENT
+    // ==========================================
+
+    const productId =
+      session.metadata?.productId;
+
+    if (productType === "coaching") {
+      const bookingId =
+        session.metadata?.bookingId || "";
+
+      if (!bookingId || !productId) {
+        return NextResponse.json(
+          {
+            error:
+              "Missing coaching booking or product ID",
+          },
+          { status: 400 }
+        );
+      }
 
       const coachingDoc =
         await adminDb
@@ -108,10 +173,6 @@ export async function GET(
       const coaching =
         coachingDoc.data()!;
 
-      // ========================================
-      // GET RESERVED SLOT
-      // ========================================
-
       const slotDoc =
         await adminDb
           .collection("coachingSlots")
@@ -131,152 +192,84 @@ export async function GET(
       const slot =
         slotDoc.data()!;
 
-      // ========================================
-      // IMPORTANT:
-      // FIRESTORE SLOT IS SOURCE OF TRUTH
-      // ========================================
-
-      // ----------------------------------------
-      // REFUNDED / EXPIRED
-      // ----------------------------------------
-
       if (
         slot.status === "expired" &&
         slot.paymentStatus === "refunded"
       ) {
-
-        console.log(
-          "⏰ PAYMENT WAS REFUNDED:",
-          session.id
-        );
-
         return NextResponse.json({
-
           productType: "coaching",
-
-          paymentStatus:
-            "refunded",
-
-          reservationExpired:
-            true,
-
-          refundId:
-            slot.refundId || null,
-
-          sessionId:
-            session.id,
-
+          paymentStatus: "refunded",
+          reservationExpired: true,
+          refundId: slot.refundId || null,
+          sessionId: session.id,
           bookingId,
-
           title:
             coaching.title ||
             "1-on-1 Coaching Call",
-
           customerEmail,
-
         });
       }
-
-      // ----------------------------------------
-      // CONFIRMED / PAID
-      // ----------------------------------------
 
       if (
         slot.status === "confirmed" &&
         slot.paymentStatus === "paid"
       ) {
-
-        console.log(
-          "✅ COACHING PAYMENT CONFIRMED:",
-          session.id
-        );
-
         return NextResponse.json({
-
           productType: "coaching",
-
-          paymentStatus:
-            "paid",
-
-          reservationExpired:
-            false,
-
-          title:
-            coaching.title,
-
+          paymentStatus: "paid",
+          reservationExpired: false,
+          title: coaching.title,
           description:
             coaching.description || "",
-
-          duration:
-            Number(
-              slot.duration ||
+          duration: Number(
+            slot.duration ||
               coaching.duration ||
               60
-            ),
-
+          ),
           meetingLink:
             slot.meetingLink ||
             coaching.meetingLink ||
             "",
-
           scheduledDate:
             slot.scheduledDate || "",
-
           scheduledTime:
             slot.scheduledTime || "",
-
           bookingId,
-
           creatorId:
             creatorId ||
             coaching.creatorId ||
             coaching.userId ||
             "",
-
           customerEmail,
-
-          sessionId:
-            session.id,
-
+          sessionId: session.id,
         });
       }
 
-      // ========================================
-      // PAYMENT STILL BEING PROCESSED
-      // ========================================
-
-      console.log(
-        "⏳ PAYMENT PROCESSING:",
-        session.id
-      );
-
       return NextResponse.json({
-
         productType: "coaching",
-
-        paymentStatus:
-          "processing",
-
-        reservationExpired:
-          false,
-
+        paymentStatus: "processing",
+        reservationExpired: false,
         bookingId,
-
         title:
           coaching.title ||
           "1-on-1 Coaching Call",
-
         customerEmail,
-
-        sessionId:
-          session.id,
-
+        sessionId: session.id,
       });
     }
 
     // ==========================================
     // DIGITAL PRODUCT
     // ==========================================
+
+    if (!productId) {
+      return NextResponse.json(
+        {
+          error: "Missing product",
+        },
+        { status: 400 }
+      );
+    }
 
     const productDoc =
       await adminDb
@@ -287,8 +280,7 @@ export async function GET(
     if (!productDoc.exists) {
       return NextResponse.json(
         {
-          error:
-            "Product not found",
+          error: "Product not found",
         },
         { status: 404 }
       );
@@ -297,57 +289,36 @@ export async function GET(
     const product =
       productDoc.data()!;
 
-    // Digital products can continue using
-    // Stripe payment status.
-
     if (
       session.payment_status !==
       "paid"
     ) {
-
       return NextResponse.json(
         {
-          error:
-            "Payment not completed",
+          error: "Payment not completed",
         },
         { status: 400 }
       );
     }
-console.log("🔥 DIGITAL PRODUCT:", product.title);
-console.log("🔥 FILE URL:", product.fileUrl);
-console.log("🔥 DOWNLOAD URL:", product.fileUrl || "");
+
     return NextResponse.json({
-
-      productType:
-        "digital",
-
-      title:
-        product.title,
-
+      productType: "digital",
+      title: product.title,
       description:
         product.description || "",
-
       downloadUrl:
         product.fileUrl || "",
-
       creatorId:
         creatorId ||
         product.userId ||
         product.creatorId ||
         "",
-
       customerEmail,
-
-      sessionId:
-        session.id,
-
-      paymentStatus:
-        "paid",
-
+      sessionId: session.id,
+      paymentStatus: "paid",
     });
 
   } catch (error: any) {
-
     console.error(
       "❌ VERIFY PAYMENT ERROR:",
       error
