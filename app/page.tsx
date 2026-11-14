@@ -65,6 +65,62 @@ export default function Home() {
         CreatorStore is the simplest way to Make Money online <br/>
         by selling courses, digital products, and <br/>
         bookings—directly from your link-in-bio.
+        </p>
+        <p
+        style={{
+          marginTop: "20px",
+          fontSize: "1.2rem",
+          fontWeight: "bold",
+          maxWidth: "600px",
+          marginLeft: "auto",
+          marginRight: "auto",
+        }}
+      >
+        CreatorStore.ca መነሻውን ካናዳ ያደረገ፣ በኢትዮጵያውያን ልጆች የተሰራና በተለይም በኢትዮጵያ ውስጥ የሚኖሩ እውቀት፣ ችሎታና ክህሎት ያላቸውን ወገኖቻችን ከዓለም አቀፍ ገበያ ጋር ለማገናኘት የተዘጋጀ አዲስ የዲጂታል ገቢ ማግኛ መንገድ ነው።
+እስካሁን እንደ Stan Store እና Gumroad ያሉ ዓለም አቀፍ ፕላትፎርም ቢኖሩም፣  ኢትዮጵያ ውስጥ ግን  አይሰሩም። በውጪ አለም የሚኖሩ በዲጂታል መንገድ በመጠቀም ብቻ በሳምንት ከ $1,000 እስከ $4,000፣ $7,000 እና ከዚያ በላይ እያገኙበት ነው።
+ለዚህም ነው CreatorStore.ca ይህንን ክፍተት በመሙላትና ለኢትዮጵያውያን አዲስ የገቢ ዕድል በመፍጠር ብዙዎችን ተጠቃሚ እያደረገ ይገኛል።
+ኢትዮጵያ ውስጥ የምትኖሩ፣ በተለያዩ የሙያ ዘርፎች ላይ ያላችሁ ለምሳሌ፦ 
+🩺 የጤና ባለሙያዎች፤ 
+
+🏋️ የአካል ብቃት አሰልጣኞች
+
+🎬 የቪዲዮ ኤዲተሮች፤ 
+
+💄 የሜካፕ አርቲስቶች፣ የውበት ባለሙያዎች
+
+📚 መምህራንና አስተማሪዎች (language or others)
+
+⚖️ የሕግ ባለሙያዎች፤ የትዳር አማካሪዎች
+
+📱 የሶሻል ሚዲያ ኮንቴንት ፈጣሪዎች
+
+💼 የቢዝነስ አማካሪዎች
+
+🙏 የሃይማኖትና የባህል አስተማሪዎች፤ ዘማሪዎች
+
+እንዲሁም ሌሎች እውቀትና ልዩ ችሎታ ያላችሁ በዚህ ፕላትፎርም ለዲያስፖራው ወይም ለውጪ ዘጋው በመሸጥ ገቢ ማግኘት ይችላሉ።
+</p>
+<p
+        style={{
+          marginTop: "20px",
+          fontSize: "1.2rem",
+          fontWeight: "bold",
+          maxWidth: "600px",
+          color:  "#c03232",
+          marginLeft: "auto",
+          marginRight: "auto",
+        }}
+      >
+በኢትዮጵያ ውስጥ ለምትኖሩ
+በCreatorStore.ca የሚያገኙትን ገቢ ለማውጣት(Withdrawal)  ከሚከተሉት ሁለት አማራጮች አንዱን መጠቀም ይችላሉ፦<br/>
+
+Telebirr – ገቢዎን በቴሌብር አካውንትዎ መቀበል ይችላሉ።<br/>
+
+Bank Transfer – ገቢዎን በባንክ ሂሳብዎ መቀበል ይችላሉ።<br/>
+ከኢትዮጵያ ውጪ ለምትኖሩ 
+**For users living outside Ethiopia:**
+
+Your earnings will be transferred directly to your bank account through Stripe.
       </p>
 
       <div
@@ -771,7 +827,7 @@ export default function Home() {
           high school for 5 years, but my monthly income couldn't cover
           all my bills. I wanted to find another source of income without
           leaving my career. Then I heard about CreatorStore working in
-          Ethiopia and joined for free. In my very first month, I made
+          Ethiopia and joined for one time small fee. In my very first month, I made
           CA$1,500! Now I have extra income and peace of mind. Thankful
           for the platform.
         </p>
@@ -832,7 +888,7 @@ export default function Home() {
           }}
         >
           <iframe
-           src="https://www.youtube.com/embed/jaeshGai4G8"
+           src="https://www.youtube.com/embed/jaeshG"
             title="How CreatorStore Works"
             style={{
               position: "absolute",
@@ -872,7 +928,7 @@ export default function Home() {
           }}
         >
           🙏 የሕክምና ድጋፍ ለሚያስፈልጋችሁ
-          coming soon...
+        
         </h3>
 
         <p
@@ -897,7 +953,7 @@ export default function Home() {
         >
           ከእርስዎ የምንፈልገው 📄 ትክክለኛና Original የሕክምና ማስረጃዎችዎን በዚህ Email ይላኩልን፡
           እባክዎ ማስረጃዎቹ እውነተኛና ከሚመለከተው የጤና ተቋም የተሰጡ መሆናቸውን ያረጋግጡ።
-         🤝 በአብሮነት ለተቸገሩት እንድረስ።
+         🤝 በአብሮነት ለተቸገሩት እንድረስ። WhatsAPP number +16474105961
         </p>
 
         <div
@@ -1198,6 +1254,30 @@ export default function Home() {
            Start Now
           </button>
         </a>
+        </div>
+         <div
+        style={{
+          marginTop: "30px",
+          
+          padding: "20px",
+          borderRadius: "15px",
+        }}
+      >
+        <h3>Still need help?</h3>
+        </div>
+        <div
+          style={{
+            background: "white",
+            padding: "12px 20px",
+            borderRadius: "12px",
+            display: "inline-block",
+            border: "1px dashed #D4AF37",
+            fontWeight: "bold",
+            fontSize: "16px",
+            color: "#b45309",
+          }}
+        >
+          📧 Email: creatorstore.ca@gmail.com
         </div>
       </section>
     </section>
