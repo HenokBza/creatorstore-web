@@ -207,7 +207,7 @@ Your earnings will be transferred directly to your bank account through Stripe.
         }}
       >
         <h3 style={{ margin: 0, fontSize: "22px", color: "#111", lineHeight: "1.4" }}>
-          🇪🇹 Now Live in Ethiopia! Join by one time Fee — No Subscription Required.
+          🇪🇹 Now Live in Ethiopia! Join by one time Fee only — No Subscription Required.
         </h3>
         <p style={{ margin: 0, fontSize: "18px", color: "#555" }}>
           You have the talent, we give you the platform. Turn your knowledge into income today.
@@ -1279,8 +1279,184 @@ Your earnings will be transferred directly to your bank account through Stripe.
         >
           📧 Email: creatorstore.ca@gmail.com
         </div>
+     {/* ================= TERMS OF SERVICE & PRIVACY POLICY ================= */}
+          <div
+            style={{
+              marginTop: "35px",
+              display: "flex",
+              flexDirection: "column",
+              gap: "15px",
+            }}
+          >
+            {/* Terms of Service */}
+            <details
+              style={{
+                background: "white",
+                borderRadius: "16px",
+                boxShadow: "0 8px 20px rgba(0,0,0,0.10)",
+                overflow: "hidden",
+              }}
+            >
+              <summary
+                style={{
+                  padding: "20px 25px",
+                  fontSize: "18px",
+                  fontWeight: "bold",
+                  color: "#111",
+                  cursor: "pointer",
+                  listStyle: "none",
+                }}
+              >
+                📄 Terms of Service
+              </summary>
+
+              <div
+                style={{
+                  padding: "0 25px 22px",
+                  fontSize: "15px",
+                  lineHeight: "1.65",
+                  color: "#444",
+                }}
+              >
+                <p style={{ marginTop: 0, color: "#666" }}>
+                  <strong>Last updated:</strong> July 2026
+                </p>
+
+                <p>
+                  <strong>1. Acceptance</strong>
+                  <br />
+                  By creating a CreatorStore account or using our platform, you agree to these Terms of Service.
+                </p>
+
+                <p>
+                  <strong>2. Creator Accounts</strong>
+                  <br />
+                  Creators are responsible for maintaining the security of their accounts and passwords.
+                </p>
+
+                <p>
+                  <strong>3. Digital Products &amp; Coaching</strong>
+                  <br />
+                  Creators are responsible for all products and coaching services they publish. CreatorStore does not own or review every item listed, but reserves the right to remove content that violates our guidelines.
+                </p>
+
+                <p>
+                  <strong>4. Payments, Payouts &amp; Currency</strong>
+                  <br />
+                  Customer payments are processed via supported global and local gateways. For Ethiopian creators and international users alike, earnings are tracked within the dashboard. Payouts and withdrawals are processed subject to platform withdrawal requests, verification, applicable service fees, and local banking or mobile money processing times. CreatorStore is not responsible for bank transfer delays or currency exchange rate fluctuations.
+                </p>
+
+                <p>
+                  <strong>5. Prohibited Content</strong>
+                  <br />
+                  You may not sell illegal, fraudulent, copyrighted, harmful, or offensive content through CreatorStore.
+                </p>
+
+                <p>
+                  <strong>6. Account Suspension</strong>
+                  <br />
+                  CreatorStore may suspend or remove accounts that violate these Terms.
+                </p>
+
+                <p>
+                  <strong>7. Limitation of Liability</strong>
+                  <br />
+                  CreatorStore is provided &ldquo;as is&rdquo; without warranties. We are not responsible for indirect losses resulting from the use of our platform or scheduling/payout disputes.
+                </p>
+
+                <p style={{ marginBottom: 0 }}>
+                  <strong>8. Contact</strong>
+                  <br />
+                  Questions?
+                  <br />
+                  creatorstore.ca@gmail.com
+                </p>
+              </div>
+            </details>
+
+            {/* Privacy Policy */}
+            <details
+              style={{
+                background: "white",
+                borderRadius: "16px",
+                boxShadow: "0 8px 20px rgba(0,0,0,0.10)",
+                overflow: "hidden",
+              }}
+            >
+              <summary
+                style={{
+                  padding: "20px 25px",
+                  fontSize: "18px",
+                  fontWeight: "bold",
+                  color: "#111",
+                  cursor: "pointer",
+                  listStyle: "none",
+                }}
+              >
+                🔒 Privacy Policy
+              </summary>
+
+              <div
+                style={{
+                  padding: "0 25px 22px",
+                  fontSize: "15px",
+                  lineHeight: "1.65",
+                  color: "#444",
+                }}
+              >
+                <p style={{ marginTop: 0, color: "#666" }}>
+                  <strong>Last updated:</strong> July 2026
+                </p>
+
+                <p>
+                  <strong>Information We Collect</strong>
+                  <br />
+                  We may collect your name, email address, phone number, profile image, store information, payment account information, and other information you provide while using CreatorStore.
+                </p>
+
+                <p>
+                  <strong>How We Use Your Information</strong>
+                  <br />
+                  We use your information to:
+                </p>
+                <ul style={{ marginTop: "6px", paddingLeft: "20px" }}>
+                  <li>Create your account</li>
+                  <li>Provide our services</li>
+                  <li>Process payments</li>
+                  <li>Improve CreatorStore</li>
+                  <li>Provide customer support</li>
+                </ul>
+
+                <p>
+                  <strong>Data Security</strong>
+                  <br />
+                  We use industry-standard security measures, including Firebase Authentication and secure cloud storage, to help protect your information.
+                </p>
+
+                <p>
+                  <strong>Sharing Information</strong>
+                  <br />
+                  We do not sell your personal information. Information may be shared only with trusted service providers required to operate the platform, such as payment processors.
+                </p>
+
+                <p>
+                  <strong>Your Rights</strong>
+                  <br />
+                  You may update your profile information, request account deletion, or contact us regarding your personal data.
+                </p>
+
+                <p style={{ marginBottom: 0 }}>
+                  <strong>Contact</strong>
+                  <br />
+                  Email:
+                  <br />
+                  creatorstore.ca@gmail.com
+                </p>
+              </div>
+            </details>
+          </div>
+        </section>
       </section>
-    </section>
-  </main>
- );
+    </main>
+  );
 }

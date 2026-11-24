@@ -23,6 +23,8 @@ import {
 
 export default function Dashboard() {
   const [userData, setUserData] = useState<any>(null);
+  
+  const [isOpen, setIsOpen] = useState(false);
 
   const [stats, setStats] = useState({
     visits: 0,
@@ -206,31 +208,138 @@ export default function Dashboard() {
         </button>
       </div>
 
-      {/* Store Link Guide Box */}
+      {/* ================= FIRST INCOME GUIDE BOX ================= */}
       <div
+      style={{
+        background: "white",
+        padding: "22px",
+        borderRadius: "14px",
+        marginBottom: "30px",
+        boxShadow: "0 4px 15px rgba(0,0,0,0.05)",
+        borderLeft: "5px solid #14b3c5",
+        lineHeight: "1.65",
+        color: "#222",
+        textAlign: "left",
+      }}
+    >
+      {/* Clickable Topic Header */}
+      <button
+        type="button"
+        onClick={() => setIsOpen((prev) => !prev)}
         style={{
-          background: "white",
-          padding: "20px",
-          borderRadius: "14px",
-          marginBottom: "30px",
-          boxShadow: "0 4px 15px rgba(0,0,0,0.05)",
-          borderLeft: "5px solid #14b3c5",
-          lineHeight: "1.6",
+          width: "100%",
+          background: "transparent",
+          border: "none",
+          padding: 0,
+          textAlign: "left",
+          cursor: "pointer",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          gap: "12px",
         }}
       >
-        <p style={{ margin: 0, fontSize: "16px", color: "#111" }}>
-          ይሄ የእርስዎ <strong>Store</strong> ነው! 🛍️
-        </p>
-        <p style={{ margin: "8px 0 0", fontSize: "15px", color: "#444" }}>
-          የStore ሊንኩን <strong>Copy</strong> በማድረግ በተለያዩ <strong>Social Media</strong> መድረክዎ ላይ በ<strong>Bio</strong> ውስጥ ያስቀምጡ። 🔗
-        </p>
-        <p style={{ margin: "8px 0 0", fontSize: "15px", color: "#444" }}>
-          ከዚያም በSocial Media ላይ የሚሸጡትን <strong>Digital Products</strong> ወይም <strong>Coaching Services</strong> ማስተዋወቅ ይጀምሩ። 📱💻
-        </p>
-        <p style={{ margin: "8px 0 0", fontSize: "15px", color: "#444" }}>
-          ደንበኞችዎ የእርስዎን Store በቀጥታ በመጎብኘት ምርቶችዎን ማየትና መግዛት ይችላሉ። 🚀💰
-        </p>
-      </div>
+        <div>
+          <h3 style={{ margin: "0 0 6px", fontWeight: "bold", fontSize: "18px", color: "#111" }}>
+            የመጀመሪያ ገቢዎን በCreatorStore.ca ላይ ለማግኘት ዝግጁ ነዎት?
+          </h3>
+          <p style={{ margin: 0, fontWeight: "bold",  fontSize: "18px", color: "#111" }}>
+            የመጀመሪያ ገቢዎን ለማግኘት ከዚህ በታች ያሉትን ቀላል ዘዴዎችን ይከተሉ፦ ቀስቱን click ያድርጉ
+          </p>
+        </div>
+
+        <span
+          style={{
+            fontSize: "20px",
+            fontWeight: "bold",
+            color: "#14b3c5",
+            flexShrink: 0,
+          }}
+        >
+          {isOpen ? "▲" : "▼"}
+        </span>
+      </button>
+
+      {/* Hidden Until Clicked */}
+      {isOpen && (
+        <div style={{ marginTop: "16px", paddingTop: "14px", borderTop: "1px solid #eee" }}>
+          <div style={{ marginBottom: "14px" }}>
+            <p style={{ margin: "0 0 4px", fontSize: "15px", fontWeight: "bold", color: "#111" }}>
+              1️⃣ Profile ፎቶዎን ያስገቡ
+            </p>
+            <p style={{ margin: 0, fontSize: "14px", color: "#444" }}>
+              የProfile ፎቶዎን በመጨመር ሱቅዎን ለገዢዎች የበለጠ ታማኝና ማራኪ ያድርጉ።
+            </p>
+          </div>
+
+          <div style={{ marginBottom: "14px" }}>
+            <p style={{ margin: "0 0 4px", fontSize: "15px", fontWeight: "bold", color: "#111" }}>
+              2️⃣ Add Product የሚለውን ይጫኑ
+            </p>
+            <p style={{ margin: "0 0 4px", fontSize: "14px", color: "#444" }}>
+              ለመሸጥ የሚፈልጉትን ምርት ይምረጡ፦
+            </p>
+            <ul style={{ margin: "4px 0 0", paddingLeft: "20px", fontSize: "14px", color: "#444" }}>
+              <li>📚 Digital Product (ዲጂታል ምርት)</li>
+              <li>🎓 Coaching (ማማክርና ስልጠና)</li>
+            </ul>
+          </div>
+
+          <div style={{ marginBottom: "14px" }}>
+            <p style={{ margin: "0 0 4px", fontSize: "15px", fontWeight: "bold", color: "#111" }}>
+              3️⃣ Digital Product ከመረጡ፦
+            </p>
+            <ul style={{ margin: "4px 0 0", paddingLeft: "20px", fontSize: "14px", color: "#444" }}>
+              <li>የምርትዎን Title (ርዕስ) ያስገቡ።</li>
+              <li>የምርትዎን Thumbnail (የምርት ምስል) ያስገቡ።</li>
+              <li>Description (ማብራሪያ) እና Benefits (ጥቅሞች) የሚለውን ክፍል በጥሩ ሁኔታ ይሙሉ።</li>
+              <li>የሚሸጡበትን የዋጋ ተመን ያስቀምጡ</li>
+              <li>የሚሸጡትን Digital Product ፋይል ያስገቡ።</li>
+              <li>ሁሉንም ካጠናቀቁ በኋላ Publish ያድርጉ።</li>
+            </ul>
+          </div>
+
+          <div style={{ marginBottom: "14px" }}>
+            <p style={{ margin: "0 0 4px", fontSize: "15px", fontWeight: "bold", color: "#111" }}>
+              4️⃣ Coaching ከመረጡ፦
+            </p>
+            <ul style={{ margin: "4px 0 0", paddingLeft: "20px", fontSize: "14px", color: "#444" }}>
+              <li>የሚሰጡትን አገልግሎት Title (ርዕስ) ያስገቡ።</li>
+              <li>Thumbnail (የአገልግሎት ምስል) ያስገቡ።</li>
+              <li>Description (ማብራሪያ) እና Benefits (ጥቅሞች) የሚለውን ክፍል ይሙሉ: ሌሎች ቦታዎች በጥንቃቄ ይሙሉ።</li>
+              <li>የMeeting Link ያስገቡ።</li>
+              <li>ሁሉንም ካጠናቀቁ በኋላ Publish ያድርጉ።</li>
+            </ul>
+          </div>
+
+          <div style={{ marginBottom: "12px" }}>
+            <p style={{ margin: "0 0 6px", fontSize: "15px", fontWeight: "bold", color: "#111" }}>
+              5️⃣ ሱቅዎን በSocial Media ላይ ያስተዋውቁ! 📢
+            </p>
+            <p style={{ margin: "0 0 6px", fontSize: "14px", color: "#444" }}>
+             ከላይ copy store የሚለውን የStore Link ዎን ኮፒ በማድረግ በሚከተሉት የSocial Media መድረኮች bio ላይ ያጋሩ፦
+            </p>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", fontSize: "14px", color: "#333", marginBottom: "6px" }}>
+              <span>📱 TikTok</span>
+              <span>📘 Facebook</span>
+              <span>✈️ Telegram</span>
+              <span>▶️ YouTube</span>
+              <span>📸 Instagram</span>
+              <span>💬 WhatsApp</span>
+            </div>
+            <p style={{ margin: 0, fontSize: "14px", color: "#444" }}>
+              ብዙ ሰዎች ሊንክዎን እንዲያዩ፣ ሱቅዎን እንዲጎበኙ እና ምርትዎን እንዲገዙ ያበረታቷቸው።
+            </p>
+          </div>
+
+          <p style={{ margin: "12px 0 0", fontSize: "15px", fontWeight: "bold", color: "#111" }}>
+            የመጀመሪያ ገቢዎን ለማግኘት ብዙ ጊዜ መጠበቅ አያስፈልግም። የመጀመሪያ እርምጃዎን ዛሬ ይጀምሩ!
+          </p>
+        </div>
+      )}
+    </div>
+  
+
 
       {/* Social Media Icons */}
       <div
@@ -248,34 +357,103 @@ export default function Dashboard() {
       </div>
 
       {/* LIVE STATS */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-          gap: "20px",
-        }}
-      >
-        <div style={{ background: "white", padding: "20px", borderRadius: "12px" }}>
-          <h3>💰 Revenue</h3>
-          <h2>${stats.revenue}</h2>
-        </div>
-        <div style={{ background: "white", padding: "20px", borderRadius: "12px" }}>
-          <h3>👀 Store Visits</h3>
-          <h2>{stats.visits}</h2>
-        </div>
-        <div style={{ background: "white", padding: "20px", borderRadius: "12px" }}>
-          <h3>📦 Products</h3>
-          <h2>{stats.products}</h2>
-        </div>
-        <div style={{ background: "white", padding: "20px", borderRadius: "12px" }}>
-          <h3>🎯 Coaching Calls</h3>
-          <h2>{stats.coachingCalls}</h2>
-        </div>
-        <div style={{ background: "white", padding: "20px", borderRadius: "12px" }}>
-          <h3>👥 Customers</h3>
-          <h2>{stats.customers}</h2>
-        </div>
-      </div>
+     <div
+  style={{
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+    gap: "20px",
+  }}
+>
+  {/* Revenue */}
+  <div
+    style={{
+      background: "#FFFFFF",
+      padding: "20px",
+      borderRadius: "12px",
+      border: "1px solid #E5E5E5",
+      color: "#222222",
+    }}
+  >
+    <h3 style={{ color: "#222222", fontSize: "18px", fontWeight: "600" }}>
+      💰 Revenue
+    </h3>
+    <h2 style={{ color: "#111111", fontSize: "26px", fontWeight: "700" }}>
+      ${stats.revenue}
+    </h2>
+  </div>
+
+  {/* Store Visits */}
+  <div
+    style={{
+      background: "#FFFFFF",
+      padding: "20px",
+      borderRadius: "12px",
+      border: "1px solid #E5E5E5",
+      color: "#222222",
+    }}
+  >
+    <h3 style={{ color: "#222222", fontSize: "18px", fontWeight: "600" }}>
+      👀 Store Visits
+    </h3>
+    <h2 style={{ color: "#111111", fontSize: "26px", fontWeight: "700" }}>
+      {stats.visits}
+    </h2>
+  </div>
+
+  {/* Products */}
+  <div
+    style={{
+      background: "#FFFFFF",
+      padding: "20px",
+      borderRadius: "12px",
+      border: "1px solid #E5E5E5",
+      color: "#222222",
+    }}
+  >
+    <h3 style={{ color: "#222222", fontSize: "18px", fontWeight: "600" }}>
+      📦 Products
+    </h3>
+    <h2 style={{ color: "#111111", fontSize: "26px", fontWeight: "700" }}>
+      {stats.products}
+    </h2>
+  </div>
+
+  {/* Coaching Calls */}
+  <div
+    style={{
+      background: "#FFFFFF",
+      padding: "20px",
+      borderRadius: "12px",
+      border: "1px solid #E5E5E5",
+      color: "#222222",
+    }}
+  >
+    <h3 style={{ color: "#222222", fontSize: "18px", fontWeight: "600" }}>
+      🎯 Coaching Calls
+    </h3>
+    <h2 style={{ color: "#111111", fontSize: "26px", fontWeight: "700" }}>
+      {stats.coachingCalls}
+    </h2>
+  </div>
+
+  {/* Customers */}
+  <div
+    style={{
+      background: "#FFFFFF",
+      padding: "20px",
+      borderRadius: "12px",
+      border: "1px solid #E5E5E5",
+      color: "#222222",
+    }}
+  >
+    <h3 style={{ color: "#222222", fontSize: "18px", fontWeight: "600" }}>
+      👥 Customers
+    </h3>
+    <h2 style={{ color: "#111111", fontSize: "26px", fontWeight: "700" }}>
+      {stats.customers}
+    </h2>
+  </div>
+</div>
 
       {/* GRAPH */}
       <div
